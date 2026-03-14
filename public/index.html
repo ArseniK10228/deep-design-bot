@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#05040a" />
+  <title>Deep Design PC</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <div class="view view-active view-enter" id="view-main">
+      <header class="app-header">
+        <h1 class="app-title">
+          <span class="app-title-main">Deep Design</span>
+          <span class="app-title-accent">PC</span>
+        </h1>
+        <p class="app-header-subtitle">Сборка и обслуживание компьютеров</p>
+      </header>
+
+      <main class="app-main">
+        <section class="service-list">
+          <article class="service-card" data-action="consult">
+            <div class="service-icon service-icon-consult">
+              <span>💬</span>
+            </div>
+            <div class="service-content">
+              <h2 class="service-title">Консультация</h2>
+              <p class="service-desc">
+                Оценка сборки, помощь с выбором комплектующих.
+              </p>
+              <p class="service-price">Бесплатно</p>
+            </div>
+            <div class="service-arrow">›</div>
+          </article>
+
+          <article class="service-card" data-action="build">
+            <div class="service-icon service-icon-build">
+              <span>🖥️</span>
+            </div>
+            <div class="service-content">
+              <h2 class="service-title">Сборка ПК</h2>
+              <p class="service-desc">
+                Полная сборка компьютера под ваши задачи.
+              </p>
+              <p class="service-price">от 2700 RUB</p>
+            </div>
+            <div class="service-arrow">›</div>
+          </article>
+
+          <article class="service-card" data-action="upgrade">
+            <div class="service-icon service-icon-upgrade">
+              <span>⬈</span>
+            </div>
+            <div class="service-content">
+              <h2 class="service-title">Апгрейд ПК</h2>
+              <p class="service-desc">
+                Замена и улучшение компонентов вашего ПК.
+              </p>
+              <p class="service-price">от 800 RUB</p>
+            </div>
+            <div class="service-arrow">›</div>
+          </article>
+        </section>
+      </main>
+
+      <nav class="app-tabbar">
+        <button class="tabbar-item tabbar-item-active" type="button">
+          <span class="tabbar-icon">📋</span>
+          <span class="tabbar-label">Заказ</span>
+        </button>
+        <button class="tabbar-item" type="button">
+          <span class="tabbar-icon">🖼️</span>
+          <span class="tabbar-label">Портфолио</span>
+        </button>
+        <button class="tabbar-item" type="button">
+          <span class="tabbar-icon">👤</span>
+          <span class="tabbar-label">Профиль</span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="view" id="view-consult">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" id="back-btn">‹</button>
+        <h1 class="page-title">Консультация</h1>
+      </header>
+      <main class="page-content">
+        <p class="consult-text">
+          Бесплатная консультация по подбору комплектующих и оценке сборки.
+        </p>
+        <p class="consult-text">
+          Свяжитесь с нашим менеджером <strong>@kluph</strong> — ответим на все ваши вопросы.
+        </p>
+        <button type="button" class="consult-link" id="consult-link-btn">Написать менеджеру</button>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (tg) {
+      tg.expand();
+      tg.MainButton.hide();
+    }
+
+    document.getElementById('view-main').addEventListener('animationend', function handler() {
+      this.removeEventListener('animationend', handler);
+      this.classList.remove('view-enter');
+    }, { once: true });
+
+    function showView(viewId) {
+      const views = document.querySelectorAll('.view');
+      const target = document.getElementById(viewId);
+      const current = document.querySelector('.view-active');
+      if (!target || !current || target === current) return;
+
+      current.classList.add('view-leaving');
+      current.addEventListener('animationend', function handler() {
+        current.removeEventListener('animationend', handler);
+        current.classList.remove('view-active', 'view-leaving');
+        target.classList.add('view-active', 'view-enter');
+        target.addEventListener('animationend', function h() {
+          target.removeEventListener('animationend', h);
+          target.classList.remove('view-enter');
+        }, { once: true });
+      }, { once: true });
+    }
+
+    function sendActionToBot(action, label) {
+      if (!tg) {
+        alert('Это мини-приложение предназначено для запуска внутри Telegram.');
+        return;
+      }
+
+      if (action === 'consult') {
+        showView('view-consult');
+        return;
+      }
+
+      const payload = { action, label };
+      tg.sendData(JSON.stringify(payload));
+      tg.showPopup({
+        title: 'Запрос отправлен',
+        message: `Вы выбрали: ${label}. Ожидайте ответ от специалиста.`,
+        buttons: [{ type: 'ok' }]
+      });
+    }
+
+    document.getElementById('back-btn').addEventListener('click', () => {
+      showView('view-main');
+    });
+
+    document.getElementById('consult-link-btn').addEventListener('click', () => {
+      if (tg) tg.openTelegramLink('https://t.me/kluph');
+      else window.open('https://t.me/kluph', '_blank');
+    });
+
+    document.querySelectorAll('.service-card').forEach((card) => {
+      card.addEventListener('click', () => {
+        const action = card.dataset.action;
+        const label = card.querySelector('.service-title')?.textContent?.trim() || 'Услуга';
+        sendActionToBot(action, label);
+      });
+    });
+  </script>
+</body>
+</html>
