@@ -52,6 +52,7 @@ a,
 .consult-link,
 .submit-btn,
 .form-textarea,
+.form-input,
 [role="button"] {
   -webkit-tap-highlight-color: transparent !important;
   -webkit-touch-callout: none;
@@ -406,6 +407,7 @@ a:active {
 
 #view-build-no .form-label,
 #view-build-no .form-textarea,
+#view-build-no .form-input,
 #view-build-no .form-price-row,
 #view-build-no .form-info-block,
 #view-build-no .submit-btn {
@@ -414,9 +416,10 @@ a:active {
 
 #view-build-no .form-label { animation-delay: 0.08s; }
 #view-build-no .form-textarea { animation-delay: 0.14s; }
-#view-build-no .form-price-row { animation-delay: 0.22s; }
-#view-build-no .form-info-block { animation-delay: 0.3s; }
-#view-build-no .submit-btn { animation-delay: 0.38s; }
+#view-build-no .form-input { animation-delay: 0.2s; }
+#view-build-no .form-price-row { animation-delay: 0.26s; }
+#view-build-no .form-info-block { animation-delay: 0.34s; }
+#view-build-no .submit-btn { animation-delay: 0.42s; }
 
 .form-label {
   display: block;
@@ -441,11 +444,32 @@ a:active {
   margin-bottom: 16px;
 }
 
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #101018;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f5f2ff;
+  font-size: 15px;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.form-input::placeholder {
+  color: #5d5b76;
+}
+
 .form-textarea::placeholder {
   color: #5d5b76;
 }
 
 .form-textarea.form-textarea-error {
+  border-color: #e53935;
+  box-shadow: 0 0 0 1px #e53935;
+}
+
+.form-input.form-input-error {
   border-color: #e53935;
   box-shadow: 0 0 0 1px #e53935;
 }
