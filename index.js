@@ -30,21 +30,32 @@ function escapeMarkdownV1(text) {
 
 app.post('/api/build-request', async (req, res) => {
   try {
-    const { tasks, userId, username, firstName } = req.body || {};
+    const {
+      tasks,
+      userId,
+      username_form: usernameForm,
+      username_tg: usernameTg,
+      firstName
+    } = req.body || {};
+
     const ownerId = process.env.OWNER_CHAT_ID;
     const tasksText = (tasks || '').trim() || '(не указано)';
 
     // Логируем для отладки, что реально приходит с фронта
     console.log('Build request body:', req.body);
 
-    const safeUsername = username
-      ? '@' + escapeMarkdownV1(String(username).replace(/^@/, ''))
+    const safeFormUsername = usernameForm
+      ? '@' + escapeMarkdownV1(String(usernameForm).replace(/^@/, ''))
       : 'не указан';
+
+    const safeProgramUsername = usernameTg
+      ? '@' + escapeMarkdownV1(String(usernameTg).replace(/^@/, ''))
+      : 'не удалось определить';
 
     const ownerMsg = `🖥 *Новая заявка: Сборка (подберём вместе)*\n\n` +
       `*Задачи:*\n${tasksText}\n\n` +
-      `*Юзернейм из формы:*\n${safeUsername}\n\n` +
-      `*От кого отправлено:*\n${safeUsername}`;
+      `*Юзернейм из формы:*\n${safeFormUsername}\n\n` +
+      `*От кого отправлено (Telegram):*\n${safeProgramUsername}`;
 
     if (ownerId) {
       await bot.sendMessage(ownerId, ownerMsg, { parse_mode: 'Markdown' });
