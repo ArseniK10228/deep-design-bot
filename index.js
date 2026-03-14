@@ -11,6 +11,9 @@ if (!token) {
   process.exit(1);
 }
 
+// Инициализируем бота до любого использования
+const bot = new TelegramBot(token, { polling: false });
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -21,15 +24,26 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+function escapeMarkdownV1(text) {
+  return String(text || '').replace(/([_*[\]()~`>#+\-=|{}.!])/g, '\\$1');
+}
+
 app.post('/api/build-request', async (req, res) => {
   try {
     const { tasks, userId, username, firstName } = req.body || {};
     const ownerId = process.env.OWNER_CHAT_ID;
     const tasksText = (tasks || '').trim() || '(не указано)';
 
+    // Логируем для отладки, что реально приходит с фронта
+    console.log('Build request body:', req.body);
+
+    const safeFirstName = escapeMarkdownV1(firstName || 'Пользователь');
+    const safeUsername = username ? ' @' + escapeMarkdownV1(username) : '';
+    const safeUserId = escapeMarkdownV1(userId);
+
     const ownerMsg = `🖥 *Новая заявка: Сборка (подберём вместе)*\n\n` +
       `*Задачи:*\n${tasksText}\n\n` +
-      `От: ${firstName || 'Пользователь'}${username ? ' @' + username : ''} (ID: \`${userId}\`)`;
+      `От: ${safeFirstName}${safeUsername} (ID: \`${safeUserId}\`)`;
 
     if (ownerId) {
       await bot.sendMessage(ownerId, ownerMsg, { parse_mode: 'Markdown' });
@@ -45,8 +59,6 @@ app.post('/api/build-request', async (req, res) => {
     res.status(500).json({ ok: false });
   }
 });
-
-const bot = new TelegramBot(token, { polling: false });
 
 let welcomePhotoFileId = null;
 
