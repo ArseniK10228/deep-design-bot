@@ -9,6 +9,17 @@
   }
 }
 
+@keyframes consult-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes page-leave {
   from {
     opacity: 1;
@@ -245,8 +256,28 @@ a:active {
   background: linear-gradient(135deg, #4fe0ac, #2a9f6b);
 }
 
+.service-icon-yes::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: 6px;
+  border-radius: 8px;
+  background: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8 6.5H13.2C13.62 6.5 14.02 6.67 14.31 6.96L17.04 9.69C17.33 9.98 17.5 10.38 17.5 10.8V16C17.5 17.1 16.6 18 15.5 18H8.5C7.4 18 6.5 17.1 6.5 16V8.5C6.5 7.4 7.4 6.5 8.5 6.5Z' stroke='%23ffffff' stroke-width='1.6' stroke-linejoin='round'/%3E%3Cpath d='M13.5 6.5V9.2C13.5 9.64 13.86 10 14.3 10H17' stroke='%23ffffff' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+  background-size: 100% 100%;
+}
+
 .service-icon-no {
   background: linear-gradient(135deg, #e6a84d, #c47c2a);
+}
+
+.service-icon-no::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: 6px;
+  border-radius: 10px;
+  background: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 18V17' stroke='%23ffffff' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M8.9 9.5C9.1 7.9 10.3 7 11.7 7C13.1 7 14.3 8.1 14.5 9.5C14.7 10.7 14.2 11.6 13.3 12.2C12.5 12.7 12 13.2 12 14.1V14.2' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+  background-size: 85% 85%;
 }
 
 .service-content {
@@ -492,6 +523,19 @@ a:active {
 .consult-link:active {
   opacity: 0.9;
 }
+
+#view-consult .page-header {
+  animation: consult-enter 0.35s ease-out backwards;
+}
+
+#view-consult .consult-text,
+#view-consult .consult-link {
+  animation: consult-enter 0.4s ease-out backwards;
+}
+
+#view-consult .consult-text:nth-of-type(1) { animation-delay: 0.08s; }
+#view-consult .consult-text:nth-of-type(2) { animation-delay: 0.16s; }
+#view-consult .consult-link { animation-delay: 0.26s; }
 
 #view-build-no .page-header {
   animation: page-enter 0.3s ease-out backwards;
