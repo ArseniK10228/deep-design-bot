@@ -20,14 +20,6 @@
   }
 }
 
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-4px); }
-  40% { transform: translateX(4px); }
-  60% { transform: translateX(-3px); }
-  80% { transform: translateX(3px); }
-}
-
 *,
 *::before,
 *::after {
@@ -456,20 +448,6 @@ a:active {
 .form-textarea.form-textarea-error {
   border-color: #e53935;
   box-shadow: 0 0 0 1px #e53935;
-}
-
-/* При ошибке — без анимации появления, иначе после тряски воспроизводится page-enter */
-#view-build-no .form-textarea.form-textarea-error {
-  animation: none;
-}
-
-/* После первой загрузки экрана — отключаем page-enter у поля, иначе при вводе (снятии ошибки) она воспроизводится */
-#view-build-no.view-build-no-initialized .form-textarea {
-  animation: none;
-}
-
-#view-build-no.view-build-no-initialized .form-textarea.form-textarea-error.form-textarea-shake {
-  animation: shake 0.45s ease-in-out;
 }
 
 .form-error {
