@@ -140,6 +140,7 @@
         </div>
       </header>
       <main class="page-content">
+        <div id="build-rate-limit-alert" class="alert-banner"></div>
         <label class="form-label">ЗАДАЧИ И БЮДЖЕТ</label>
         <textarea class="form-textarea" id="build-tasks" placeholder="ПК для игр, бюджет 30000 RUB..." rows="4"></textarea>
         <p class="form-error" id="build-tasks-error"></p>
@@ -272,6 +273,20 @@
 
     document.getElementById('build-submit-btn').addEventListener('click', async () => {
       if (!tg) return;
+      const RATE_LIMIT_MS = 5 * 60 * 1000;
+      const alertEl = document.getElementById('build-rate-limit-alert');
+
+      const lastTsRaw = localStorage.getItem('buildRequestLastAt');
+      const lastTs = lastTsRaw ? parseInt(lastTsRaw, 10) : 0;
+      const now = Date.now();
+      if (lastTs && now - lastTs < RATE_LIMIT_MS) {
+        alertEl.textContent = 'Повторно заявку можно отправить через 5 минут';
+        alertEl.classList.add('alert-banner-visible');
+        return;
+      } else {
+        alertEl.classList.remove('alert-banner-visible');
+        alertEl.textContent = '';
+      }
       const tasksEl = document.getElementById('build-tasks');
       const tasks = tasksEl.value.trim();
       const errEl = document.getElementById('build-tasks-error');
@@ -339,6 +354,7 @@
         });
         const data = await res.json();
         if (data.ok) {
+          localStorage.setItem('buildRequestLastAt', String(Date.now()));
           showView('view-build-success');
         } else {
           tg.showPopup({ title: 'Ошибка', message: 'Не удалось отправить заявку. Попробуйте позже.', buttons: [{ type: 'ok' }] });
