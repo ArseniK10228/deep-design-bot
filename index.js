@@ -75,6 +75,26 @@ bot.onText(/\/start|\/menu/i, async (msg) => {
   }
 });
 
+bot.on('message', async (msg) => {
+  const webAppData = msg.web_app_data;
+  if (!webAppData) return;
+  try {
+    const data = JSON.parse(webAppData.data);
+    const ownerId = process.env.OWNER_CHAT_ID;
+    if (data.action === 'build_no_submit') {
+      const text = `🖥 *Новая заявка: Сборка (подберём вместе)*\n\n` +
+        `*Задачи:*\n${data.tasks}\n\n` +
+        `От: ${data.firstName || 'Пользователь'}${data.username ? ' @' + data.username : ''} (ID: \`${data.userId}\`)`;
+      if (ownerId) {
+        await bot.sendMessage(ownerId, text, { parse_mode: 'Markdown' });
+      }
+      await bot.sendMessage(msg.chat.id, '✅ Заявка отправлена! Менеджер свяжется с вами в ближайшее время.');
+    }
+  } catch (err) {
+    console.error('WebApp data error:', err?.message || err);
+  }
+});
+
 bot.on('polling_error', (err) => console.error('Polling error:', err.message));
 
 const baseUrl = process.env.RENDER_EXTERNAL_URL || process.env.WEBHOOK_URL;
