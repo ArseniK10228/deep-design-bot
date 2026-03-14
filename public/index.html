@@ -1,318 +1,194 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#05040a" />
-  <title>Deep Design PC</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <div class="app">
-    <div class="view view-active view-enter" id="view-main">
-      <header class="app-header">
-        <h1 class="app-title">
-          <span class="app-title-main">Deep Design</span>
-          <span class="app-title-accent">PC</span>
-        </h1>
-        <p class="app-header-subtitle">Сборка и обслуживание компьютеров</p>
-      </header>
+process.env.NTBA_FIX_350 = 'true';
+require('dotenv').config();
+const express = require('express');
+const path = require('path');
+const TelegramBot = require('node-telegram-bot-api');
 
-      <main class="app-main">
-        <section class="service-list">
-          <article class="service-card" data-action="build">
-            <div class="service-icon service-icon-build">
-              <span>🖥️</span>
-            </div>
-            <div class="service-content">
-              <h2 class="service-title">Сборка ПК</h2>
-              <p class="service-desc">
-                Полная сборка компьютера под ваши задачи.
-              </p>
-              <p class="service-price">от 1500 RUB</p>
-              <span class="service-tag"><span class="service-tag-icon"></span> Оплата после согласования</span>
-            </div>
-            <div class="service-arrow">›</div>
-          </article>
+const token = process.env.TELEGRAM_BOT_TOKEN;
 
-          <article class="service-card" data-action="presets">
-            <div class="service-icon service-icon-ready">
-              <span>⭐</span>
-            </div>
-            <div class="service-content">
-              <h2 class="service-title">Готовые сборки</h2>
-              <p class="service-desc">
-                Готовые решения под разные задачи и бюджет.
-              </p>
-              <p class="service-price">от 15000 RUB</p>
-            </div>
-            <div class="service-arrow">›</div>
-          </article>
+if (!token) {
+  console.error('Ошибка: не задан TELEGRAM_BOT_TOKEN');
+  process.exit(1);
+}
 
-          <article class="service-card" data-action="upgrade">
-            <div class="service-icon service-icon-upgrade">
-              <span>⬈</span>
-            </div>
-            <div class="service-content">
-              <h2 class="service-title">Апгрейд ПК</h2>
-              <p class="service-desc">
-                Замена и улучшение компонентов вашего ПК.
-              </p>
-              <p class="service-price">от 800 RUB</p>
-              <span class="service-tag"><span class="service-tag-icon"></span> Оплата после согласования</span>
-            </div>
-            <div class="service-arrow">›</div>
-          </article>
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-          <article class="service-card" data-action="consult">
-            <div class="service-icon service-icon-consult">
-              <span>💬</span>
-            </div>
-            <div class="service-content">
-              <h2 class="service-title">Консультация</h2>
-              <p class="service-desc">
-                Оценка сборки, помощь с выбором комплектующих.
-              </p>
-              <p class="service-price">Бесплатно</p>
-            </div>
-            <div class="service-arrow">›</div>
-          </article>
-        </section>
-      </main>
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-      <nav class="app-tabbar">
-        <button class="tabbar-item tabbar-item-active" type="button">
-          <span class="tabbar-icon">📋</span>
-          <span class="tabbar-label">Заказ</span>
-        </button>
-        <button class="tabbar-item" type="button">
-          <span class="tabbar-icon">🖼️</span>
-          <span class="tabbar-label">Портфолио</span>
-        </button>
-        <button class="tabbar-item" type="button">
-          <span class="tabbar-icon">👤</span>
-          <span class="tabbar-label">Профиль</span>
-        </button>
-      </nav>
-    </div>
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
 
-    <div class="view" id="view-build">
-      <header class="page-header">
-        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-main">‹</button>
-        <div class="page-header-center">
-          <h1 class="page-title">Сборка ПК</h1>
-          <p class="page-subtitle">Есть комплектующие?</p>
-        </div>
-      </header>
-      <main class="page-content">
-        <section class="service-list">
-          <article class="service-card" data-action="build_yes">
-            <div class="service-icon service-icon-yes">
-              <span>📋</span>
-            </div>
-            <div class="service-content">
-              <h2 class="service-title">Да</h2>
-              <p class="service-desc">Заполню список</p>
-            </div>
-            <div class="service-arrow">›</div>
-          </article>
-          <article class="service-card" data-action="build_no">
-            <div class="service-icon service-icon-no">
-              <span>❓</span>
-            </div>
-            <div class="service-content">
-              <h2 class="service-title">Нет</h2>
-              <p class="service-desc">Подберём вместе</p>
-            </div>
-            <div class="service-arrow">›</div>
-          </article>
-        </section>
-      </main>
-    </div>
+function escapeMarkdownV1(text) {
+  return String(text || '').replace(/([_*[\]()~`>#+\-=|{}.!])/g, '\\$1');
+}
 
-    <div class="view" id="view-build-no">
-      <header class="page-header">
-        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-build">‹</button>
-        <div class="page-header-center">
-          <h1 class="page-title">Сборка ПК</h1>
-          <p class="page-subtitle">Опишите задачи</p>
-        </div>
-      </header>
-      <main class="page-content">
-        <label class="form-label">ЗАДАЧИ И БЮДЖЕТ</label>
-        <textarea class="form-textarea" id="build-tasks" placeholder="ПК для игр, бюджет 30000 RUB..." rows="4"></textarea>
-        <p class="form-error" id="build-tasks-error"></p>
-        <div class="form-price-row">
-          <span class="form-price-label">Сборка</span>
-          <span class="form-price-value">от 1500 RUB</span>
-        </div>
-        <div class="form-info-block">
-          <span class="form-info-icon">ℹ</span>
-          <p>Оплата не нужна сейчас. Менеджер рассчитает стоимость и пришлёт реквизиты после согласования.</p>
-        </div>
-        <button type="button" class="submit-btn" id="build-submit-btn">Отправить на оценку</button>
-      </main>
-    </div>
+app.post('/api/build-request', async (req, res) => {
+  try {
+    const { tasks, userId, username, firstName } = req.body || {};
+    const ownerId = process.env.OWNER_CHAT_ID;
+    const tasksText = (tasks || '').trim() || '(не указано)';
 
-    <div class="view" id="view-build-success">
-      <main class="page-content page-content-center">
-        <p class="success-icon">✓</p>
-        <h2 class="success-title">Заявка отправлена</h2>
-        <p class="success-text">Ожидайте ответ от менеджера.</p>
-        <button type="button" class="submit-btn" id="success-home-btn">На главную</button>
-      </main>
-    </div>
+    // Лёгкое логирование для отладки, почему иногда нет username/id
+    console.log('Build request body:', req.body);
 
-    <div class="view" id="view-consult">
-      <header class="page-header">
-        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-main">‹</button>
-        <h1 class="page-title">Консультация</h1>
-      </header>
-      <main class="page-content">
-        <p class="consult-text">
-          Бесплатная консультация по подбору комплектующих и оценке сборки.
-        </p>
-        <p class="consult-text">
-          Свяжитесь с нашим менеджером <strong>@kluph</strong> — ответим на все ваши вопросы.
-        </p>
-        <button type="button" class="consult-link" id="consult-link-btn">Написать менеджеру</button>
-      </main>
-    </div>
-  </div>
+    let resolvedUsername = username;
+    let resolvedFirstName = firstName;
 
-  <script>
-    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-    if (tg) {
-      tg.expand();
-      tg.MainButton.hide();
-    }
-
-    document.getElementById('view-main').addEventListener('animationend', function handler() {
-      this.removeEventListener('animationend', handler);
-      this.classList.remove('view-enter');
-    }, { once: true });
-
-    function showView(viewId) {
-      const views = document.querySelectorAll('.view');
-      const target = document.getElementById(viewId);
-      const current = document.querySelector('.view-active');
-      if (!target || !current || target === current) return;
-
-      current.classList.add('view-leaving');
-      current.addEventListener('animationend', function handler() {
-        current.removeEventListener('animationend', handler);
-        current.classList.remove('view-active', 'view-leaving');
-        target.classList.add('view-active', 'view-enter');
-        target.addEventListener('animationend', function h() {
-          target.removeEventListener('animationend', h);
-          target.classList.remove('view-enter');
-        }, { once: true });
-      }, { once: true });
-    }
-
-    function sendActionToBot(action, label) {
-      if (!tg) {
-        alert('Это мини-приложение предназначено для запуска внутри Telegram.');
-        return;
-      }
-
-      if (action === 'consult') {
-        showView('view-consult');
-        return;
-      }
-
-      if (action === 'build') {
-        showView('view-build');
-        return;
-      }
-
-      if (action === 'build_no') {
-        showView('view-build-no');
-        return;
-      }
-
-      const payload = { action, label };
-      tg.sendData(JSON.stringify(payload));
-      tg.showPopup({
-        title: 'Запрос отправлен',
-        message: `Вы выбрали: ${label}. Ожидайте ответ от специалиста.`,
-        buttons: [{ type: 'ok' }]
-      });
-    }
-
-    document.querySelectorAll('.back-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const target = btn.dataset.backTo || 'view-main';
-        showView(target);
-      });
-    });
-
-    document.getElementById('consult-link-btn').addEventListener('click', () => {
-      if (tg) tg.openTelegramLink('https://t.me/kluph');
-      else window.open('https://t.me/kluph', '_blank');
-    });
-
-    document.getElementById('build-tasks').addEventListener('input', () => {
-      const el = document.getElementById('build-tasks');
-      const err = document.getElementById('build-tasks-error');
-      el.classList.remove('form-textarea-error');
-      err.textContent = '';
-    });
-
-    document.getElementById('build-submit-btn').addEventListener('click', async () => {
-      if (!tg) return;
-      const tasksEl = document.getElementById('build-tasks');
-      const tasks = tasksEl.value.trim();
-      const errEl = document.getElementById('build-tasks-error');
-      if (!tasks) {
-        tasksEl.classList.add('form-textarea-error');
-        errEl.textContent = 'Заполните поле «Задачи и бюджет»';
-        return;
-      }
-      tasksEl.classList.remove('form-textarea-error');
-      errEl.textContent = '';
-      const btn = document.getElementById('build-submit-btn');
-      btn.disabled = true;
-      btn.textContent = 'Отправка...';
-      const user = tg.initDataUnsafe?.user || {};
+    // Если id есть, но username не пришёл с фронта — пробуем достать из Telegram API
+    if (userId && !resolvedUsername) {
       try {
-        const res = await fetch('/api/build-request', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            tasks,
-            userId: user.id,
-            username: user.username,
-            firstName: user.first_name
-          })
-        });
-        const data = await res.json();
-        if (data.ok) {
-          showView('view-build-success');
-        } else {
-          tg.showPopup({ title: 'Ошибка', message: 'Не удалось отправить заявку. Попробуйте позже.', buttons: [{ type: 'ok' }] });
+        const chat = await bot.getChat(userId);
+        if (chat) {
+          resolvedUsername = chat.username || resolvedUsername;
+          resolvedFirstName = chat.first_name || resolvedFirstName;
         }
       } catch (e) {
-        tg.showPopup({ title: 'Ошибка', message: 'Не удалось отправить заявку. Проверьте интернет.', buttons: [{ type: 'ok' }] });
+        console.error('getChat error:', e?.message || e);
       }
-      btn.disabled = false;
-      btn.textContent = 'Отправить на оценку';
-    });
+    }
 
-    document.getElementById('success-home-btn').addEventListener('click', () => {
-      showView('view-main');
-    });
+    const safeFirstName = escapeMarkdownV1(resolvedFirstName || 'Пользователь');
+    const safeUsername = resolvedUsername ? ' @' + escapeMarkdownV1(resolvedUsername) : '';
+    const safeId = escapeMarkdownV1(userId);
 
-    document.querySelectorAll('.service-card').forEach((card) => {
-      card.addEventListener('click', () => {
-        const action = card.dataset.action;
-        const label = card.querySelector('.service-title')?.textContent?.trim() || 'Услуга';
-        const desc = card.querySelector('.service-desc')?.textContent?.trim();
-        const fullLabel = desc ? `${label} — ${desc}` : label;
-        sendActionToBot(action, fullLabel);
-      });
+    const ownerMsg = `🖥 *Новая заявка: Сборка (подберём вместе)*\n\n` +
+      `*Задачи:*\n${tasksText}\n\n` +
+      `От: ${safeFirstName}${safeUsername} (ID: \`${safeId}\`)`;
+
+    if (ownerId) {
+      await bot.sendMessage(ownerId, ownerMsg, { parse_mode: 'Markdown' });
+    }
+
+    if (userId) {
+      await bot.sendMessage(userId, '✅ Заявка отправлена! Менеджер свяжется с вами в ближайшее время.');
+    }
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Build request error:', err?.message || err);
+    res.status(500).json({ ok: false });
+  }
+});
+
+// Обработка данных из WebApp (tg.sendData)
+bot.on('message', async (msg) => {
+  try {
+    const webAppData = msg.web_app_data && msg.web_app_data.data;
+    if (!webAppData) return;
+
+    let data;
+    try {
+      data = JSON.parse(webAppData);
+    } catch {
+      return;
+    }
+
+    if (data.action === 'build_request') {
+      const tasksText = String(data.tasks || '').trim() || '(не указано)';
+      const ownerId = process.env.OWNER_CHAT_ID;
+      const from = msg.from || {};
+      const userId = from.id;
+      const username = from.username;
+      const firstName = from.first_name;
+
+      const safeFirstName = escapeMarkdownV1(firstName || 'Пользователь');
+      const safeUsername = username ? ' @' + escapeMarkdownV1(username) : '';
+      const safeId = escapeMarkdownV1(userId);
+
+      const ownerMsg = `🖥 *Новая заявка: Сборка (подберём вместе)*\n\n` +
+        `*Задачи:*\n${tasksText}\n\n` +
+        `От: ${safeFirstName}${safeUsername} (ID: \`${safeId}\`)`;
+
+      if (ownerId) {
+        await bot.sendMessage(ownerId, ownerMsg, { parse_mode: 'Markdown' });
+      }
+
+      if (userId) {
+        await bot.sendMessage(userId, '✅ Заявка отправлена! Менеджер свяжется с вами в ближайшее время.');
+      }
+    }
+  } catch (err) {
+    console.error('WebApp data error:', err?.message || err);
+  }
+});
+
+const bot = new TelegramBot(token, { polling: false });
+
+let welcomePhotoFileId = null;
+
+async function handleStart(chatId) {
+  const baseUrl = process.env.WEBAPP_URL || process.env.RENDER_EXTERNAL_URL || 'https://example.com';
+  const webAppUrl = baseUrl.replace(/\/$/, '');
+  const cacheBust = process.env.WEBAPP_CACHE_BUST || Date.now().toString();
+  const fullWebAppUrl = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}v=${cacheBust}`;
+
+  try {
+    const INVISIBLE = '\u200B';
+    const m = await bot.sendMessage(chatId, INVISIBLE, {
+      reply_markup: { remove_keyboard: true },
+      disable_notification: true
     });
-  </script>
-</body>
-</html>
+    bot.deleteMessage(chatId, m.message_id).catch(() => {});
+  } catch (_) {}
+
+  const replyMarkup = {
+    inline_keyboard: [
+      [{ text: 'Оформить заявку', web_app: { url: fullWebAppUrl } }],
+      [{ text: 'Мои заказы', callback_data: 'my_orders' }],
+      [{ text: 'Проверить статус', callback_data: 'check_status' }]
+    ]
+  };
+
+  const text = '*Deep Design PC*\n\nСборка, апгрейд и консультации.\nНажмите «Оформить заявку».';
+
+  const welcomeImagePath = path.join(__dirname, 'welcome.png');
+  const photo = welcomePhotoFileId || welcomeImagePath;
+
+  const sent = await bot.sendPhoto(chatId, photo, {
+    caption: text,
+    reply_markup: replyMarkup,
+    parse_mode: 'Markdown'
+  });
+
+  try {
+    const sizes = sent?.photo;
+    if (Array.isArray(sizes) && sizes.length > 0) {
+      welcomePhotoFileId = sizes[sizes.length - 1].file_id;
+    }
+  } catch (_) {}
+}
+
+bot.onText(/\/start|\/menu/i, async (msg) => {
+  try {
+    await handleStart(msg.chat.id);
+  } catch (err) {
+    console.error('Start error:', err?.message || err);
+  }
+});
+
+bot.on('polling_error', (err) => console.error('Polling error:', err.message));
+
+const baseUrl = process.env.RENDER_EXTERNAL_URL || process.env.WEBHOOK_URL;
+
+if (baseUrl) {
+  const webhookPath = '/webhook';
+  app.post(webhookPath, (req, res) => {
+    bot.processUpdate(req.body);
+    res.sendStatus(200);
+  });
+
+  app.listen(PORT, async () => {
+    const webhookUrl = `${baseUrl.replace(/\/$/, '')}${webhookPath}`;
+    await bot.setWebHook(webhookUrl);
+    console.log('Webhook:', webhookUrl);
+    console.log('Сервер:', PORT);
+  });
+} else {
+  bot.startPolling();
+  app.listen(PORT, () => {
+    console.log('Polling. Порт:', PORT);
+  });
+}
