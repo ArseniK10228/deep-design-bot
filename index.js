@@ -37,13 +37,14 @@ app.post('/api/build-request', async (req, res) => {
     // Логируем для отладки, что реально приходит с фронта
     console.log('Build request body:', req.body);
 
-    const safeFirstName = escapeMarkdownV1(firstName || 'Пользователь');
-    const safeUsername = username ? ' @' + escapeMarkdownV1(username) : '';
-    const safeUserId = escapeMarkdownV1(userId);
+    const safeUsername = username
+      ? '@' + escapeMarkdownV1(String(username).replace(/^@/, ''))
+      : 'не указан';
 
     const ownerMsg = `🖥 *Новая заявка: Сборка (подберём вместе)*\n\n` +
       `*Задачи:*\n${tasksText}\n\n` +
-      `От: ${safeFirstName}${safeUsername} (ID: \`${safeUserId}\`)`;
+      `*Юзернейм из формы:*\n${safeUsername}\n\n` +
+      `*От кого отправлено:*\n${safeUsername}`;
 
     if (ownerId) {
       await bot.sendMessage(ownerId, ownerMsg, { parse_mode: 'Markdown' });
