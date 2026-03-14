@@ -22,12 +22,10 @@
 
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  15% { transform: translateX(-8px); }
-  30% { transform: translateX(8px); }
-  45% { transform: translateX(-6px); }
-  60% { transform: translateX(6px); }
-  75% { transform: translateX(-3px); }
-  90% { transform: translateX(3px); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
 }
 
 *,
@@ -460,9 +458,14 @@ a:active {
   box-shadow: 0 0 0 1px #e53935;
 }
 
-/* Тряска влево-вправо при ошибке валидации */
-#view-build-no .form-textarea.form-textarea-shake {
-  animation: shake 0.5s ease-in-out;
+/* При ошибке — без анимации появления, иначе после тряски воспроизводится page-enter */
+#view-build-no .form-textarea.form-textarea-error {
+  animation: none;
+}
+
+/* Тряска только когда есть оба класса */
+#view-build-no .form-textarea.form-textarea-error.form-textarea-shake {
+  animation: shake 0.45s ease-in-out;
 }
 
 .form-error {
