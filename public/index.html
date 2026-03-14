@@ -261,10 +261,7 @@
     });
 
     document.getElementById('build-submit-btn').addEventListener('click', async () => {
-      if (!tg) {
-        alert('Это мини-приложение предназначено для запуска внутри Telegram.');
-        return;
-      }
+      if (!tg) return;
       const tasksEl = document.getElementById('build-tasks');
       const tasks = tasksEl.value.trim();
       const errEl = document.getElementById('build-tasks-error');
@@ -278,15 +275,26 @@
       const btn = document.getElementById('build-submit-btn');
       btn.disabled = true;
       btn.textContent = 'Отправка...';
-      const payload = {
-        action: 'build_request',
-        tasks
-      };
+      const user = tg.initDataUnsafe?.user || {};
       try {
-        tg.sendData(JSON.stringify(payload));
-        showView('view-build-success');
+        const res = await fetch('/api/build-request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tasks,
+            userId: user.id,
+            username: user.username,
+            firstName: user.first_name
+          })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showView('view-build-success');
+        } else {
+          tg.showPopup({ title: 'Ошибка', message: 'Не удалось отправить заявку. Попробуйте позже.', buttons: [{ type: 'ok' }] });
+        }
       } catch (e) {
-        tg.showPopup({ title: 'Ошибка', message: 'Не удалось отправить заявку. Попробуйте позже.', buttons: [{ type: 'ok' }] });
+        tg.showPopup({ title: 'Ошибка', message: 'Не удалось отправить заявку. Проверьте интернет.', buttons: [{ type: 'ok' }] });
       }
       btn.disabled = false;
       btn.textContent = 'Отправить на оценку';
