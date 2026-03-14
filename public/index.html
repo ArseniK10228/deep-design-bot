@@ -227,6 +227,10 @@
 
       if (action === 'build_no') {
         showView('view-build-no');
+        const view = document.getElementById('view-build-no');
+        if (view && !view.classList.contains('view-build-no-initialized')) {
+          setTimeout(() => view.classList.add('view-build-no-initialized'), 600);
+        }
         return;
       }
 
