@@ -372,9 +372,8 @@ a:active {
 }
 
 .alert-banner {
-  display: none;
   position: relative;
-  margin: 0 16px 12px;
+  margin: 0 16px 0;
   padding: 10px 14px;
   border-radius: 10px;
   background: rgba(229, 57, 53, 0.16);
@@ -382,11 +381,19 @@ a:active {
   color: #ffb3b0;
   font-size: 13px;
   text-align: center;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    max-height 0.25s ease,
+    opacity 0.25s ease,
+    margin-bottom 0.25s ease;
 }
 
 .alert-banner-visible {
-  display: block;
-  animation: page-enter 0.25s ease-out forwards;
+  max-height: 80px;
+  opacity: 1;
+  margin-bottom: 12px;
 }
 
 .consult-text {
