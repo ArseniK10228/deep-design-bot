@@ -229,18 +229,24 @@ a:active {
 .service-tag {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-  padding: 6px 12px;
-  background: linear-gradient(135deg, #7b5fcf, #5a42a8);
+  gap: 8px;
+  margin-top: 10px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #6b4fcf, #5239a8);
   color: #fff;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
-  border-radius: 999px;
+  letter-spacing: 0.03em;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(107, 79, 207, 0.3);
 }
 
 .service-tag-icon {
-  font-size: 12px;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E") no-repeat center;
+  background-size: contain;
 }
 
 .service-arrow {
