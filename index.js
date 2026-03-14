@@ -21,15 +21,42 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+function escapeMarkdownV1(text) {
+  return String(text || '').replace(/([_*[\]()~`>#+\-=|{}.!])/g, '\\$1');
+}
+
 app.post('/api/build-request', async (req, res) => {
   try {
     const { tasks, userId, username, firstName } = req.body || {};
     const ownerId = process.env.OWNER_CHAT_ID;
     const tasksText = (tasks || '').trim() || '(не указано)';
 
+    // Лёгкое логирование для отладки, почему иногда нет username/id
+    console.log('Build request body:', req.body);
+
+    let resolvedUsername = username;
+    let resolvedFirstName = firstName;
+
+    // Если id есть, но username не пришёл с фронта — пробуем достать из Telegram API
+    if (userId && !resolvedUsername) {
+      try {
+        const chat = await bot.getChat(userId);
+        if (chat) {
+          resolvedUsername = chat.username || resolvedUsername;
+          resolvedFirstName = chat.first_name || resolvedFirstName;
+        }
+      } catch (e) {
+        console.error('getChat error:', e?.message || e);
+      }
+    }
+
+    const safeFirstName = escapeMarkdownV1(resolvedFirstName || 'Пользователь');
+    const safeUsername = resolvedUsername ? ' @' + escapeMarkdownV1(resolvedUsername) : '';
+    const safeId = escapeMarkdownV1(userId);
+
     const ownerMsg = `🖥 *Новая заявка: Сборка (подберём вместе)*\n\n` +
       `*Задачи:*\n${tasksText}\n\n` +
-      `От: ${firstName || 'Пользователь'}${username ? ' @' + username : ''} (ID: \`${userId}\`)`;
+      `От: ${safeFirstName}${safeUsername} (ID: \`${safeId}\`)`;
 
     if (ownerId) {
       await bot.sendMessage(ownerId, ownerMsg, { parse_mode: 'Markdown' });
