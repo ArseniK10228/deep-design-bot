@@ -21,6 +21,31 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+app.post('/api/build-request', async (req, res) => {
+  try {
+    const { tasks, userId, username, firstName } = req.body || {};
+    const ownerId = process.env.OWNER_CHAT_ID;
+    const tasksText = (tasks || '').trim() || '(не указано)';
+
+    const ownerMsg = `🖥 *Новая заявка: Сборка (подберём вместе)*\n\n` +
+      `*Задачи:*\n${tasksText}\n\n` +
+      `От: ${firstName || 'Пользователь'}${username ? ' @' + username : ''} (ID: \`${userId}\`)`;
+
+    if (ownerId) {
+      await bot.sendMessage(ownerId, ownerMsg, { parse_mode: 'Markdown' });
+    }
+
+    if (userId) {
+      await bot.sendMessage(userId, '✅ Заявка отправлена! Менеджер свяжется с вами в ближайшее время.');
+    }
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Build request error:', err?.message || err);
+    res.status(500).json({ ok: false });
+  }
+});
+
 const bot = new TelegramBot(token, { polling: false });
 
 let welcomePhotoFileId = null;
@@ -72,26 +97,6 @@ bot.onText(/\/start|\/menu/i, async (msg) => {
     await handleStart(msg.chat.id);
   } catch (err) {
     console.error('Start error:', err?.message || err);
-  }
-});
-
-bot.on('message', async (msg) => {
-  const webAppData = msg.web_app_data;
-  if (!webAppData) return;
-  try {
-    const data = JSON.parse(webAppData.data);
-    const ownerId = process.env.OWNER_CHAT_ID;
-    if (data.action === 'build_no_submit') {
-      const text = `🖥 *Новая заявка: Сборка (подберём вместе)*\n\n` +
-        `*Задачи:*\n${data.tasks}\n\n` +
-        `От: ${data.firstName || 'Пользователь'}${data.username ? ' @' + data.username : ''} (ID: \`${data.userId}\`)`;
-      if (ownerId) {
-        await bot.sendMessage(ownerId, text, { parse_mode: 'Markdown' });
-      }
-      await bot.sendMessage(msg.chat.id, '✅ Заявка отправлена! Менеджер свяжется с вами в ближайшее время.');
-    }
-  } catch (err) {
-    console.error('WebApp data error:', err?.message || err);
   }
 });
 
