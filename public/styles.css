@@ -385,9 +385,9 @@ a:active {
   opacity: 0;
   overflow: hidden;
   transition:
-    max-height 0.25s ease,
-    opacity 0.25s ease,
-    margin-bottom 0.25s ease;
+    max-height 0.4s ease,
+    opacity 0.4s ease,
+    margin-bottom 0.4s ease;
 }
 
 .alert-banner-visible {
