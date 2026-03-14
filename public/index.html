@@ -264,6 +264,8 @@
       const tasks = tasksEl.value.trim();
       const errEl = document.getElementById('build-tasks-error');
       if (!tasks) {
+        tasksEl.classList.remove('form-textarea-error');
+        void tasksEl.offsetHeight;
         tasksEl.classList.add('form-textarea-error');
         errEl.textContent = 'Заполните поле «Задачи и бюджет»';
         return;
