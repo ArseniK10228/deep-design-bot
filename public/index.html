@@ -128,6 +128,29 @@
       </main>
     </div>
 
+    <div class="view" id="view-build-no">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-build">‹</button>
+        <div class="page-header-center">
+          <h1 class="page-title">Сборка ПК</h1>
+          <p class="page-subtitle">Опишите задачи</p>
+        </div>
+      </header>
+      <main class="page-content">
+        <label class="form-label">ЗАДАЧИ И БЮДЖЕТ</label>
+        <textarea class="form-textarea" id="build-tasks" placeholder="ПК для игр, бюджет 30000 RUB..." rows="4"></textarea>
+        <div class="form-price-row">
+          <span class="form-price-label">Сборка</span>
+          <span class="form-price-value">от 2700 RUB</span>
+        </div>
+        <div class="form-info-block">
+          <span class="form-info-icon">ℹ</span>
+          <p>Оплата не нужна сейчас. Менеджер рассчитает стоимость и пришлёт реквизиты после согласования.</p>
+        </div>
+        <button type="button" class="submit-btn" id="build-submit-btn">Отправить на оценку</button>
+      </main>
+    </div>
+
     <div class="view" id="view-consult">
       <header class="page-header">
         <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-main">‹</button>
@@ -191,6 +214,11 @@
         return;
       }
 
+      if (action === 'build_no') {
+        showView('view-build-no');
+        return;
+      }
+
       const payload = { action, label };
       tg.sendData(JSON.stringify(payload));
       tg.showPopup({
@@ -210,6 +238,20 @@
     document.getElementById('consult-link-btn').addEventListener('click', () => {
       if (tg) tg.openTelegramLink('https://t.me/kluph');
       else window.open('https://t.me/kluph', '_blank');
+    });
+
+    document.getElementById('build-submit-btn').addEventListener('click', () => {
+      if (!tg) return;
+      const tasks = document.getElementById('build-tasks').value.trim();
+      const user = tg.initDataUnsafe?.user || {};
+      const payload = {
+        action: 'build_no_submit',
+        tasks: tasks || '(не указано)',
+        userId: user.id,
+        username: user.username,
+        firstName: user.first_name
+      };
+      tg.sendData(JSON.stringify(payload));
     });
 
     document.querySelectorAll('.service-card').forEach((card) => {
