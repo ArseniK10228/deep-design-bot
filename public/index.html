@@ -35,6 +35,20 @@
             <div class="service-arrow">›</div>
           </article>
 
+          <article class="service-card" data-action="presets">
+            <div class="service-icon service-icon-ready">
+              <span>⭐</span>
+            </div>
+            <div class="service-content">
+              <h2 class="service-title">Готовые сборки</h2>
+              <p class="service-desc">
+                Подбор оптимальных конфигураций под бюджет.
+              </p>
+              <p class="service-price">от 30000 RUB</p>
+            </div>
+            <div class="service-arrow">›</div>
+          </article>
+
           <article class="service-card" data-action="upgrade">
             <div class="service-icon service-icon-upgrade">
               <span>⬈</span>
@@ -81,9 +95,43 @@
       </nav>
     </div>
 
+    <div class="view" id="view-build">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-main">‹</button>
+        <div class="page-header-center">
+          <h1 class="page-title">Сборка ПК</h1>
+          <p class="page-subtitle">Есть комплектующие?</p>
+        </div>
+      </header>
+      <main class="page-content">
+        <section class="service-list">
+          <article class="service-card" data-action="build_yes">
+            <div class="service-icon service-icon-yes">
+              <span>📋</span>
+            </div>
+            <div class="service-content">
+              <h2 class="service-title">Да</h2>
+              <p class="service-desc">Заполню список</p>
+            </div>
+            <div class="service-arrow">›</div>
+          </article>
+          <article class="service-card" data-action="build_no">
+            <div class="service-icon service-icon-no">
+              <span>❓</span>
+            </div>
+            <div class="service-content">
+              <h2 class="service-title">Нет</h2>
+              <p class="service-desc">Подберём вместе</p>
+            </div>
+            <div class="service-arrow">›</div>
+          </article>
+        </section>
+      </main>
+    </div>
+
     <div class="view" id="view-consult">
       <header class="page-header">
-        <button class="back-btn" type="button" aria-label="Назад" id="back-btn">‹</button>
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-main">‹</button>
         <h1 class="page-title">Консультация</h1>
       </header>
       <main class="page-content">
@@ -139,6 +187,11 @@
         return;
       }
 
+      if (action === 'build') {
+        showView('view-build');
+        return;
+      }
+
       const payload = { action, label };
       tg.sendData(JSON.stringify(payload));
       tg.showPopup({
@@ -148,8 +201,11 @@
       });
     }
 
-    document.getElementById('back-btn').addEventListener('click', () => {
-      showView('view-main');
+    document.querySelectorAll('.back-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.backTo || 'view-main';
+        showView(target);
+      });
     });
 
     document.getElementById('consult-link-btn').addEventListener('click', () => {
@@ -161,7 +217,9 @@
       card.addEventListener('click', () => {
         const action = card.dataset.action;
         const label = card.querySelector('.service-title')?.textContent?.trim() || 'Услуга';
-        sendActionToBot(action, label);
+        const desc = card.querySelector('.service-desc')?.textContent?.trim();
+        const fullLabel = desc ? `${label} — ${desc}` : label;
+        sendActionToBot(action, fullLabel);
       });
     });
   </script>
