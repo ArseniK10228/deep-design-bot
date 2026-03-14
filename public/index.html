@@ -151,6 +151,15 @@
       </main>
     </div>
 
+    <div class="view" id="view-build-success">
+      <main class="page-content page-content-center">
+        <p class="success-icon">✓</p>
+        <h2 class="success-title">Заявка отправлена</h2>
+        <p class="success-text">Ожидайте ответ от менеджера.</p>
+        <button type="button" class="submit-btn" id="success-home-btn">На главную</button>
+      </main>
+    </div>
+
     <div class="view" id="view-consult">
       <header class="page-header">
         <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-main">‹</button>
@@ -240,18 +249,39 @@
       else window.open('https://t.me/kluph', '_blank');
     });
 
-    document.getElementById('build-submit-btn').addEventListener('click', () => {
+    document.getElementById('build-submit-btn').addEventListener('click', async () => {
       if (!tg) return;
+      const btn = document.getElementById('build-submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Отправка...';
       const tasks = document.getElementById('build-tasks').value.trim();
       const user = tg.initDataUnsafe?.user || {};
-      const payload = {
-        action: 'build_no_submit',
-        tasks: tasks || '(не указано)',
-        userId: user.id,
-        username: user.username,
-        firstName: user.first_name
-      };
-      tg.sendData(JSON.stringify(payload));
+      try {
+        const res = await fetch('/api/build-request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tasks,
+            userId: user.id,
+            username: user.username,
+            firstName: user.first_name
+          })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showView('view-build-success');
+        } else {
+          tg.showPopup({ title: 'Ошибка', message: 'Не удалось отправить заявку. Попробуйте позже.', buttons: [{ type: 'ok' }] });
+        }
+      } catch (e) {
+        tg.showPopup({ title: 'Ошибка', message: 'Не удалось отправить заявку. Проверьте интернет.', buttons: [{ type: 'ok' }] });
+      }
+      btn.disabled = false;
+      btn.textContent = 'Отправить на оценку';
+    });
+
+    document.getElementById('success-home-btn').addEventListener('click', () => {
+      showView('view-main');
     });
 
     document.querySelectorAll('.service-card').forEach((card) => {
