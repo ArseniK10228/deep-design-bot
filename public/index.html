@@ -143,6 +143,9 @@
         <label class="form-label">ЗАДАЧИ И БЮДЖЕТ</label>
         <textarea class="form-textarea" id="build-tasks" placeholder="ПК для игр, бюджет 30000 RUB..." rows="4"></textarea>
         <p class="form-error" id="build-tasks-error"></p>
+        <label class="form-label">ВАШ @USERNAME</label>
+        <input class="form-input" id="build-username" placeholder="@username" />
+        <p class="form-error" id="build-username-error"></p>
         <div class="form-price-row">
           <span class="form-price-label">Сборка</span>
           <span class="form-price-value">от 1500 RUB</span>
@@ -260,18 +263,56 @@
       err.textContent = '';
     });
 
+    document.getElementById('build-username').addEventListener('input', () => {
+      const el = document.getElementById('build-username');
+      const err = document.getElementById('build-username-error');
+      el.classList.remove('form-input-error');
+      err.textContent = '';
+    });
+
     document.getElementById('build-submit-btn').addEventListener('click', async () => {
       if (!tg) return;
       const tasksEl = document.getElementById('build-tasks');
       const tasks = tasksEl.value.trim();
       const errEl = document.getElementById('build-tasks-error');
+      const usernameInput = document.getElementById('build-username');
+      const usernameValue = usernameInput.value.trim();
+      const usernameErr = document.getElementById('build-username-error');
+      let hasError = false;
+
       if (!tasks) {
         tasksEl.classList.add('form-textarea-error');
         errEl.textContent = 'Заполните поле «Задачи и бюджет»';
+        hasError = true;
+      } else if (tasks.length < 10) {
+        tasksEl.classList.add('form-textarea-error');
+        errEl.textContent = 'Сообщение должно содержать минимум 10 символов';
+        hasError = true;
+      } else {
+        tasksEl.classList.remove('form-textarea-error');
+        errEl.textContent = '';
+      }
+
+      if (!usernameValue && !tg.initDataUnsafe?.user?.username) {
+        usernameInput.classList.add('form-input-error');
+        usernameErr.textContent = 'Укажите ваш @username';
+        hasError = true;
+      } else if (usernameValue && usernameValue.length < 5) {
+        usernameInput.classList.add('form-input-error');
+        usernameErr.textContent = 'Слишком короткий @username';
+        hasError = true;
+      } else if (usernameValue && !usernameValue.startsWith('@')) {
+        usernameInput.classList.add('form-input-error');
+        usernameErr.textContent = 'Сообщение должно начинаться с @';
+        hasError = true;
+      } else {
+        usernameInput.classList.remove('form-input-error');
+        usernameErr.textContent = '';
+      }
+
+      if (hasError) {
         return;
       }
-      tasksEl.classList.remove('form-textarea-error');
-      errEl.textContent = '';
       const btn = document.getElementById('build-submit-btn');
       btn.disabled = true;
       btn.textContent = 'Отправка...';
@@ -283,7 +324,7 @@
           body: JSON.stringify({
             tasks,
             userId: user.id,
-            username: user.username,
+            username: usernameValue || user.username,
             firstName: user.first_name
           })
         });
