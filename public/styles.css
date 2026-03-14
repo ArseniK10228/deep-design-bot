@@ -474,6 +474,39 @@ a:active {
   opacity: 0.9;
 }
 
+.page-content-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.success-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4fe0ac, #2a9f6b);
+  color: #fff;
+  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+
+.success-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.success-text {
+  font-size: 15px;
+  color: #a3a0ba;
+  margin-bottom: 24px;
+}
+
 @media (min-width: 480px) {
   .app {
     border-radius: 24px;
