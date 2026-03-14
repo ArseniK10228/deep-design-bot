@@ -73,6 +73,48 @@ app.post('/api/build-request', async (req, res) => {
   }
 });
 
+// Обработка данных из WebApp (tg.sendData)
+bot.on('message', async (msg) => {
+  try {
+    const webAppData = msg.web_app_data && msg.web_app_data.data;
+    if (!webAppData) return;
+
+    let data;
+    try {
+      data = JSON.parse(webAppData);
+    } catch {
+      return;
+    }
+
+    if (data.action === 'build_request') {
+      const tasksText = String(data.tasks || '').trim() || '(не указано)';
+      const ownerId = process.env.OWNER_CHAT_ID;
+      const from = msg.from || {};
+      const userId = from.id;
+      const username = from.username;
+      const firstName = from.first_name;
+
+      const safeFirstName = escapeMarkdownV1(firstName || 'Пользователь');
+      const safeUsername = username ? ' @' + escapeMarkdownV1(username) : '';
+      const safeId = escapeMarkdownV1(userId);
+
+      const ownerMsg = `🖥 *Новая заявка: Сборка (подберём вместе)*\n\n` +
+        `*Задачи:*\n${tasksText}\n\n` +
+        `От: ${safeFirstName}${safeUsername} (ID: \`${safeId}\`)`;
+
+      if (ownerId) {
+        await bot.sendMessage(ownerId, ownerMsg, { parse_mode: 'Markdown' });
+      }
+
+      if (userId) {
+        await bot.sendMessage(userId, '✅ Заявка отправлена! Менеджер свяжется с вами в ближайшее время.');
+      }
+    }
+  } catch (err) {
+    console.error('WebApp data error:', err?.message || err);
+  }
+});
+
 const bot = new TelegramBot(token, { polling: false });
 
 let welcomePhotoFileId = null;
