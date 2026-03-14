@@ -139,6 +139,7 @@
       <main class="page-content">
         <label class="form-label">ЗАДАЧИ И БЮДЖЕТ</label>
         <textarea class="form-textarea" id="build-tasks" placeholder="ПК для игр, бюджет 30000 RUB..." rows="4"></textarea>
+        <p class="form-error" id="build-tasks-error"></p>
         <div class="form-price-row">
           <span class="form-price-label">Сборка</span>
           <span class="form-price-value">от 2700 RUB</span>
@@ -249,12 +250,28 @@
       else window.open('https://t.me/kluph', '_blank');
     });
 
+    document.getElementById('build-tasks').addEventListener('input', () => {
+      const el = document.getElementById('build-tasks');
+      const err = document.getElementById('build-tasks-error');
+      el.classList.remove('form-textarea-error');
+      err.textContent = '';
+    });
+
     document.getElementById('build-submit-btn').addEventListener('click', async () => {
       if (!tg) return;
+      const tasksEl = document.getElementById('build-tasks');
+      const tasks = tasksEl.value.trim();
+      const errEl = document.getElementById('build-tasks-error');
+      if (!tasks) {
+        tasksEl.classList.add('form-textarea-error');
+        errEl.textContent = 'Заполните поле «Задачи и бюджет»';
+        return;
+      }
+      tasksEl.classList.remove('form-textarea-error');
+      errEl.textContent = '';
       const btn = document.getElementById('build-submit-btn');
       btn.disabled = true;
       btn.textContent = 'Отправка...';
-      const tasks = document.getElementById('build-tasks').value.trim();
       const user = tg.initDataUnsafe?.user || {};
       try {
         const res = await fetch('/api/build-request', {
