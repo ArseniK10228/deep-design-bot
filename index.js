@@ -124,6 +124,27 @@ bot.onText(/\/start|\/menu/i, async (msg) => {
   }
 });
 
+bot.on('callback_query', async (query) => {
+  try {
+    const data = query.data;
+    const chatId = query.message?.chat?.id;
+    const messageId = query.message?.message_id;
+
+    if (!data || !chatId) return;
+
+    if (data === 'my_orders' || data === 'check_status') {
+      await bot.answerCallbackQuery(query.id);
+      await bot.sendMessage(chatId, 'Эта функция пока в разработке.');
+      return;
+    }
+
+    // на всякий случай подтверждаем остальные колбэки
+    await bot.answerCallbackQuery(query.id);
+  } catch (err) {
+    console.error('Callback error:', err?.message || err);
+  }
+});
+
 bot.on('polling_error', (err) => console.error('Polling error:', err.message));
 
 const baseUrl = process.env.RENDER_EXTERNAL_URL || process.env.WEBHOOK_URL;
