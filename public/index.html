@@ -297,6 +297,14 @@
         usernameInput.classList.add('form-input-error');
         usernameErr.textContent = 'Укажите ваш @username';
         hasError = true;
+      } else if (usernameValue && usernameValue.indexOf(' ') !== -1) {
+        usernameInput.classList.add('form-input-error');
+        usernameErr.textContent = 'В @username нельзя использовать пробелы';
+        hasError = true;
+      } else if (usernameValue && !/^[A-Za-z0-9_@]+$/.test(usernameValue)) {
+        usernameInput.classList.add('form-input-error');
+        usernameErr.textContent = 'Юзернейм должен быть на английском';
+        hasError = true;
       } else if (usernameValue && usernameValue.length < 5) {
         usernameInput.classList.add('form-input-error');
         usernameErr.textContent = 'Слишком короткий @username';
