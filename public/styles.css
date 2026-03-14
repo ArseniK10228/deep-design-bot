@@ -50,6 +50,8 @@ a,
 .tabbar-item,
 .back-btn,
 .consult-link,
+.submit-btn,
+.form-textarea,
 [role="button"] {
   -webkit-tap-highlight-color: transparent !important;
   -webkit-touch-callout: none;
@@ -230,6 +232,32 @@ a:active {
   color: #5d5b76;
 }
 
+#view-build .service-card {
+  padding: 22px 20px;
+}
+
+#view-build .service-icon {
+  width: 52px;
+  height: 52px;
+  font-size: 26px;
+}
+
+#view-build .service-title {
+  font-size: 20px;
+}
+
+#view-build .service-desc {
+  font-size: 15px;
+}
+
+#view-build .service-arrow {
+  font-size: 26px;
+}
+
+#view-build .service-list {
+  gap: 16px;
+}
+
 .app-tabbar {
   display: flex;
   padding: 6px 8px 10px;
@@ -346,6 +374,103 @@ a:active {
 }
 
 .consult-link:active {
+  opacity: 0.9;
+}
+
+.form-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #5d5b76;
+  margin-bottom: 8px;
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #101018;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f5f2ff;
+  font-size: 15px;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 100px;
+  margin-bottom: 16px;
+}
+
+.form-textarea::placeholder {
+  color: #5d5b76;
+}
+
+.form-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #101018;
+  margin-bottom: 12px;
+}
+
+.form-price-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: #e0ddf0;
+}
+
+.form-price-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #c29cff;
+}
+
+.form-info-block {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(139, 108, 255, 0.08);
+  border-left: 3px solid #8b6cff;
+  margin-bottom: 20px;
+}
+
+.form-info-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #8b6cff;
+  color: #fff;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-info-block p {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #b8b4d0;
+  margin: 0;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #8b6cff, #6a4fcf);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+}
+
+.submit-btn:active {
   opacity: 0.9;
 }
 
