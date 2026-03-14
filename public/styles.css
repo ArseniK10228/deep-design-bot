@@ -400,6 +400,24 @@ a:active {
   opacity: 0.9;
 }
 
+#view-build-no .page-header {
+  animation: page-enter 0.3s ease-out backwards;
+}
+
+#view-build-no .form-label,
+#view-build-no .form-textarea,
+#view-build-no .form-price-row,
+#view-build-no .form-info-block,
+#view-build-no .submit-btn {
+  animation: page-enter 0.35s ease-out backwards;
+}
+
+#view-build-no .form-label { animation-delay: 0.08s; }
+#view-build-no .form-textarea { animation-delay: 0.14s; }
+#view-build-no .form-price-row { animation-delay: 0.22s; }
+#view-build-no .form-info-block { animation-delay: 0.3s; }
+#view-build-no .submit-btn { animation-delay: 0.38s; }
+
 .form-label {
   display: block;
   font-size: 11px;
