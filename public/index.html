@@ -227,10 +227,6 @@
 
       if (action === 'build_no') {
         showView('view-build-no');
-        const view = document.getElementById('view-build-no');
-        if (view && !view.classList.contains('view-build-no-initialized')) {
-          setTimeout(() => view.classList.add('view-build-no-initialized'), 600);
-        }
         return;
       }
 
@@ -258,7 +254,7 @@
     document.getElementById('build-tasks').addEventListener('input', () => {
       const el = document.getElementById('build-tasks');
       const err = document.getElementById('build-tasks-error');
-      el.classList.remove('form-textarea-error', 'form-textarea-shake');
+      el.classList.remove('form-textarea-error');
       err.textContent = '';
     });
 
@@ -268,17 +264,11 @@
       const tasks = tasksEl.value.trim();
       const errEl = document.getElementById('build-tasks-error');
       if (!tasks) {
-        tasksEl.classList.remove('form-textarea-error', 'form-textarea-shake');
-        void tasksEl.offsetHeight;
-        tasksEl.classList.add('form-textarea-error', 'form-textarea-shake');
-        tasksEl.addEventListener('animationend', function removeShake() {
-          tasksEl.removeEventListener('animationend', removeShake);
-          tasksEl.classList.remove('form-textarea-shake');
-        }, { once: true });
+        tasksEl.classList.add('form-textarea-error');
         errEl.textContent = 'Заполните поле «Задачи и бюджет»';
         return;
       }
-      tasksEl.classList.remove('form-textarea-error', 'form-textarea-shake');
+      tasksEl.classList.remove('form-textarea-error');
       errEl.textContent = '';
       const btn = document.getElementById('build-submit-btn');
       btn.disabled = true;
