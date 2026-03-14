@@ -74,15 +74,15 @@
       </main>
 
       <nav class="app-tabbar">
-        <button class="tabbar-item tabbar-item-active" type="button">
+        <button class="tabbar-item tabbar-item-active" type="button" id="tab-order">
           <span class="tabbar-icon tabbar-icon-primary">☰</span>
           <span class="tabbar-label">Заказ</span>
         </button>
-        <button class="tabbar-item" type="button">
+        <button class="tabbar-item" type="button" id="tab-portfolio">
           <span class="tabbar-icon">▤</span>
           <span class="tabbar-label">Портфолио</span>
         </button>
-        <button class="tabbar-item" type="button">
+        <button class="tabbar-item" type="button" id="tab-profile">
           <span class="tabbar-icon tabbar-icon-profile"></span>
           <span class="tabbar-label">Профиль</span>
         </button>
@@ -239,6 +239,38 @@
         showView(target);
       });
     });
+
+    // Нижние вкладки
+    const tabOrder = document.getElementById('tab-order');
+    const tabPortfolio = document.getElementById('tab-portfolio');
+    const tabProfile = document.getElementById('tab-profile');
+
+    if (tabOrder) {
+      tabOrder.addEventListener('click', () => {
+        showView('view-main');
+      });
+    }
+
+    function showInDevelopment() {
+      if (!tg) return;
+      tg.showPopup({
+        title: 'В разработке',
+        message: 'Эта функция пока в разработке.',
+        buttons: [{ type: 'ok' }]
+      });
+    }
+
+    if (tabPortfolio) {
+      tabPortfolio.addEventListener('click', () => {
+        showInDevelopment();
+      });
+    }
+
+    if (tabProfile) {
+      tabProfile.addEventListener('click', () => {
+        showInDevelopment();
+      });
+    }
 
     document.getElementById('consult-link-btn').addEventListener('click', () => {
       if (tg) tg.openTelegramLink('https://t.me/kluph');
