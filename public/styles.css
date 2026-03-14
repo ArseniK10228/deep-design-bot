@@ -463,8 +463,12 @@ a:active {
   animation: none;
 }
 
-/* Тряска только когда есть оба класса */
-#view-build-no .form-textarea.form-textarea-error.form-textarea-shake {
+/* После первой загрузки экрана — отключаем page-enter у поля, иначе при вводе (снятии ошибки) она воспроизводится */
+#view-build-no.view-build-no-initialized .form-textarea {
+  animation: none;
+}
+
+#view-build-no.view-build-no-initialized .form-textarea.form-textarea-error.form-textarea-shake {
   animation: shake 0.45s ease-in-out;
 }
 
