@@ -19,6 +19,7 @@
    - **Instance Type:** Free
 5. В **Environment** добавь:
    - **TELEGRAM_BOT_TOKEN** — токен бота (скопируй из BotFather)
+   - **OWNER_CHAT_ID** — твой ID в Telegram (чтобы заявки «Отправить на оценку» приходили тебе). Узнать ID: напиши боту @userinfobot
 6. Нажми **Create Web Service**
 
 ## 3. Итог
