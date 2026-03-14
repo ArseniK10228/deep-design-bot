@@ -254,7 +254,7 @@
     document.getElementById('build-tasks').addEventListener('input', () => {
       const el = document.getElementById('build-tasks');
       const err = document.getElementById('build-tasks-error');
-      el.classList.remove('form-textarea-error');
+      el.classList.remove('form-textarea-error', 'form-textarea-shake');
       err.textContent = '';
     });
 
@@ -264,13 +264,17 @@
       const tasks = tasksEl.value.trim();
       const errEl = document.getElementById('build-tasks-error');
       if (!tasks) {
-        tasksEl.classList.remove('form-textarea-error');
+        tasksEl.classList.remove('form-textarea-error', 'form-textarea-shake');
         void tasksEl.offsetHeight;
-        tasksEl.classList.add('form-textarea-error');
+        tasksEl.classList.add('form-textarea-error', 'form-textarea-shake');
+        tasksEl.addEventListener('animationend', function removeShake() {
+          tasksEl.removeEventListener('animationend', removeShake);
+          tasksEl.classList.remove('form-textarea-shake');
+        }, { once: true });
         errEl.textContent = 'Заполните поле «Задачи и бюджет»';
         return;
       }
-      tasksEl.classList.remove('form-textarea-error');
+      tasksEl.classList.remove('form-textarea-error', 'form-textarea-shake');
       errEl.textContent = '';
       const btn = document.getElementById('build-submit-btn');
       btn.disabled = true;
