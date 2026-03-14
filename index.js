@@ -21,42 +21,15 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-function escapeMarkdownV1(text) {
-  return String(text || '').replace(/([_*[\]()~`>#+\-=|{}.!])/g, '\\$1');
-}
-
 app.post('/api/build-request', async (req, res) => {
   try {
     const { tasks, userId, username, firstName } = req.body || {};
     const ownerId = process.env.OWNER_CHAT_ID;
     const tasksText = (tasks || '').trim() || '(не указано)';
 
-    // Лёгкое логирование для отладки, почему иногда нет username/id
-    console.log('Build request body:', req.body);
-
-    let resolvedUsername = username;
-    let resolvedFirstName = firstName;
-
-    // Если id есть, но username не пришёл с фронта — пробуем достать из Telegram API
-    if (userId && !resolvedUsername) {
-      try {
-        const chat = await bot.getChat(userId);
-        if (chat) {
-          resolvedUsername = chat.username || resolvedUsername;
-          resolvedFirstName = chat.first_name || resolvedFirstName;
-        }
-      } catch (e) {
-        console.error('getChat error:', e?.message || e);
-      }
-    }
-
-    const safeFirstName = escapeMarkdownV1(resolvedFirstName || 'Пользователь');
-    const safeUsername = resolvedUsername ? ' @' + escapeMarkdownV1(resolvedUsername) : '';
-    const safeId = escapeMarkdownV1(userId);
-
     const ownerMsg = `🖥 *Новая заявка: Сборка (подберём вместе)*\n\n` +
       `*Задачи:*\n${tasksText}\n\n` +
-      `От: ${safeFirstName}${safeUsername} (ID: \`${safeId}\`)`;
+      `От: ${firstName || 'Пользователь'}${username ? ' @' + username : ''} (ID: \`${userId}\`)`;
 
     if (ownerId) {
       await bot.sendMessage(ownerId, ownerMsg, { parse_mode: 'Markdown' });
@@ -70,48 +43,6 @@ app.post('/api/build-request', async (req, res) => {
   } catch (err) {
     console.error('Build request error:', err?.message || err);
     res.status(500).json({ ok: false });
-  }
-});
-
-// Обработка данных из WebApp (tg.sendData)
-bot.on('message', async (msg) => {
-  try {
-    const webAppData = msg.web_app_data && msg.web_app_data.data;
-    if (!webAppData) return;
-
-    let data;
-    try {
-      data = JSON.parse(webAppData);
-    } catch {
-      return;
-    }
-
-    if (data.action === 'build_request') {
-      const tasksText = String(data.tasks || '').trim() || '(не указано)';
-      const ownerId = process.env.OWNER_CHAT_ID;
-      const from = msg.from || {};
-      const userId = from.id;
-      const username = from.username;
-      const firstName = from.first_name;
-
-      const safeFirstName = escapeMarkdownV1(firstName || 'Пользователь');
-      const safeUsername = username ? ' @' + escapeMarkdownV1(username) : '';
-      const safeId = escapeMarkdownV1(userId);
-
-      const ownerMsg = `🖥 *Новая заявка: Сборка (подберём вместе)*\n\n` +
-        `*Задачи:*\n${tasksText}\n\n` +
-        `От: ${safeFirstName}${safeUsername} (ID: \`${safeId}\`)`;
-
-      if (ownerId) {
-        await bot.sendMessage(ownerId, ownerMsg, { parse_mode: 'Markdown' });
-      }
-
-      if (userId) {
-        await bot.sendMessage(userId, '✅ Заявка отправлена! Менеджер свяжется с вами в ближайшее время.');
-      }
-    }
-  } catch (err) {
-    console.error('WebApp data error:', err?.message || err);
   }
 });
 
