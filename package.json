@@ -4,8 +4,7 @@
   "description": "Мини-приложение Telegram WebApp для бота Deep Design",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "build": "node scripts/inject-build-id.js"
+    "start": "node index.js"
   },
   "keywords": [
     "telegram",

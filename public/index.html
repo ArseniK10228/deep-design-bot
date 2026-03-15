@@ -9,11 +9,6 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <script>window.__BUILD_ID = "__BUILD_ID__";</script>
-  <div id="maintenance-overlay" class="maintenance-overlay">
-    <p class="maintenance-text">Технические работы</p>
-    <div class="maintenance-spinner"></div>
-  </div>
   <div class="app">
     <div class="view view-active view-enter" id="view-main">
       <header class="app-header">
@@ -235,35 +230,6 @@
       tg.expand();
       tg.MainButton.hide();
     }
-
-    (function checkBackend() {
-      const overlay = document.getElementById('maintenance-overlay');
-      function hideOverlay() {
-        if (overlay) overlay.classList.add('maintenance-overlay-hidden');
-      }
-      if (window.location.protocol === 'file:') {
-        hideOverlay();
-        return;
-      }
-      var params = new URLSearchParams(window.location.search);
-      if (params.get('maintenance') === '1') {
-        return;
-      }
-      function tryHealth() {
-        fetch('/health')
-          .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
-          .then(function(result) {
-            var serverBuildId = result.data && result.data.buildId;
-            if (serverBuildId != null && typeof window.__BUILD_ID === 'string' && window.__BUILD_ID !== serverBuildId) {
-              location.reload();
-              return;
-            }
-            if (result.ok) hideOverlay();
-          })
-          .catch(function() { setTimeout(tryHealth, 3000); });
-      }
-      tryHealth();
-    })();
 
     document.getElementById('view-main').addEventListener('animationend', function handler() {
       this.removeEventListener('animationend', handler);

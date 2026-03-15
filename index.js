@@ -1,7 +1,6 @@
 process.env.NTBA_FIX_350 = 'true';
 require('dotenv').config();
 const express = require('express');
-const fs = require('fs');
 const path = require('path');
 const TelegramBot = require('node-telegram-bot-api');
 
@@ -15,11 +14,6 @@ if (!token) {
 // Инициализируем бота до любого использования
 const bot = new TelegramBot(token, { polling: false });
 
-let buildId = process.env.BUILD_ID || '';
-try {
-  buildId = fs.readFileSync(path.join(__dirname, '.build-id'), 'utf8').trim() || buildId;
-} catch (_) {}
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -27,7 +21,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', buildId: buildId || undefined });
+  res.json({ status: 'ok' });
 });
 
 function escapeMarkdownV1(text) {
@@ -88,10 +82,7 @@ async function handleStart(chatId) {
   const baseUrl = process.env.WEBAPP_URL || process.env.RENDER_EXTERNAL_URL || 'https://example.com';
   const webAppUrl = baseUrl.replace(/\/$/, '');
   const cacheBust = process.env.WEBAPP_CACHE_BUST || Date.now().toString();
-  let fullWebAppUrl = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}v=${cacheBust}`;
-  if (process.env.MAINTENANCE_MODE === 'true') {
-    fullWebAppUrl += (fullWebAppUrl.includes('?') ? '&' : '?') + 'maintenance=1';
-  }
+  const fullWebAppUrl = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}v=${cacheBust}`;
 
   try {
     const INVISIBLE = '\u200B';
