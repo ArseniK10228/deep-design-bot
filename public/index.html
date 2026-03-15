@@ -9,6 +9,10 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div id="maintenance-overlay" class="maintenance-overlay">
+    <p class="maintenance-text">Технические работы</p>
+    <div class="maintenance-spinner"></div>
+  </div>
   <div class="app">
     <div class="view view-active view-enter" id="view-main">
       <header class="app-header">
@@ -230,6 +234,23 @@
       tg.expand();
       tg.MainButton.hide();
     }
+
+    (function checkBackend() {
+      const overlay = document.getElementById('maintenance-overlay');
+      function hideOverlay() {
+        if (overlay) overlay.classList.add('maintenance-overlay-hidden');
+      }
+      if (window.location.protocol === 'file:') {
+        hideOverlay();
+        return;
+      }
+      function tryHealth() {
+        fetch('/health')
+          .then(function(r) { if (r.ok) hideOverlay(); })
+          .catch(function() { setTimeout(tryHealth, 3000); });
+      }
+      tryHealth();
+    })();
 
     document.getElementById('view-main').addEventListener('animationend', function handler() {
       this.removeEventListener('animationend', handler);
