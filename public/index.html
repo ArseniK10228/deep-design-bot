@@ -476,11 +476,11 @@
         hasError = true;
       } else if (!/^[A-Za-z0-9_@]+$/.test(usernameValue)) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = 'В @username можно только английские буквы, цифры и _';
+        usernameErr.textContent = 'Юзернейм должен быть на английском';
         hasError = true;
-      } else if (usernameValue.length < 4) {
+      } else if (usernameValue.length < 3) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = 'Минимум 4 символа в @username';
+        usernameErr.textContent = 'Слишком короткий @username';
         hasError = true;
       } else if (!usernameValue.startsWith('@')) {
         usernameInput.classList.add('form-input-error');
@@ -573,11 +573,11 @@
         hasError = true;
       } else if (!/^[A-Za-z0-9_@]+$/.test(usernameValue)) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = 'В @username можно только английские буквы, цифры и _';
+        usernameErr.textContent = 'Юзернейм должен быть на английском';
         hasError = true;
-      } else if (usernameValue.length < 4) {
+      } else if (usernameValue.length < 3) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = 'Минимум 4 символа в @username';
+        usernameErr.textContent = 'Слишком короткий @username';
         hasError = true;
       } else if (!usernameValue.startsWith('@')) {
         usernameInput.classList.add('form-input-error');
