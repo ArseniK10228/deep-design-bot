@@ -340,14 +340,25 @@
         tabbar.style.display = tabbarViews.indexOf(viewId) !== -1 ? 'flex' : 'none';
       }
 
+      // Для переходов с анимацией вправо не анимируем уход старого экрана — только заезд нового.
+      if (direction === 'right') {
+        current.classList.remove('view-active', 'view-enter', 'view-enter-right', 'view-leaving');
+        target.classList.add('view-active', 'view-enter-right');
+        target.addEventListener('animationend', function h() {
+          target.removeEventListener('animationend', h);
+          target.classList.remove('view-enter-right');
+        }, { once: true });
+        return;
+      }
+
       current.classList.add('view-leaving');
       current.addEventListener('animationend', function handler() {
         current.removeEventListener('animationend', handler);
         current.classList.remove('view-active', 'view-leaving');
-        target.classList.add('view-active', direction === 'right' ? 'view-enter-right' : 'view-enter');
+        target.classList.add('view-active', 'view-enter');
         target.addEventListener('animationend', function h() {
           target.removeEventListener('animationend', h);
-          target.classList.remove('view-enter', 'view-enter-right');
+          target.classList.remove('view-enter');
         }, { once: true });
       }, { once: true });
     }
