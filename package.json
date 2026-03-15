@@ -1,0 +1,23 @@
+{
+  "name": "telegram-deep-design-miniapp",
+  "version": "1.0.0",
+  "description": "Мини-приложение Telegram WebApp для бота Deep Design",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "build": "node scripts/inject-build-id.js"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "webapp",
+    "miniapp"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2",
+    "node-telegram-bot-api": "^0.66.0",
+    "dotenv": "^16.4.5"
+  }
+}

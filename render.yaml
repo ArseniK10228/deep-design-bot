@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: deep-design-bot
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false

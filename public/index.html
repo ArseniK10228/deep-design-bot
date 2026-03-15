@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#05040a" />
+  <title>Deep Design PC</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <script>window.__BUILD_ID = "__BUILD_ID__";</script>
+  <div id="maintenance-overlay" class="maintenance-overlay">
+    <p class="maintenance-text">Технические работы</p>
+    <div class="maintenance-spinner"></div>
+  </div>
+  <div class="app">
+    <div class="view view-active view-enter" id="view-main">
+      <header class="app-header">
+        <h1 class="app-title">
+          <span class="app-title-main">Deep Design</span>
+          <span class="app-title-accent">PC</span>
+        </h1>
+        <p class="app-header-subtitle">Сборка и апгрейд компьютеров</p>
+      </header>
+
+      <main class="app-main">
+        <section class="service-list">
+          <article class="service-card" data-action="build">
+            <div class="service-icon service-icon-build"></div>
+            <div class="service-content">
+              <h2 class="service-title">Сборка ПК</h2>
+              <p class="service-desc">
+                Полная сборка компьютера под ваши задачи.
+              </p>
+              <p class="service-price">от 1500 RUB</p>
+              <span class="service-tag"><span class="service-tag-icon"></span> Оплата после согласования</span>
+            </div>
+            <div class="service-arrow">›</div>
+          </article>
+
+          <article class="service-card" data-action="presets">
+            <div class="service-icon service-icon-ready"></div>
+            <div class="service-content">
+              <h2 class="service-title">Готовые сборки</h2>
+              <p class="service-desc">
+                Готовые решения под разные задачи и бюджет.
+              </p>
+              <p class="service-price">от 15000 RUB</p>
+            </div>
+            <div class="service-arrow">›</div>
+          </article>
+
+          <article class="service-card" data-action="upgrade">
+            <div class="service-icon service-icon-upgrade"></div>
+            <div class="service-content">
+              <h2 class="service-title">Апгрейд ПК</h2>
+              <p class="service-desc">
+                Замена и улучшение компонентов вашего ПК.
+              </p>
+              <p class="service-price">от 800 RUB</p>
+              <span class="service-tag"><span class="service-tag-icon"></span> Оплата после согласования</span>
+            </div>
+            <div class="service-arrow">›</div>
+          </article>
+
+          <article class="service-card" data-action="consult">
+            <div class="service-icon service-icon-consult"></div>
+            <div class="service-content">
+              <h2 class="service-title">Консультация</h2>
+              <p class="service-desc">
+                Оценка сборки, помощь с выбором комплектующих.
+              </p>
+              <p class="service-price">Бесплатно</p>
+            </div>
+            <div class="service-arrow">›</div>
+          </article>
+        </section>
+      </main>
+
+      <nav class="app-tabbar">
+        <button class="tabbar-item tabbar-item-active" type="button" id="tab-order">
+          <span class="tabbar-icon tabbar-icon-primary">☰</span>
+          <span class="tabbar-label">Заказ</span>
+        </button>
+        <button class="tabbar-item" type="button" id="tab-portfolio">
+          <span class="tabbar-icon">▤</span>
+          <span class="tabbar-label">Портфолио</span>
+        </button>
+        <button class="tabbar-item" type="button" id="tab-profile">
+          <span class="tabbar-icon tabbar-icon-profile"></span>
+          <span class="tabbar-label">Профиль</span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="view" id="view-build">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-main">‹</button>
+        <div class="page-header-center">
+          <h1 class="page-title">Сборка ПК</h1>
+          <p class="page-subtitle">Есть комплектующие?</p>
+        </div>
+      </header>
+      <main class="page-content">
+        <section class="service-list">
+          <article class="service-card" data-action="build_yes">
+            <div class="service-icon service-icon-yes"></div>
+            <div class="service-content">
+              <h2 class="service-title">Да</h2>
+              <p class="service-desc">Заполню список</p>
+            </div>
+            <div class="service-arrow">›</div>
+          </article>
+          <article class="service-card" data-action="build_no">
+            <div class="service-icon service-icon-no"></div>
+            <div class="service-content">
+              <h2 class="service-title">Нет</h2>
+              <p class="service-desc">Подберём вместе</p>
+            </div>
+            <div class="service-arrow">›</div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <div class="view" id="view-build-no">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-build">‹</button>
+        <div class="page-header-center">
+          <h1 class="page-title">Сборка ПК</h1>
+          <p class="page-subtitle">Опишите задачи</p>
+        </div>
+      </header>
+      <main class="page-content">
+        <div id="build-rate-limit-alert" class="alert-banner"></div>
+        <label class="form-label">ЗАДАЧИ И БЮДЖЕТ</label>
+        <textarea class="form-textarea" id="build-tasks" placeholder="ПК для игр, бюджет 30000 RUB..." rows="4"></textarea>
+        <p class="form-error" id="build-tasks-error"></p>
+        <label class="form-label">ВАШ @USERNAME</label>
+        <input class="form-input" id="build-username" placeholder="@username" />
+        <p class="form-error" id="build-username-error"></p>
+        <div class="form-price-row">
+          <span class="form-price-label">Сборка</span>
+          <span class="form-price-value">от 1500 RUB</span>
+        </div>
+        <div class="form-info-block">
+          <span class="form-info-icon">ℹ</span>
+          <p>Оплата не нужна сейчас. Менеджер рассчитает стоимость и пришлёт реквизиты после согласования.</p>
+        </div>
+        <button type="button" class="submit-btn" id="build-submit-btn">Отправить на оценку</button>
+      </main>
+    </div>
+
+    <div class="view" id="view-build-yes">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-build">‹</button>
+        <div class="page-header-center">
+          <h1 class="page-title">Комплектующие</h1>
+        </div>
+      </header>
+      <main class="page-content">
+        <div id="components-rate-limit-alert" class="alert-banner"></div>
+        <label class="form-label">CPU</label>
+        <input class="form-input" id="comp-cpu" placeholder="i5 12400F" />
+        <p class="form-error" id="comp-cpu-error"></p>
+        <label class="form-label">GPU</label>
+        <input class="form-input" id="comp-gpu" placeholder="RTX 4060" />
+        <p class="form-error" id="comp-gpu-error"></p>
+        <label class="form-label">МАТ. ПЛАТА</label>
+        <input class="form-input" id="comp-motherboard" placeholder="MSI B760" />
+        <p class="form-error" id="comp-motherboard-error"></p>
+        <label class="form-label">RAM</label>
+        <input class="form-input" id="comp-ram" placeholder="2x16GB DDR4" />
+        <p class="form-error" id="comp-ram-error"></p>
+        <label class="form-label">SSD</label>
+        <input class="form-input" id="comp-ssd" placeholder="1TB SSD" />
+        <p class="form-error" id="comp-ssd-error"></p>
+        <label class="form-label">БП</label>
+        <input class="form-input" id="comp-psu" placeholder="Deepcool PF650" />
+        <p class="form-error" id="comp-psu-error"></p>
+        <label class="form-label">КОРПУС</label>
+        <input class="form-input" id="comp-case" placeholder="Deepcool CG530" />
+        <p class="form-error" id="comp-case-error"></p>
+        <label class="form-label">ОХЛАЖДЕНИЕ</label>
+        <input class="form-input" id="comp-cooling" placeholder="ID-COOLING SE-224" />
+        <p class="form-error" id="comp-cooling-error"></p>
+        <label class="form-label">ПОЖЕЛАНИЯ (необязательно)</label>
+        <textarea class="form-textarea form-textarea-sm" id="comp-wishes" placeholder="Дополнительные пожелания..." rows="3"></textarea>
+        <p class="form-error" id="comp-wishes-error"></p>
+        <label class="form-label">ВАШ @USERNAME</label>
+        <input class="form-input" id="comp-username" placeholder="@username" />
+        <p class="form-error" id="comp-username-error"></p>
+        <div class="form-price-row">
+          <span class="form-price-label">Сборка</span>
+          <span class="form-price-value">от 1500 RUB</span>
+        </div>
+        <div class="form-info-block">
+          <span class="form-info-icon">ℹ</span>
+          <p>Оплата не нужна сейчас. Менеджер рассчитает стоимость и пришлёт реквизиты после согласования.</p>
+        </div>
+        <button type="button" class="submit-btn" id="components-submit-btn">Отправить на оценку</button>
+      </main>
+    </div>
+
+    <div class="view" id="view-build-success">
+      <main class="page-content page-content-center">
+        <p class="success-icon">✓</p>
+        <h2 class="success-title">Заявка отправлена</h2>
+        <p class="success-text">Ожидайте ответ от менеджера.</p>
+        <button type="button" class="submit-btn" id="success-home-btn">На главную</button>
+      </main>
+    </div>
+
+    <div class="view" id="view-consult">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-main">‹</button>
+        <h1 class="page-title">Консультация</h1>
+      </header>
+      <main class="page-content">
+        <p class="consult-text">
+          Бесплатная консультация по подбору комплектующих и оценке сборки.
+        </p>
+        <p class="consult-text">
+          Свяжитесь с нашим менеджером <strong>@kluph</strong> — ответим на все ваши вопросы.
+        </p>
+        <button type="button" class="consult-link" id="consult-link-btn">Написать менеджеру</button>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (tg) {
+      tg.expand();
+      tg.MainButton.hide();
+    }
+
+    (function checkBackend() {
+      const overlay = document.getElementById('maintenance-overlay');
+      function hideOverlay() {
+        if (overlay) overlay.classList.add('maintenance-overlay-hidden');
+      }
+      if (window.location.protocol === 'file:') {
+        hideOverlay();
+        return;
+      }
+      var params = new URLSearchParams(window.location.search);
+      if (params.get('maintenance') === '1') {
+        return;
+      }
+      function tryHealth() {
+        fetch('/health')
+          .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
+          .then(function(result) {
+            var serverBuildId = result.data && result.data.buildId;
+            if (serverBuildId != null && typeof window.__BUILD_ID === 'string' && window.__BUILD_ID !== serverBuildId) {
+              location.reload();
+              return;
+            }
+            if (result.ok) hideOverlay();
+          })
+          .catch(function() { setTimeout(tryHealth, 3000); });
+      }
+      tryHealth();
+    })();
+
+    document.getElementById('view-main').addEventListener('animationend', function handler() {
+      this.removeEventListener('animationend', handler);
+      this.classList.remove('view-enter');
+    }, { once: true });
+
+    function showView(viewId) {
+      const views = document.querySelectorAll('.view');
+      const target = document.getElementById(viewId);
+      const current = document.querySelector('.view-active');
+      if (!target || !current || target === current) return;
+
+      current.classList.add('view-leaving');
+      current.addEventListener('animationend', function handler() {
+        current.removeEventListener('animationend', handler);
+        current.classList.remove('view-active', 'view-leaving');
+        target.classList.add('view-active', 'view-enter');
+        target.addEventListener('animationend', function h() {
+          target.removeEventListener('animationend', h);
+          target.classList.remove('view-enter');
+        }, { once: true });
+      }, { once: true });
+    }
+
+    function sendActionToBot(action, label) {
+      if (!tg) {
+        alert('Это мини-приложение предназначено для запуска внутри Telegram.');
+        return;
+      }
+
+      if (action === 'consult') {
+        showView('view-consult');
+        return;
+      }
+
+      if (action === 'build') {
+        showView('view-build');
+        return;
+      }
+
+      if (action === 'build_no') {
+        showView('view-build-no');
+        return;
+      }
+
+      if (action === 'build_yes') {
+        showView('view-build-yes');
+        return;
+      }
+
+      if (action === 'upgrade') {
+        return;
+      }
+
+      const payload = { action, label };
+      tg.sendData(JSON.stringify(payload));
+      tg.showPopup({
+        title: 'В разработке',
+        message: 'Эта функция пока в разработке.',
+        buttons: [{ type: 'ok' }]
+      });
+    }
+
+    document.querySelectorAll('.back-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.backTo || 'view-main';
+        showView(target);
+      });
+    });
+
+    // Нижние вкладки
+    const tabOrder = document.getElementById('tab-order');
+    const tabPortfolio = document.getElementById('tab-portfolio');
+    const tabProfile = document.getElementById('tab-profile');
+
+    if (tabOrder) {
+      tabOrder.addEventListener('click', () => {
+        showView('view-main');
+      });
+    }
+
+    function showInDevelopment() {
+      if (!tg) return;
+      tg.showPopup({
+        title: 'В разработке',
+        message: 'Эта функция пока в разработке.',
+        buttons: [{ type: 'ok' }]
+      });
+    }
+
+    if (tabPortfolio) {
+      tabPortfolio.addEventListener('click', () => {
+        showInDevelopment();
+      });
+    }
+
+    if (tabProfile) {
+      tabProfile.addEventListener('click', () => {
+        showInDevelopment();
+      });
+    }
+
+    document.getElementById('consult-link-btn').addEventListener('click', () => {
+      if (tg) tg.openTelegramLink('https://t.me/kluph');
+      else window.open('https://t.me/kluph', '_blank');
+    });
+
+    document.getElementById('build-tasks').addEventListener('input', () => {
+      const el = document.getElementById('build-tasks');
+      const err = document.getElementById('build-tasks-error');
+      el.classList.remove('form-textarea-error');
+      err.textContent = '';
+    });
+
+    document.getElementById('build-username').addEventListener('input', () => {
+      const el = document.getElementById('build-username');
+      const err = document.getElementById('build-username-error');
+      el.classList.remove('form-input-error');
+      err.textContent = '';
+    });
+
+    const COMP_FIELDS = [
+      { id: 'comp-cpu', label: 'CPU' },
+      { id: 'comp-gpu', label: 'GPU' },
+      { id: 'comp-motherboard', label: 'Мат. плата' },
+      { id: 'comp-ram', label: 'RAM' },
+      { id: 'comp-ssd', label: 'SSD' },
+      { id: 'comp-psu', label: 'БП' },
+      { id: 'comp-case', label: 'Корпус' },
+      { id: 'comp-cooling', label: 'Охлаждение' }
+    ];
+    COMP_FIELDS.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      const errId = id + '-error';
+      if (el) el.addEventListener('input', () => {
+        el.classList.remove('form-input-error');
+        const err = document.getElementById(errId);
+        if (err) err.textContent = '';
+      });
+    });
+    document.getElementById('comp-username').addEventListener('input', () => {
+      const el = document.getElementById('comp-username');
+      const err = document.getElementById('comp-username-error');
+      el.classList.remove('form-input-error');
+      err.textContent = '';
+    });
+
+    document.getElementById('build-submit-btn').addEventListener('click', async () => {
+      if (!tg) return;
+      const RATE_LIMIT_MS = 5 * 60 * 1000;
+      const alertEl = document.getElementById('build-rate-limit-alert');
+
+      const lastTsRaw = localStorage.getItem('buildRequestLastAt');
+      const lastTs = lastTsRaw ? parseInt(lastTsRaw, 10) : 0;
+      const now = Date.now();
+      if (lastTs && now - lastTs < RATE_LIMIT_MS) {
+        alertEl.textContent = 'Повторно заявку можно отправить через 5 минут';
+        alertEl.classList.add('alert-banner-visible');
+        return;
+      } else {
+        alertEl.classList.remove('alert-banner-visible');
+        alertEl.textContent = '';
+      }
+      const tasksEl = document.getElementById('build-tasks');
+      const tasks = tasksEl.value.trim();
+      const errEl = document.getElementById('build-tasks-error');
+      const usernameInput = document.getElementById('build-username');
+      const usernameValue = usernameInput.value.trim();
+      const usernameErr = document.getElementById('build-username-error');
+      let hasError = false;
+
+      if (!tasks) {
+        tasksEl.classList.add('form-textarea-error');
+        errEl.textContent = 'Заполните поле «Задачи и бюджет»';
+        hasError = true;
+      } else if (tasks.length < 10) {
+        tasksEl.classList.add('form-textarea-error');
+        errEl.textContent = 'Сообщение должно содержать минимум 10 символов';
+        hasError = true;
+      } else {
+        tasksEl.classList.remove('form-textarea-error');
+        errEl.textContent = '';
+      }
+
+      if (!usernameValue && !tg.initDataUnsafe?.user?.username) {
+        usernameInput.classList.add('form-input-error');
+        usernameErr.textContent = 'Укажите ваш @username';
+        hasError = true;
+      } else if (usernameValue && usernameValue.indexOf(' ') !== -1) {
+        usernameInput.classList.add('form-input-error');
+        usernameErr.textContent = 'В @username нельзя использовать пробелы';
+        hasError = true;
+      } else if (usernameValue && !/^[A-Za-z0-9_@]+$/.test(usernameValue)) {
+        usernameInput.classList.add('form-input-error');
+        usernameErr.textContent = 'Юзернейм должен быть на английском';
+        hasError = true;
+      } else if (usernameValue && usernameValue.length < 5) {
+        usernameInput.classList.add('form-input-error');
+        usernameErr.textContent = 'Слишком короткий @username';
+        hasError = true;
+      } else if (usernameValue && !usernameValue.startsWith('@')) {
+        usernameInput.classList.add('form-input-error');
+        usernameErr.textContent = 'Сообщение должно начинаться с @';
+        hasError = true;
+      } else {
+        usernameInput.classList.remove('form-input-error');
+        usernameErr.textContent = '';
+      }
+
+      if (hasError) {
+        return;
+      }
+      const btn = document.getElementById('build-submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Отправка...';
+      const user = tg.initDataUnsafe?.user || {};
+      try {
+        const res = await fetch('/api/build-request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tasks,
+            userId: user.id,
+            username_form: usernameValue || '',
+            username_tg: user.username || '',
+            firstName: user.first_name
+          })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          localStorage.setItem('buildRequestLastAt', String(Date.now()));
+          showView('view-build-success');
+        } else {
+          tg.showPopup({ title: 'Ошибка', message: 'Не удалось отправить заявку. Попробуйте позже.', buttons: [{ type: 'ok' }] });
+        }
+      } catch (e) {
+        tg.showPopup({ title: 'Ошибка', message: 'Не удалось отправить заявку. Проверьте интернет.', buttons: [{ type: 'ok' }] });
+      }
+      btn.disabled = false;
+      btn.textContent = 'Отправить на оценку';
+    });
+
+    document.getElementById('components-submit-btn').addEventListener('click', async () => {
+      if (!tg) return;
+      const RATE_LIMIT_MS = 5 * 60 * 1000;
+      const alertEl = document.getElementById('components-rate-limit-alert');
+      const lastTsRaw = localStorage.getItem('buildRequestLastAt');
+      const lastTs = lastTsRaw ? parseInt(lastTsRaw, 10) : 0;
+      const now = Date.now();
+      if (lastTs && now - lastTs < RATE_LIMIT_MS) {
+        alertEl.textContent = 'Повторно заявку можно отправить через 5 минут';
+        alertEl.classList.add('alert-banner-visible');
+        return;
+      }
+      alertEl.classList.remove('alert-banner-visible');
+      alertEl.textContent = '';
+
+      let hasError = false;
+      COMP_FIELDS.forEach(({ id, label }) => {
+        const el = document.getElementById(id);
+        const errEl = document.getElementById(id + '-error');
+        const v = (el && el.value || '').trim();
+        if (!v) {
+          el.classList.add('form-input-error');
+          errEl.textContent = 'Заполните поле «' + label + '»';
+          hasError = true;
+        } else {
+          el.classList.remove('form-input-error');
+          errEl.textContent = '';
+        }
+      });
+
+      const usernameInput = document.getElementById('comp-username');
+      const usernameValue = (usernameInput && usernameInput.value || '').trim();
+      const usernameErr = document.getElementById('comp-username-error');
+      if (!usernameValue && !tg.initDataUnsafe?.user?.username) {
+        usernameInput.classList.add('form-input-error');
+        usernameErr.textContent = 'Укажите ваш @username';
+        hasError = true;
+      } else if (usernameValue && usernameValue.indexOf(' ') !== -1) {
+        usernameInput.classList.add('form-input-error');
+        usernameErr.textContent = 'В @username нельзя использовать пробелы';
+        hasError = true;
+      } else if (usernameValue && !/^[A-Za-z0-9_@]+$/.test(usernameValue)) {
+        usernameInput.classList.add('form-input-error');
+        usernameErr.textContent = 'Юзернейм должен быть на английском';
+        hasError = true;
+      } else if (usernameValue && usernameValue.length < 5) {
+        usernameInput.classList.add('form-input-error');
+        usernameErr.textContent = 'Слишком короткий @username';
+        hasError = true;
+      } else if (usernameValue && !usernameValue.startsWith('@')) {
+        usernameInput.classList.add('form-input-error');
+        usernameErr.textContent = 'Сообщение должно начинаться с @';
+        hasError = true;
+      } else {
+        usernameInput.classList.remove('form-input-error');
+        usernameErr.textContent = '';
+      }
+
+      if (hasError) return;
+
+      const parts = [];
+      COMP_FIELDS.forEach(({ id, label }) => {
+        const el = document.getElementById(id);
+        if (el && el.value) parts.push(label + ': ' + el.value.trim());
+      });
+      const wishes = (document.getElementById('comp-wishes') && document.getElementById('comp-wishes').value || '').trim();
+      if (wishes) parts.push('Пожелания: ' + wishes);
+      const tasks = parts.join('\n');
+
+      const btn = document.getElementById('components-submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Отправка...';
+      const user = tg.initDataUnsafe?.user || {};
+      try {
+        const res = await fetch('/api/build-request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tasks,
+            requestType: 'components',
+            userId: user.id,
+            username_form: usernameValue || '',
+            username_tg: user.username || '',
+            firstName: user.first_name
+          })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          localStorage.setItem('buildRequestLastAt', String(Date.now()));
+          showView('view-build-success');
+        } else {
+          tg.showPopup({ title: 'Ошибка', message: 'Не удалось отправить заявку. Попробуйте позже.', buttons: [{ type: 'ok' }] });
+        }
+      } catch (e) {
+        tg.showPopup({ title: 'Ошибка', message: 'Не удалось отправить заявку. Проверьте интернет.', buttons: [{ type: 'ok' }] });
+      }
+      btn.disabled = false;
+      btn.textContent = 'Отправить на оценку';
+    });
+
+    document.getElementById('success-home-btn').addEventListener('click', () => {
+      showView('view-main');
+    });
+
+    document.querySelectorAll('.service-card').forEach((card) => {
+      card.addEventListener('click', () => {
+        const action = card.dataset.action;
+        const label = card.querySelector('.service-title')?.textContent?.trim() || 'Услуга';
+        const desc = card.querySelector('.service-desc')?.textContent?.trim();
+        const fullLabel = desc ? `${label} — ${desc}` : label;
+        sendActionToBot(action, fullLabel);
+      });
+    });
+  </script>
+</body>
+</html>
