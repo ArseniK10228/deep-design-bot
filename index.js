@@ -32,6 +32,7 @@ app.post('/api/build-request', async (req, res) => {
   try {
     const {
       tasks,
+      requestType,
       userId,
       username_form: usernameForm,
       username_tg: usernameTg,
@@ -40,6 +41,9 @@ app.post('/api/build-request', async (req, res) => {
 
     const ownerId = process.env.OWNER_CHAT_ID;
     const tasksText = (tasks || '').trim() || '(не указано)';
+    const isComponents = requestType === 'components';
+    const taskLabel = isComponents ? 'Список комплектующих' : 'Список';
+    const subtitle = isComponents ? 'Сборка (список комплектующих)' : 'Сборка (список)';
 
     // Логируем для отладки, что реально приходит с фронта
     console.log('Build request body:', req.body);
@@ -52,8 +56,8 @@ app.post('/api/build-request', async (req, res) => {
       ? '@' + escapeMarkdownV1(String(usernameTg).replace(/^@/, ''))
       : 'не удалось определить';
 
-    const ownerMsg = `🖥 *Новая заявка: Сборка (подберём вместе)*\n\n` +
-      `*Задачи:*\n${tasksText}\n\n` +
+    const ownerMsg = `🖥 *Новая заявка: ${subtitle}*\n\n` +
+      `*${taskLabel}:*\n${tasksText}\n\n` +
       `*Юзернейм из формы:*\n${safeFormUsername}\n\n` +
       `*От кого отправлено (Telegram):*\n${safeProgramUsername}`;
 
