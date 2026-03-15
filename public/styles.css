@@ -53,6 +53,28 @@
   }
 }
 
+@keyframes page-leave-left {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+}
+
+@keyframes page-leave-right {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+}
+
 @keyframes maintenance-spin {
   to { transform: rotate(360deg); }
 }
@@ -322,6 +344,14 @@ a:active {
 
 .view-leaving {
   animation: page-leave 0.25s ease-in forwards;
+}
+
+.view-active.view-leave-left {
+  animation: page-leave-left 0.4s ease-in-out forwards;
+}
+
+.view-active.view-leave-right {
+  animation: page-leave-right 0.4s ease-in-out forwards;
 }
 
 .app-header {

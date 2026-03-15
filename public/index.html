@@ -339,25 +339,24 @@
         tabbar.style.display = tabbarViews.indexOf(viewId) !== -1 ? 'flex' : 'none';
       }
 
-      // Для переходов с анимацией вправо не анимируем уход старого экрана — только заезд нового.
+      let leaveClass = 'view-leaving';
+      let enterClass = 'view-enter';
       if (direction === 'right') {
-        current.classList.remove('view-active', 'view-enter', 'view-enter-right', 'view-leaving');
-        target.classList.add('view-active', 'view-enter-right');
-        target.addEventListener('animationend', function h() {
-          target.removeEventListener('animationend', h);
-          target.classList.remove('view-enter-right');
-        }, { once: true });
-        return;
+        leaveClass = 'view-leave-left';
+        enterClass = 'view-enter-right';
+      } else if (direction === 'left') {
+        leaveClass = 'view-leave-right';
+        enterClass = 'view-enter-left';
       }
 
-      current.classList.add('view-leaving');
+      current.classList.add(leaveClass);
       current.addEventListener('animationend', function handler() {
         current.removeEventListener('animationend', handler);
-        current.classList.remove('view-active', 'view-leaving');
-        target.classList.add('view-active', 'view-enter');
+        current.classList.remove('view-active', 'view-leaving', 'view-leave-left', 'view-leave-right');
+        target.classList.add('view-active', enterClass);
         target.addEventListener('animationend', function h() {
           target.removeEventListener('animationend', h);
-          target.classList.remove('view-enter');
+          target.classList.remove('view-enter', 'view-enter-right', 'view-enter-left');
         }, { once: true });
       }, { once: true });
     }
