@@ -301,6 +301,10 @@
         return;
       }
 
+      if (action === 'upgrade') {
+        return;
+      }
+
       const payload = { action, label };
       tg.sendData(JSON.stringify(payload));
       tg.showPopup({
