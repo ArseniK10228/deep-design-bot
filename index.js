@@ -199,6 +199,30 @@ app.post('/api/presets', async (req, res) => {
   }
 });
 
+app.post('/api/presets/update', async (req, res) => {
+  try {
+    const ownerId = process.env.OWNER_CHAT_ID;
+    const { userId, id, title, price, image, description } = req.body || {};
+    if (!ownerId || !userId || String(ownerId) !== String(userId)) {
+      return res.status(403).json({ ok: false });
+    }
+    const cur = await getPresets();
+    const idx = cur.findIndex((item) => String(item.id) === String(id));
+    if (idx === -1) {
+      return res.status(404).json({ ok: false });
+    }
+    if (title !== undefined) cur[idx].title = String(title || '').trim();
+    if (price !== undefined) cur[idx].price = String(price || '').trim();
+    if (image !== undefined) cur[idx].image = String(image || '').trim();
+    if (description !== undefined) cur[idx].description = String(description || '').trim();
+    await savePresets(cur);
+    res.json({ ok: true, item: cur[idx] });
+  } catch (e) {
+    console.error('Presets update error:', e?.message || e);
+    res.status(500).json({ ok: false });
+  }
+});
+
 app.post('/api/presets/delete', async (req, res) => {
   try {
     const ownerId = process.env.OWNER_CHAT_ID;

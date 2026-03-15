@@ -197,23 +197,31 @@
         </div>
       </header>
       <main class="page-content">
-        <section class="owner-form">
-          <h2 class="owner-form-title">Новое предложение</h2>
-          <label class="form-label">Название</label>
-          <input class="form-input" id="owner-preset-title" placeholder="Игровой ПК 1080p" />
-          <p class="form-error" id="owner-preset-title-error"></p>
-          <label class="form-label">Цена</label>
-          <input class="form-input" id="owner-preset-price" placeholder="от 35000 RUB" />
-          <p class="form-error" id="owner-preset-price-error"></p>
-          <label class="form-label">Картинка (необязательно)</label>
-          <input class="form-input" id="owner-preset-image" type="file" accept="image/*" />
-          <p class="form-error" id="owner-preset-image-error"></p>
-          <label class="form-label">Описание</label>
-          <textarea class="form-textarea form-textarea-sm" id="owner-preset-description" placeholder="Кратко опишите сборку..." rows="3"></textarea>
-          <p class="form-error" id="owner-preset-description-error"></p>
-          <button type="button" class="submit-btn" id="owner-preset-save-btn">Сохранить предложение</button>
+        <div class="owner-presets-tabs">
+          <button type="button" class="owner-tab-btn is-active" id="owner-tab-create">Создать новое предложение</button>
+          <button type="button" class="owner-tab-btn" id="owner-tab-edit">Редактировать предложения</button>
+        </div>
+        <section class="owner-create-panel" id="owner-create-panel">
+          <div class="owner-form">
+            <h2 class="owner-form-title">Новое предложение</h2>
+            <label class="form-label">Название</label>
+            <input class="form-input" id="owner-preset-title" placeholder="Игровой ПК 1080p" />
+            <p class="form-error" id="owner-preset-title-error"></p>
+            <label class="form-label">Цена</label>
+            <input class="form-input" id="owner-preset-price" placeholder="от 35000 RUB" />
+            <p class="form-error" id="owner-preset-price-error"></p>
+            <label class="form-label">Картинка (необязательно)</label>
+            <input class="form-input" id="owner-preset-image" type="file" accept="image/*" />
+            <p class="form-error" id="owner-preset-image-error"></p>
+            <label class="form-label">Описание</label>
+            <textarea class="form-textarea form-textarea-sm" id="owner-preset-description" placeholder="Кратко опишите сборку..." rows="3"></textarea>
+            <p class="form-error" id="owner-preset-description-error"></p>
+            <button type="button" class="submit-btn" id="owner-preset-save-btn">Сохранить предложение</button>
+          </div>
         </section>
-        <section class="card-list" id="owner-presets-list"></section>
+        <section class="owner-edit-panel card-list hidden" id="owner-edit-panel">
+          <div id="owner-presets-list"></div>
+        </section>
       </main>
     </div>
 
@@ -755,13 +763,38 @@
       return html;
     }
 
+    function escapeAttr(s) {
+      return String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
     function renderOwnerPresetCard(item) {
       var base = renderPresetCard(item);
-      // вставляем кнопку удаления внутрь карточки
       return base.replace(
         '</div></article>',
         '<button type=\"button\" class=\"preset-delete-btn\" data-preset-id=\"' + item.id + '\">Удалить</button></div></article>'
       );
+    }
+
+    function renderOwnerPresetEditCard(item) {
+      var imgBlock = '';
+      if (item.image) {
+        imgBlock = '<img class=\"preset-edit-current-img\" src=\"' + escapeAttr(item.image) + '\" alt=\"\" />';
+      }
+      imgBlock += '<input type=\"file\" class=\"form-input preset-edit-image-input\" accept=\"image/*\" data-preset-id=\"' + escapeAttr(item.id) + '\" />';
+      var html = '<article class=\"preset-edit-card\" data-preset-id=\"' + escapeAttr(item.id) + '\">';
+      html += '<label class=\"form-label\">Название</label>';
+      html += '<input class=\"form-input preset-edit-title\" value=\"' + escapeAttr(item.title) + '\" data-preset-id=\"' + escapeAttr(item.id) + '\" />';
+      html += '<label class=\"form-label\">Цена</label>';
+      html += '<input class=\"form-input preset-edit-price\" value=\"' + escapeAttr(item.price) + '\" data-preset-id=\"' + escapeAttr(item.id) + '\" />';
+      html += '<label class=\"form-label\">Картинка</label>';
+      html += '<div class=\"preset-edit-image-wrap\">' + imgBlock + '</div>';
+      html += '<label class=\"form-label\">Описание</label>';
+      html += '<textarea class=\"form-textarea form-textarea-sm preset-edit-desc\" data-preset-id=\"' + escapeAttr(item.id) + '\">' + escapeAttr(item.description) + '</textarea>';
+      html += '<div class=\"preset-edit-actions\">';
+      html += '<button type=\"button\" class=\"submit-btn preset-save-btn\" data-preset-id=\"' + escapeAttr(item.id) + '\">Сохранить изменения</button>';
+      html += '<button type=\"button\" class=\"preset-delete-btn\" data-preset-id=\"' + escapeAttr(item.id) + '\">Удалить</button>';
+      html += '</div></article>';
+      return html;
     }
 
     async function loadPublicPresets() {
@@ -773,38 +806,108 @@
       listEl.innerHTML = items.map(renderPresetCard).join('');
     }
 
-    async function loadOwnerPresets() {
+    async function loadOwnerEditPresets() {
       var listEl = document.getElementById('owner-presets-list');
       if (!listEl) return;
       listEl.innerHTML = '';
       var items = await fetchPresets();
-      if (!items.length) return;
-      listEl.innerHTML = items.map(renderOwnerPresetCard).join('');
-      Array.prototype.forEach.call(
-        listEl.querySelectorAll('.preset-delete-btn'),
-        function (btn) {
-          btn.addEventListener('click', async function (e) {
-            e.stopPropagation();
-            if (!tg || !currentUser) return;
-            var id = btn.getAttribute('data-preset-id');
+      if (!items.length) {
+        listEl.innerHTML = '<p class="consult-text">Нет предложений. Создайте новое во вкладке «Создать новое предложение».</p>';
+        return;
+      }
+      listEl.innerHTML = items.map(renderOwnerPresetEditCard).join('');
+      listEl.querySelectorAll('.preset-save-btn').forEach(function (btn) {
+        btn.addEventListener('click', async function (e) {
+          e.stopPropagation();
+          if (!tg || !currentUser) return;
+          var id = btn.getAttribute('data-preset-id');
+          var card = listEl.querySelector('.preset-edit-card[data-preset-id="' + id + '"]');
+          if (!card) return;
+          var titleEl = card.querySelector('.preset-edit-title');
+          var priceEl = card.querySelector('.preset-edit-price');
+          var descEl = card.querySelector('.preset-edit-desc');
+          var imageInput = card.querySelector('.preset-edit-image-input');
+          var title = (titleEl && titleEl.value || '').trim();
+          var price = (priceEl && priceEl.value || '').trim();
+          var description = (descEl && descEl.value || '').trim();
+          if (!title) {
+            tg.showPopup({ title: 'Ошибка', message: 'Заполните название.', buttons: [{ type: 'ok' }] });
+            return;
+          }
+          var payload = { userId: currentUser.id, id: id, title: title, price: price, description: description };
+          if (imageInput && imageInput.files && imageInput.files[0]) {
             try {
-              var res = await fetch('/api/presets/delete', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: currentUser.id, id: id })
-              });
-              var data = await res.json();
-              if (data && data.ok) {
-                await loadOwnerPresets();
-              } else {
-                tg.showPopup({ title: 'Ошибка', message: 'Не удалось удалить предложение.', buttons: [{ type: 'ok' }] });
-              }
+              payload.image = await readFileAsDataUrl(imageInput.files[0]);
             } catch (_) {
+              tg.showPopup({ title: 'Ошибка', message: 'Не удалось прочитать картинку.', buttons: [{ type: 'ok' }] });
+              return;
+            }
+          }
+          btn.disabled = true;
+          btn.textContent = 'Сохранение...';
+          try {
+            var res = await fetch('/api/presets/update', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            var data = await res.json();
+            if (data && data.ok) {
+              await loadOwnerEditPresets();
+              tg.showPopup({ title: 'Готово', message: 'Изменения сохранены.', buttons: [{ type: 'ok' }] });
+            } else {
+              tg.showPopup({ title: 'Ошибка', message: 'Не удалось сохранить.', buttons: [{ type: 'ok' }] });
+            }
+          } catch (_) {
+            tg.showPopup({ title: 'Ошибка', message: 'Не удалось сохранить.', buttons: [{ type: 'ok' }] });
+          } finally {
+            btn.disabled = false;
+            btn.textContent = 'Сохранить изменения';
+          }
+        });
+      });
+      listEl.querySelectorAll('.preset-edit-card .preset-delete-btn').forEach(function (btn) {
+        btn.addEventListener('click', async function (e) {
+          e.stopPropagation();
+          if (!tg || !currentUser) return;
+          var id = btn.getAttribute('data-preset-id');
+          try {
+            var res = await fetch('/api/presets/delete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userId: currentUser.id, id: id })
+            });
+            var data = await res.json();
+            if (data && data.ok) {
+              await loadOwnerEditPresets();
+            } else {
               tg.showPopup({ title: 'Ошибка', message: 'Не удалось удалить предложение.', buttons: [{ type: 'ok' }] });
             }
-          });
-        }
-      );
+          } catch (_) {
+            tg.showPopup({ title: 'Ошибка', message: 'Не удалось удалить предложение.', buttons: [{ type: 'ok' }] });
+          }
+        });
+      });
+    }
+
+    function switchOwnerPresetsTab(mode) {
+      var createPanel = document.getElementById('owner-create-panel');
+      var editPanel = document.getElementById('owner-edit-panel');
+      var tabCreate = document.getElementById('owner-tab-create');
+      var tabEdit = document.getElementById('owner-tab-edit');
+      if (!createPanel || !editPanel || !tabCreate || !tabEdit) return;
+      if (mode === 'edit') {
+        createPanel.classList.add('hidden');
+        editPanel.classList.remove('hidden');
+        tabCreate.classList.remove('is-active');
+        tabEdit.classList.add('is-active');
+        loadOwnerEditPresets();
+      } else {
+        createPanel.classList.remove('hidden');
+        editPanel.classList.add('hidden');
+        tabCreate.classList.add('is-active');
+        tabEdit.classList.remove('is-active');
+      }
     }
 
     const presetsCard = document.querySelector('[data-action=\"presets\"]');
@@ -825,6 +928,11 @@
     }
 
     if (isOwnerApp) {
+      var ownerTabCreate = document.getElementById('owner-tab-create');
+      var ownerTabEdit = document.getElementById('owner-tab-edit');
+      if (ownerTabCreate) ownerTabCreate.addEventListener('click', function () { switchOwnerPresetsTab('create'); });
+      if (ownerTabEdit) ownerTabEdit.addEventListener('click', function () { switchOwnerPresetsTab('edit'); });
+
       var ownerSaveBtn = document.getElementById('owner-preset-save-btn');
       if (ownerSaveBtn) {
         ownerSaveBtn.addEventListener('click', async function () {
@@ -891,7 +999,6 @@
               priceEl.value = '';
               if (imageInput) imageInput.value = '';
               descEl.value = '';
-              await loadOwnerPresets();
               tg.showPopup({ title: 'Готово', message: 'Предложение сохранено.', buttons: [{ type: 'ok' }] });
             }
           } catch (e) {

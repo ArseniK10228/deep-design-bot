@@ -250,6 +250,90 @@ a:active {
   gap: 12px;
 }
 
+.owner-presets-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.owner-tab-btn {
+  flex: 1;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e0dcf0;
+  cursor: pointer;
+}
+
+.owner-tab-btn.is-active {
+  border-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.2);
+  color: #c4b5fd;
+}
+
+.owner-create-panel.hidden,
+.owner-edit-panel.hidden {
+  display: none !important;
+}
+
+.owner-edit-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.preset-edit-card {
+  border-radius: 18px;
+  background: #0a0714;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.preset-edit-card .form-label { font-size: 12px; margin-bottom: 2px; }
+.preset-edit-card .form-input,
+.preset-edit-card .form-textarea { font-size: 14px; padding: 8px 10px; }
+.preset-edit-card .form-textarea { min-height: 60px; resize: vertical; }
+
+.preset-edit-image-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.preset-edit-current-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: #151022;
+}
+
+.preset-edit-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.preset-edit-actions .submit-btn { flex: 1; min-width: 120px; }
+.preset-save-btn { background: rgba(76, 175, 80, 0.2); border-color: rgba(76, 175, 80, 0.5); color: #a5d6a7; }
+.preset-delete-btn {
+  align-self: flex-start;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 999px;
+  border: 1px solid rgba(239, 83, 80, 0.6);
+  background: rgba(239, 83, 80, 0.1);
+  color: #ff9b9b;
+  cursor: pointer;
+}
+
 .owner-form {
   width: 100%;
   padding: 0;
@@ -313,17 +397,9 @@ a:active {
   color: #a49ec5;
 }
 
-.preset-delete-btn {
+.preset-card .preset-delete-btn {
   align-self: flex-start;
   margin-left: 8px;
-  padding: 6px 10px;
-  font-size: 11px;
-  font-weight: 500;
-  border-radius: 999px;
-  border: 1px solid rgba(239, 83, 80, 0.6);
-  background: rgba(239, 83, 80, 0.1);
-  color: #ff9b9b;
-  cursor: pointer;
 }
 
 .view-active {
