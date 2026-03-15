@@ -208,10 +208,7 @@ a:active {
 
 .owner-form {
   width: 100%;
-  border-radius: 18px;
-  background: #101018;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6);
-  padding: 16px 16px 18px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 6px;
