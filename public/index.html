@@ -264,7 +264,13 @@
           loadingBar.classList.remove('top-loading-bar-hidden');
           loadingBar.setAttribute('aria-hidden', 'false');
         }
-        setTimeout(function() { location.reload(); }, 420);
+        setTimeout(function() {
+          if (loadingBar) {
+            loadingBar.classList.add('top-loading-bar-hidden');
+            loadingBar.setAttribute('aria-hidden', 'true');
+          }
+          setTimeout(function() { location.reload(); }, 380);
+        }, 480);
       });
       if (window.location.protocol !== 'file:') poll();
     })();
