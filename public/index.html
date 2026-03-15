@@ -426,13 +426,21 @@
       const RATE_LIMIT_MS = 5 * 60 * 1000;
       const alertEl = document.getElementById('build-rate-limit-alert');
 
-      const lastTsRaw = localStorage.getItem('buildRequestLastAt');
-      const lastTs = lastTsRaw ? parseInt(lastTsRaw, 10) : 0;
-      const now = Date.now();
-      if (lastTs && now - lastTs < RATE_LIMIT_MS) {
-        alertEl.textContent = 'Повторно заявку можно отправить через 5 минут';
-        alertEl.classList.add('alert-banner-visible');
-        return;
+      const currentUser = tg.initDataUnsafe?.user || {};
+      const isOwner = currentUser && currentUser.username === 'ShadowwOneLove';
+
+      if (!isOwner) {
+        const lastTsRaw = localStorage.getItem('buildRequestLastAt');
+        const lastTs = lastTsRaw ? parseInt(lastTsRaw, 10) : 0;
+        const now = Date.now();
+        if (lastTs && now - lastTs < RATE_LIMIT_MS) {
+          alertEl.textContent = 'Повторно заявку можно отправить через 5 минут';
+          alertEl.classList.add('alert-banner-visible');
+          return;
+        } else {
+          alertEl.classList.remove('alert-banner-visible');
+          alertEl.textContent = '';
+        }
       } else {
         alertEl.classList.remove('alert-banner-visible');
         alertEl.textContent = '';
@@ -458,25 +466,25 @@
         errEl.textContent = '';
       }
 
-      if (!usernameValue && !tg.initDataUnsafe?.user?.username) {
+      if (!usernameValue) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = 'Укажите ваш @username';
+        usernameErr.textContent = 'Заполните поле @username';
         hasError = true;
-      } else if (usernameValue && usernameValue.indexOf(' ') !== -1) {
+      } else if (usernameValue.indexOf(' ') !== -1) {
         usernameInput.classList.add('form-input-error');
         usernameErr.textContent = 'В @username нельзя использовать пробелы';
         hasError = true;
-      } else if (usernameValue && !/^[A-Za-z0-9_@]+$/.test(usernameValue)) {
+      } else if (!/^[A-Za-z0-9_@]+$/.test(usernameValue)) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = 'Юзернейм должен быть на английском';
+        usernameErr.textContent = 'В @username можно только английские буквы, цифры и _';
         hasError = true;
-      } else if (usernameValue && usernameValue.length < 5) {
+      } else if (usernameValue.length < 4) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = 'Слишком короткий @username';
+        usernameErr.textContent = 'Минимум 4 символа в @username';
         hasError = true;
-      } else if (usernameValue && !usernameValue.startsWith('@')) {
+      } else if (!usernameValue.startsWith('@')) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = 'Сообщение должно начинаться с @';
+        usernameErr.textContent = '@username должен начинаться с @';
         hasError = true;
       } else {
         usernameInput.classList.remove('form-input-error');
@@ -520,13 +528,19 @@
       if (!tg) return;
       const RATE_LIMIT_MS = 5 * 60 * 1000;
       const alertEl = document.getElementById('components-rate-limit-alert');
-      const lastTsRaw = localStorage.getItem('buildRequestLastAt');
-      const lastTs = lastTsRaw ? parseInt(lastTsRaw, 10) : 0;
-      const now = Date.now();
-      if (lastTs && now - lastTs < RATE_LIMIT_MS) {
-        alertEl.textContent = 'Повторно заявку можно отправить через 5 минут';
-        alertEl.classList.add('alert-banner-visible');
-        return;
+
+      const currentUser = tg.initDataUnsafe?.user || {};
+      const isOwner = currentUser && currentUser.username === 'ShadowwOneLove';
+
+      if (!isOwner) {
+        const lastTsRaw = localStorage.getItem('buildRequestLastAt');
+        const lastTs = lastTsRaw ? parseInt(lastTsRaw, 10) : 0;
+        const now = Date.now();
+        if (lastTs && now - lastTs < RATE_LIMIT_MS) {
+          alertEl.textContent = 'Повторно заявку можно отправить через 5 минут';
+          alertEl.classList.add('alert-banner-visible');
+          return;
+        }
       }
       alertEl.classList.remove('alert-banner-visible');
       alertEl.textContent = '';
@@ -549,25 +563,25 @@
       const usernameInput = document.getElementById('comp-username');
       const usernameValue = (usernameInput && usernameInput.value || '').trim();
       const usernameErr = document.getElementById('comp-username-error');
-      if (!usernameValue && !tg.initDataUnsafe?.user?.username) {
+      if (!usernameValue) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = 'Укажите ваш @username';
+        usernameErr.textContent = 'Заполните поле @username';
         hasError = true;
-      } else if (usernameValue && usernameValue.indexOf(' ') !== -1) {
+      } else if (usernameValue.indexOf(' ') !== -1) {
         usernameInput.classList.add('form-input-error');
         usernameErr.textContent = 'В @username нельзя использовать пробелы';
         hasError = true;
-      } else if (usernameValue && !/^[A-Za-z0-9_@]+$/.test(usernameValue)) {
+      } else if (!/^[A-Za-z0-9_@]+$/.test(usernameValue)) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = 'Юзернейм должен быть на английском';
+        usernameErr.textContent = 'В @username можно только английские буквы, цифры и _';
         hasError = true;
-      } else if (usernameValue && usernameValue.length < 5) {
+      } else if (usernameValue.length < 4) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = 'Слишком короткий @username';
+        usernameErr.textContent = 'Минимум 4 символа в @username';
         hasError = true;
-      } else if (usernameValue && !usernameValue.startsWith('@')) {
+      } else if (!usernameValue.startsWith('@')) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = 'Сообщение должно начинаться с @';
+        usernameErr.textContent = '@username должен начинаться с @';
         hasError = true;
       } else {
         usernameInput.classList.remove('form-input-error');
