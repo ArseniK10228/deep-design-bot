@@ -898,17 +898,12 @@
       imgHtml += '</div></div>';
       var html = '<article class=\"avito-card\" data-preset-id=\"' + escapeAttr(item.id) + '\" tabindex=\"0\" role=\"button\">';
       html += imgHtml;
-      html += '<div class=\"avito-card-content\">';
+      html += '<div class=\"avito-card-body\">';
       html += '<h2 class=\"avito-card-title\">' + escapeAttr(item.title || '') + '</h2>';
       if (item.price) {
-        html += '<p class=\"avito-card-price\">' + escapeAttr(item.price) + '</p>';
+        html += '<p class=\"avito-card-price\">' + escapeAttr(item.price) + ' <span class=\"avito-card-ruble\">Р</span></p>';
       }
-      if (item.description) {
-        var shortDesc = (item.description || '').replace(/\s+/g, ' ').trim().slice(0, 60);
-        if (item.description.length > 60) shortDesc += '…';
-        html += '<p class=\"avito-card-desc\">' + escapeAttr(shortDesc) + '</p>';
-      }
-      html += '</div><div class=\"avito-card-arrow\">›</div></article>';
+      html += '</div></article>';
       return html;
     }
 
@@ -920,7 +915,7 @@
       var base = renderPresetCard(item);
       return base.replace(
         '</div></article>',
-        '<button type=\"button\" class=\"preset-delete-btn\" data-preset-id=\"' + item.id + '\">Удалить</button></div></article>'
+        '<button type=\"button\" class=\"preset-delete-btn\" data-preset-id=\"' + item.id + '\">Удалить</button></article>'
       );
     }
 
