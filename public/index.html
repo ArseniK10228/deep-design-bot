@@ -376,17 +376,22 @@
         return;
       }
 
+      if (action === 'presets') {
+        showView('view-presets');
+        loadPublicPresets();
+        return;
+      }
+
       if (action === 'upgrade') {
+        return;
+      }
+
+      if (!action) {
         return;
       }
 
       const payload = { action, label };
       tg.sendData(JSON.stringify(payload));
-      tg.showPopup({
-        title: 'В разработке',
-        message: 'Эта функция пока в разработке.',
-        buttons: [{ type: 'ok' }]
-      });
     }
 
     document.querySelectorAll('.back-btn').forEach((btn) => {
