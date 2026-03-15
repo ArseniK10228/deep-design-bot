@@ -35,6 +35,44 @@
   to { transform: rotate(360deg); }
 }
 
+.top-loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 10000;
+  overflow: hidden;
+  background: rgba(139, 108, 255, 0.3);
+  transition: opacity 0.2s ease, height 0.2s ease;
+}
+
+.top-loading-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 36%;
+  height: 100%;
+  background: #8b6cff;
+  animation: top-loading-bar-run 0.4s ease-out forwards;
+}
+
+.top-loading-bar-hidden {
+  opacity: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.top-loading-bar-hidden::after {
+  animation: none;
+}
+
+@keyframes top-loading-bar-run {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(350%); }
+}
+
 .maintenance-overlay {
   position: fixed;
   inset: 0;

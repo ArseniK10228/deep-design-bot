@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div id="top-loading-bar" class="top-loading-bar top-loading-bar-hidden" aria-hidden="true"></div>
   <div id="maintenance-overlay" class="maintenance-overlay">
     <p class="maintenance-text">Технические работы</p>
     <div class="maintenance-spinner"></div>
@@ -257,7 +258,14 @@
         }).catch(function() { setTimeout(poll, pollInterval); });
       }
       var retryBtn = document.getElementById('maintenance-retry-btn');
-      if (retryBtn) retryBtn.addEventListener('click', function() { location.reload(); });
+      var loadingBar = document.getElementById('top-loading-bar');
+      if (retryBtn) retryBtn.addEventListener('click', function() {
+        if (loadingBar) {
+          loadingBar.classList.remove('top-loading-bar-hidden');
+          loadingBar.setAttribute('aria-hidden', 'false');
+        }
+        setTimeout(function() { location.reload(); }, 420);
+      });
       if (window.location.protocol !== 'file:') poll();
     })();
 
