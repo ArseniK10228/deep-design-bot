@@ -1,6 +1,7 @@
 process.env.NTBA_FIX_350 = 'true';
 require('dotenv').config();
 const express = require('express');
+const fs = require('fs');
 const path = require('path');
 const TelegramBot = require('node-telegram-bot-api');
 
@@ -14,6 +15,20 @@ if (!token) {
 // Инициализируем бота до любого использования
 const bot = new TelegramBot(token, { polling: false });
 
+const MAINTENANCE_FILE = path.join(__dirname, '.maintenance');
+
+function getMaintenanceFlag() {
+  try {
+    return fs.readFileSync(MAINTENANCE_FILE, 'utf8').trim() === 'true';
+  } catch (_) {
+    return false;
+  }
+}
+
+function setMaintenanceFlag(value) {
+  fs.writeFileSync(MAINTENANCE_FILE, value ? 'true' : 'false', 'utf8');
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -21,7 +36,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
+  res.json({ status: 'ok', maintenance: getMaintenanceFlag() });
 });
 
 function escapeMarkdownV1(text) {
@@ -128,13 +143,54 @@ bot.onText(/\/start|\/menu/i, async (msg) => {
   }
 });
 
+bot.onText(/\/maintenance/i, async (msg) => {
+  const ownerId = process.env.OWNER_CHAT_ID;
+  if (!ownerId || String(msg.from?.id) !== String(ownerId)) return;
+  try {
+    const on = getMaintenanceFlag();
+    const text = on
+      ? '🔧 *Режим техработ включён*\nПользователи видят экран «Технические работы». Нажмите кнопку, чтобы выключить.'
+      : '🔧 *Режим техработ выключен*\nНажмите кнопку, чтобы включить — тогда у всех будет показываться «Технические работы».';
+    const buttonText = on ? '✅ Выключить техработы' : '⚠️ Включить техработы';
+    await bot.sendMessage(msg.chat.id, text, {
+      parse_mode: 'Markdown',
+      reply_markup: { inline_keyboard: [[{ text: buttonText, callback_data: 'maintenance_toggle' }]] }
+    });
+  } catch (err) {
+    console.error('Maintenance command error:', err?.message || err);
+  }
+});
+
 bot.on('callback_query', async (query) => {
   try {
     const data = query.data;
     const chatId = query.message?.chat?.id;
     const messageId = query.message?.message_id;
+    const ownerId = process.env.OWNER_CHAT_ID;
 
     if (!data || !chatId) return;
+
+    if (data === 'maintenance_toggle') {
+      if (!ownerId || String(query.from?.id) !== String(ownerId)) {
+        await bot.answerCallbackQuery(query.id, { text: 'Только владелец бота может переключать.' });
+        return;
+      }
+      const wasOn = getMaintenanceFlag();
+      setMaintenanceFlag(!wasOn);
+      const nowOn = getMaintenanceFlag();
+      const text = nowOn
+        ? '🔧 *Режим техработ включён*\nПользователи видят экран «Технические работы». Нажмите кнопку, чтобы выключить.'
+        : '🔧 *Режим техработ выключен*\nНажмите кнопку, чтобы включить.';
+      const buttonText = nowOn ? '✅ Выключить техработы' : '⚠️ Включить техработы';
+      await bot.answerCallbackQuery(query.id, { text: nowOn ? 'Техработы включены' : 'Техработы выключены' });
+      await bot.editMessageText(text, {
+        chat_id: chatId,
+        message_id: messageId,
+        parse_mode: 'Markdown',
+        reply_markup: { inline_keyboard: [[{ text: buttonText, callback_data: 'maintenance_toggle' }]] }
+      });
+      return;
+    }
 
     if (data === 'my_orders' || data === 'check_status') {
       await bot.answerCallbackQuery(query.id);
@@ -142,7 +198,6 @@ bot.on('callback_query', async (query) => {
       return;
     }
 
-    // на всякий случай подтверждаем остальные колбэки
     await bot.answerCallbackQuery(query.id);
   } catch (err) {
     console.error('Callback error:', err?.message || err);

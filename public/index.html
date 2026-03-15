@@ -9,6 +9,10 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div id="maintenance-overlay" class="maintenance-overlay maintenance-overlay-hidden">
+    <p class="maintenance-text">Технические работы</p>
+    <div class="maintenance-spinner"></div>
+  </div>
   <div class="app">
     <div class="view view-active view-enter" id="view-main">
       <header class="app-header">
@@ -230,6 +234,22 @@
       tg.expand();
       tg.MainButton.hide();
     }
+
+    (function checkMaintenance() {
+      var overlay = document.getElementById('maintenance-overlay');
+      function setOverlay(show) {
+        if (!overlay) return;
+        if (show) overlay.classList.remove('maintenance-overlay-hidden');
+        else overlay.classList.add('maintenance-overlay-hidden');
+      }
+      function poll() {
+        fetch('/health').then(function(r) { return r.json(); }).then(function(data) {
+          setOverlay(!!data.maintenance);
+          if (data.maintenance) setTimeout(poll, 10000);
+        }).catch(function() { setTimeout(poll, 10000); });
+      }
+      if (window.location.protocol !== 'file:') poll();
+    })();
 
     document.getElementById('view-main').addEventListener('animationend', function handler() {
       this.removeEventListener('animationend', handler);
