@@ -576,13 +576,40 @@ a:active {
   animation: page-enter 0.35s ease-out backwards;
 }
 
-#view-build-yes .alert-banner { animation-delay: 0.06s; }
-#view-build-yes .form-label { animation-delay: 0.1s; }
-#view-build-yes .form-input { animation-delay: 0.12s; }
-#view-build-yes .form-textarea { animation-delay: 0.2s; }
-#view-build-yes .form-price-row { animation-delay: 0.28s; }
-#view-build-yes .form-info-block { animation-delay: 0.34s; }
-#view-build-yes .submit-btn { animation-delay: 0.4s; }
+#view-build-yes .page-content > *:nth-child(1) { animation-delay: 0.06s; }
+#view-build-yes .page-content > *:nth-child(2) { animation-delay: 0.09s; }
+#view-build-yes .page-content > *:nth-child(3) { animation-delay: 0.12s; }
+#view-build-yes .page-content > *:nth-child(4) { animation-delay: 0.15s; }
+#view-build-yes .page-content > *:nth-child(5) { animation-delay: 0.18s; }
+#view-build-yes .page-content > *:nth-child(6) { animation-delay: 0.21s; }
+#view-build-yes .page-content > *:nth-child(7) { animation-delay: 0.24s; }
+#view-build-yes .page-content > *:nth-child(8) { animation-delay: 0.27s; }
+#view-build-yes .page-content > *:nth-child(9) { animation-delay: 0.30s; }
+#view-build-yes .page-content > *:nth-child(10) { animation-delay: 0.33s; }
+#view-build-yes .page-content > *:nth-child(11) { animation-delay: 0.36s; }
+#view-build-yes .page-content > *:nth-child(12) { animation-delay: 0.39s; }
+#view-build-yes .page-content > *:nth-child(13) { animation-delay: 0.42s; }
+#view-build-yes .page-content > *:nth-child(14) { animation-delay: 0.45s; }
+#view-build-yes .page-content > *:nth-child(15) { animation-delay: 0.48s; }
+#view-build-yes .page-content > *:nth-child(16) { animation-delay: 0.51s; }
+#view-build-yes .page-content > *:nth-child(17) { animation-delay: 0.54s; }
+#view-build-yes .page-content > *:nth-child(18) { animation-delay: 0.57s; }
+#view-build-yes .page-content > *:nth-child(19) { animation-delay: 0.60s; }
+#view-build-yes .page-content > *:nth-child(20) { animation-delay: 0.63s; }
+#view-build-yes .page-content > *:nth-child(21) { animation-delay: 0.66s; }
+#view-build-yes .page-content > *:nth-child(22) { animation-delay: 0.69s; }
+#view-build-yes .page-content > *:nth-child(23) { animation-delay: 0.72s; }
+#view-build-yes .page-content > *:nth-child(24) { animation-delay: 0.75s; }
+#view-build-yes .page-content > *:nth-child(25) { animation-delay: 0.78s; }
+#view-build-yes .page-content > *:nth-child(26) { animation-delay: 0.81s; }
+#view-build-yes .page-content > *:nth-child(27) { animation-delay: 0.84s; }
+#view-build-yes .page-content > *:nth-child(28) { animation-delay: 0.87s; }
+#view-build-yes .page-content > *:nth-child(29) { animation-delay: 0.90s; }
+#view-build-yes .page-content > *:nth-child(30) { animation-delay: 0.93s; }
+#view-build-yes .page-content > *:nth-child(31) { animation-delay: 0.96s; }
+#view-build-yes .page-content > *:nth-child(32) { animation-delay: 0.99s; }
+#view-build-yes .page-content > *:nth-child(33) { animation-delay: 1.02s; }
+#view-build-yes .page-content > *:nth-child(34) { animation-delay: 1.05s; }
 
 .form-textarea.form-textarea-sm {
   min-height: 72px;
