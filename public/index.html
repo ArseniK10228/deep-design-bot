@@ -191,7 +191,6 @@
 
     <div class="view" id="view-owner-presets">
       <header class="page-header">
-        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-main">‹</button>
         <div class="page-header-center">
           <h1 class="page-title">Предложения</h1>
           <p class="page-subtitle">Готовые сборки в меню</p>
@@ -431,8 +430,10 @@
 
     if (tabOrder) {
       tabOrder.addEventListener('click', () => {
+        const current = document.querySelector('.view-active');
+        const dir = current && (current.id === 'view-owner-presets' || current.id === 'view-presets') ? 'left' : undefined;
         setActiveTab(tabOrder);
-        showView('view-main');
+        showView('view-main', dir);
       });
     }
 

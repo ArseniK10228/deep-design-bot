@@ -34,7 +34,18 @@
 @keyframes page-enter-right {
   from {
     opacity: 0;
-    transform: translateX(24px);
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes page-enter-left {
+  from {
+    opacity: 0;
+    transform: translateX(-28px);
   }
   to {
     opacity: 1;
@@ -302,7 +313,11 @@ a:active {
 }
 
 .view-active.view-enter-right {
-  animation: page-enter-right 0.3s ease-out forwards;
+  animation: page-enter-right 0.4s ease-in-out forwards;
+}
+
+.view-active.view-enter-left {
+  animation: page-enter-left 0.4s ease-in-out forwards;
 }
 
 .view-leaving {
