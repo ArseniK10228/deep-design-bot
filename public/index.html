@@ -334,6 +334,12 @@
       const current = document.querySelector('.view-active');
       if (!target || !current || target === current) return;
 
+      const tabbar = document.querySelector('.app-tabbar');
+      const tabbarViews = ['view-main', 'view-owner-presets', 'view-presets'];
+      if (tabbar) {
+        tabbar.style.display = tabbarViews.indexOf(viewId) !== -1 ? 'flex' : 'none';
+      }
+
       current.classList.add('view-leaving');
       current.addEventListener('animationend', function handler() {
         current.removeEventListener('animationend', handler);
