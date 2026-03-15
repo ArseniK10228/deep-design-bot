@@ -98,6 +98,20 @@ app.post('/api/build-request', async (req, res) => {
 
 let welcomePhotoFileId = null;
 
+function buildStartKeyboard(chatId, fullWebAppUrl) {
+  const ownerId = process.env.OWNER_CHAT_ID;
+  const isOwner = ownerId && String(chatId) === String(ownerId);
+  const maintenanceOn = getMaintenanceFlag();
+  return {
+    inline_keyboard: [
+      [{ text: 'Оформить заявку', web_app: { url: fullWebAppUrl } }],
+      [{ text: 'Мои заказы', callback_data: 'my_orders' }],
+      [{ text: 'Проверить статус', callback_data: 'check_status' }],
+      ...(isOwner ? [[{ text: maintenanceOn ? '🔧 Техработы: ВКЛ' : '🔧 Техработы: ВЫКЛ', callback_data: 'maintenance_toggle' }]] : [])
+    ]
+  };
+}
+
 async function handleStart(chatId) {
   const baseUrl = process.env.WEBAPP_URL || process.env.RENDER_EXTERNAL_URL || 'https://example.com';
   const webAppUrl = baseUrl.replace(/\/$/, '');
@@ -113,13 +127,7 @@ async function handleStart(chatId) {
     bot.deleteMessage(chatId, m.message_id).catch(() => {});
   } catch (_) {}
 
-  const replyMarkup = {
-    inline_keyboard: [
-      [{ text: 'Оформить заявку', web_app: { url: fullWebAppUrl } }],
-      [{ text: 'Мои заказы', callback_data: 'my_orders' }],
-      [{ text: 'Проверить статус', callback_data: 'check_status' }]
-    ]
-  };
+  const replyMarkup = buildStartKeyboard(chatId, fullWebAppUrl);
 
   const text = '*Deep Design PC*\n\nСборка, апгрейд и консультации.\nНажмите «Оформить заявку».';
 
@@ -183,17 +191,27 @@ bot.on('callback_query', async (query) => {
       const wasOn = getMaintenanceFlag();
       setMaintenanceFlag(!wasOn);
       const nowOn = getMaintenanceFlag();
-      const text = nowOn
-        ? '🔧 *Режим техработ включён*\nПользователи видят экран «Технические работы». Нажмите кнопку, чтобы выключить.'
-        : '🔧 *Режим техработ выключен*\nНажмите кнопку, чтобы включить.';
-      const buttonText = nowOn ? '✅ Выключить техработы' : '⚠️ Включить техработы';
       await bot.answerCallbackQuery(query.id, { text: nowOn ? 'Техработы включены' : 'Техработы выключены' });
-      await bot.editMessageText(text, {
-        chat_id: chatId,
-        message_id: messageId,
-        parse_mode: 'Markdown',
-        reply_markup: { inline_keyboard: [[{ text: buttonText, callback_data: 'maintenance_toggle' }]] }
-      });
+      const isPhotoMessage = query.message?.photo && query.message.photo.length > 0;
+      if (isPhotoMessage) {
+        const baseUrl = process.env.WEBAPP_URL || process.env.RENDER_EXTERNAL_URL || 'https://example.com';
+        const webAppUrl = baseUrl.replace(/\/$/, '');
+        const fullWebAppUrl = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}v=${Date.now()}`;
+        const newMarkup = buildStartKeyboard(chatId, fullWebAppUrl);
+        await bot.editMessageReplyMarkup(newMarkup, { chat_id: chatId, message_id: messageId });
+      } else {
+        const buttonText = nowOn ? '🔧 Техработы: ВКЛ' : '🔧 Техработы: ВЫКЛ';
+        const newMarkup = { inline_keyboard: [[{ text: buttonText, callback_data: 'maintenance_toggle' }]] };
+        const text = nowOn
+          ? '🔧 *Режим техработ включён*\nПользователи видят экран «Технические работы». Нажмите кнопку, чтобы выключить.'
+          : '🔧 *Режим техработ выключен*\nНажмите кнопку, чтобы включить.';
+        await bot.editMessageText(text, {
+          chat_id: chatId,
+          message_id: messageId,
+          parse_mode: 'Markdown',
+          reply_markup: newMarkup
+        });
+      }
       return;
     }
 
