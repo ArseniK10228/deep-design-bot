@@ -227,8 +227,8 @@
               <label class="form-label">Цена</label>
               <input class="form-input" id="owner-preset-price" placeholder="от 35000 RUB" />
               <p class="form-error" id="owner-preset-price-error"></p>
-              <label class="form-label">Ссылка на картинку (необязательно)</label>
-              <input class="form-input" id="owner-preset-image" placeholder="https://..." />
+              <label class="form-label">Картинка (необязательно)</label>
+              <input class="form-input" id="owner-preset-image" type="file" accept="image/*" />
               <p class="form-error" id="owner-preset-image-error"></p>
               <label class="form-label">Описание</label>
               <textarea class="form-textarea form-textarea-sm" id="owner-preset-description" placeholder="Кратко опишите сборку..." rows="3"></textarea>
@@ -408,24 +408,15 @@
       });
     }
 
-    function showInDevelopment() {
-      if (!tg) return;
-      tg.showPopup({
-        title: 'В разработке',
-        message: 'Эта функция пока в разработке.',
-        buttons: [{ type: 'ok' }]
-      });
-    }
-
     if (tabPortfolio) {
       tabPortfolio.addEventListener('click', () => {
-        showInDevelopment();
+        showView('view-main');
       });
     }
 
     if (tabProfile) {
       tabProfile.addEventListener('click', () => {
-        showInDevelopment();
+        showView('view-main');
       });
     }
 
@@ -759,6 +750,15 @@
       });
     }
 
+    function readFileAsDataUrl(file) {
+      return new Promise(function (resolve, reject) {
+        var reader = new FileReader();
+        reader.onload = function () { resolve(reader.result); };
+        reader.onerror = function (e) { reject(e); };
+        reader.readAsDataURL(file);
+      });
+    }
+
     if (isOwnerApp) {
       var ownerSaveBtn = document.getElementById('owner-preset-save-btn');
       if (ownerSaveBtn) {
@@ -766,7 +766,7 @@
           if (!tg || !currentUser) return;
           var titleEl = document.getElementById('owner-preset-title');
           var priceEl = document.getElementById('owner-preset-price');
-          var imageEl = document.getElementById('owner-preset-image');
+          var imageInput = document.getElementById('owner-preset-image');
           var descEl = document.getElementById('owner-preset-description');
           var titleErr = document.getElementById('owner-preset-title-error');
           var priceErr = document.getElementById('owner-preset-price-error');
@@ -780,7 +780,7 @@
 
           var title = (titleEl.value || '').trim();
           var price = (priceEl.value || '').trim();
-          var image = (imageEl.value || '').trim();
+          var imageFile = imageInput && imageInput.files && imageInput.files[0];
           var description = (descEl.value || '').trim();
           var hasError = false;
 
@@ -794,6 +794,16 @@
           }
           if (hasError) return;
 
+          var imageData = '';
+          if (imageFile) {
+            try {
+              imageData = await readFileAsDataUrl(imageFile);
+            } catch (_) {
+              imageErr.textContent = 'Не удалось прочитать файл.';
+              return;
+            }
+          }
+
           ownerSaveBtn.disabled = true;
           ownerSaveBtn.textContent = 'Сохранение...';
           try {
@@ -804,7 +814,7 @@
                 userId: currentUser.id,
                 title: title,
                 price: price,
-                image: image,
+                image: imageData,
                 description: description
               })
             });
@@ -814,7 +824,7 @@
             } else {
               titleEl.value = '';
               priceEl.value = '';
-              imageEl.value = '';
+              if (imageInput) imageInput.value = '';
               descEl.value = '';
               await loadOwnerPresets();
               tg.showPopup({ title: 'Готово', message: 'Предложение сохранено.', buttons: [{ type: 'ok' }] });
