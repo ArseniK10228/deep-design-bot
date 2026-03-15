@@ -199,6 +199,23 @@ app.post('/api/presets', async (req, res) => {
   }
 });
 
+app.post('/api/presets/delete', async (req, res) => {
+  try {
+    const ownerId = process.env.OWNER_CHAT_ID;
+    const { userId, id } = req.body || {};
+    if (!ownerId || !userId || String(ownerId) !== String(userId)) {
+      return res.status(403).json({ ok: false });
+    }
+    const cur = await getPresets();
+    const next = cur.filter((item) => String(item.id) !== String(id));
+    await savePresets(next);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('Presets delete error:', e?.message || e);
+    res.status(500).json({ ok: false });
+  }
+});
+
 let welcomePhotoFileId = null;
 
 function buildStartKeyboard(chatId, fullWebAppUrl) {

@@ -724,6 +724,15 @@
       return html;
     }
 
+    function renderOwnerPresetCard(item) {
+      var base = renderPresetCard(item);
+      // вставляем кнопку удаления внутрь карточки
+      return base.replace(
+        '</div></article>',
+        '<button type=\"button\" class=\"preset-delete-btn\" data-preset-id=\"' + item.id + '\">Удалить</button></div></article>'
+      );
+    }
+
     async function loadPublicPresets() {
       var listEl = document.getElementById('presets-list');
       if (!listEl) return;
@@ -739,7 +748,32 @@
       listEl.innerHTML = '';
       var items = await fetchPresets();
       if (!items.length) return;
-      listEl.innerHTML = items.map(renderPresetCard).join('');
+      listEl.innerHTML = items.map(renderOwnerPresetCard).join('');
+      Array.prototype.forEach.call(
+        listEl.querySelectorAll('.preset-delete-btn'),
+        function (btn) {
+          btn.addEventListener('click', async function (e) {
+            e.stopPropagation();
+            if (!tg || !currentUser) return;
+            var id = btn.getAttribute('data-preset-id');
+            try {
+              var res = await fetch('/api/presets/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: currentUser.id, id: id })
+              });
+              var data = await res.json();
+              if (data && data.ok) {
+                await loadOwnerPresets();
+              } else {
+                tg.showPopup({ title: 'Ошибка', message: 'Не удалось удалить предложение.', buttons: [{ type: 'ok' }] });
+              }
+            } catch (_) {
+              tg.showPopup({ title: 'Ошибка', message: 'Не удалось удалить предложение.', buttons: [{ type: 'ok' }] });
+            }
+          });
+        }
+      );
     }
 
     const presetsCard = document.querySelector('[data-action=\"presets\"]');
