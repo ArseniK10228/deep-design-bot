@@ -38,7 +38,6 @@
   margin: 0;
   padding: 0;
   -webkit-tap-highlight-color: transparent !important;
-  tap-highlight-color: transparent !important;
 }
 
 html {
@@ -472,10 +471,10 @@ a:active {
 .alert-banner {
   position: relative;
   margin: 0 16px 0;
-  padding: 10px 14px;
+  padding: 0 14px;
   border-radius: 10px;
-  background: rgba(229, 57, 53, 0.16);
-  border: 1px solid rgba(229, 57, 53, 0.7);
+  border: 1px solid transparent;
+  background: transparent;
   color: #ffb3b0;
   font-size: 13px;
   text-align: center;
@@ -485,13 +484,19 @@ a:active {
   transition:
     max-height 0.4s ease,
     opacity 0.4s ease,
-    margin-bottom 0.4s ease;
+    margin-bottom 0.4s ease,
+    padding 0.4s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
 }
 
 .alert-banner-visible {
   max-height: 80px;
   opacity: 1;
   margin-bottom: 12px;
+  padding: 10px 14px;
+  border-color: rgba(229, 57, 53, 0.7);
+  background: rgba(229, 57, 53, 0.16);
 }
 
 .consult-text {
@@ -556,6 +561,52 @@ a:active {
 #view-build-no .form-price-row { animation-delay: 0.26s; }
 #view-build-no .form-info-block { animation-delay: 0.34s; }
 #view-build-no .submit-btn { animation-delay: 0.42s; }
+
+#view-build-yes .page-header {
+  animation: page-enter 0.3s ease-out backwards;
+}
+
+#view-build-yes .alert-banner,
+#view-build-yes .form-label,
+#view-build-yes .form-input,
+#view-build-yes .form-textarea,
+#view-build-yes .form-price-row,
+#view-build-yes .form-info-block,
+#view-build-yes .submit-btn {
+  animation: page-enter 0.35s ease-out backwards;
+}
+
+#view-build-yes .alert-banner { animation-delay: 0.06s; }
+#view-build-yes .form-label { animation-delay: 0.1s; }
+#view-build-yes .form-input { animation-delay: 0.12s; }
+#view-build-yes .form-textarea { animation-delay: 0.2s; }
+#view-build-yes .form-price-row { animation-delay: 0.28s; }
+#view-build-yes .form-info-block { animation-delay: 0.34s; }
+#view-build-yes .submit-btn { animation-delay: 0.4s; }
+
+.form-textarea.form-textarea-sm {
+  min-height: 72px;
+}
+
+#view-build-yes #comp-wishes-error {
+  margin-bottom: 2px;
+}
+
+#view-build-yes .form-label {
+  margin-bottom: 3px;
+}
+
+#view-build-yes .form-input {
+  margin-bottom: 5px;
+}
+
+#view-build-yes .form-textarea {
+  margin-bottom: 6px;
+}
+
+#view-build-yes .form-error {
+  margin: -2px 0 3px 0;
+}
 
 .form-label {
   display: block;
