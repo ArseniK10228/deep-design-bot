@@ -335,11 +335,11 @@ a:active {
 }
 
 .view-active.view-enter-right {
-  animation: page-enter-right 0.4s ease-in-out forwards;
+  animation: page-enter-right 0.28s ease-in-out forwards;
 }
 
 .view-active.view-enter-left {
-  animation: page-enter-left 0.4s ease-in-out forwards;
+  animation: page-enter-left 0.28s ease-in-out forwards;
 }
 
 .view-leaving {
@@ -347,11 +347,11 @@ a:active {
 }
 
 .view-active.view-leave-left {
-  animation: page-leave-left 0.4s ease-in-out forwards;
+  animation: page-leave-left 0.28s ease-in-out forwards;
 }
 
 .view-active.view-leave-right {
-  animation: page-leave-right 0.4s ease-in-out forwards;
+  animation: page-leave-right 0.28s ease-in-out forwards;
 }
 
 .app-header {
