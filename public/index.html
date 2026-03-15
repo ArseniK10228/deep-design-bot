@@ -12,6 +12,7 @@
   <div id="maintenance-overlay" class="maintenance-overlay">
     <p class="maintenance-text">Технические работы</p>
     <div class="maintenance-spinner"></div>
+    <button type="button" class="maintenance-retry-btn" id="maintenance-retry-btn">Попробовать ещё раз</button>
   </div>
   <div class="app">
     <div class="view view-active view-enter" id="view-main">
@@ -254,6 +255,8 @@
           if (data.maintenance) setTimeout(poll, 10000);
         }).catch(function() { setTimeout(poll, 10000); });
       }
+      var retryBtn = document.getElementById('maintenance-retry-btn');
+      if (retryBtn) retryBtn.addEventListener('click', function() { poll(); });
       if (window.location.protocol !== 'file:') poll();
     })();
 

@@ -70,6 +70,25 @@
   animation: maintenance-spin 0.8s linear infinite;
 }
 
+.maintenance-retry-btn {
+  margin-top: 28px;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #e0ddf0;
+  background: rgba(139, 108, 255, 0.25);
+  border: 1px solid rgba(139, 108, 255, 0.5);
+  border-radius: 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.maintenance-retry-btn:hover,
+.maintenance-retry-btn:active {
+  background: rgba(139, 108, 255, 0.4);
+}
+
 *,
 *::before,
 *::after {
