@@ -242,8 +242,14 @@
         if (show) overlay.classList.remove('maintenance-overlay-hidden');
         else overlay.classList.add('maintenance-overlay-hidden');
       }
+      function getUserId() {
+        var tg = window.Telegram && window.Telegram.WebApp;
+        return (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) || '';
+      }
       function poll() {
-        fetch('/health').then(function(r) { return r.json(); }).then(function(data) {
+        var uid = getUserId();
+        var url = '/health' + (uid ? '?user_id=' + encodeURIComponent(uid) : '');
+        fetch(url).then(function(r) { return r.json(); }).then(function(data) {
           setOverlay(!!data.maintenance);
           if (data.maintenance) setTimeout(poll, 10000);
         }).catch(function() { setTimeout(poll, 10000); });

@@ -36,7 +36,12 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', maintenance: getMaintenanceFlag() });
+  const maintenanceOn = getMaintenanceFlag();
+  const ownerId = process.env.OWNER_CHAT_ID;
+  const userId = req.query.user_id != null ? String(req.query.user_id) : null;
+  const isOwner = ownerId && userId && String(ownerId) === userId;
+  const maintenance = maintenanceOn && !isOwner;
+  res.json({ status: 'ok', maintenance });
 });
 
 function escapeMarkdownV1(text) {
