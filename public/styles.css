@@ -413,6 +413,53 @@ a:active {
   color: #8a8599;
 }
 
+/* Пошаговое создание объявления */
+.page-step {
+  font-size: 12px;
+  font-weight: 500;
+  color: #8a8599;
+  margin: 0 0 2px 0;
+}
+
+.wizard-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wizard-content .form-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.create-review {
+  background: #0f0d14;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.create-review-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #8a8599;
+  margin: 0;
+}
+
+.create-review-value {
+  font-size: 15px;
+  color: #e8e4f0;
+  margin: 0 0 4px 0;
+  line-height: 1.4;
+}
+
+.create-review-value:last-of-type {
+  margin-bottom: 0;
+}
+
 .preset-edit-card {
   border-radius: 18px;
   background: #0a0714;

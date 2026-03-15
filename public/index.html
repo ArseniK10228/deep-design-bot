@@ -218,30 +218,96 @@
       </main>
     </div>
 
-    <div class="view" id="view-owner-create">
+    <!-- Пошаговое создание объявления (как на Авито) -->
+    <div class="view" id="view-owner-create-1">
       <header class="page-header">
         <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-owner-presets">‹</button>
         <div class="page-header-center">
-          <h1 class="page-title">Новое предложение</h1>
-          <p class="page-subtitle">Добавить сборку в каталог</p>
+          <p class="page-step">Шаг 1 из 5</p>
+          <h1 class="page-title">Описание</h1>
+          <p class="page-subtitle">Опишите сборку: для каких задач, комплектующие</p>
         </div>
       </header>
-      <main class="page-content">
-        <div class="owner-form">
-          <label class="form-label">Название</label>
-          <input class="form-input" id="owner-preset-title" placeholder="Игровой ПК 1080p" />
-          <p class="form-error" id="owner-preset-title-error"></p>
-          <label class="form-label">Цена</label>
-          <input class="form-input" id="owner-preset-price" placeholder="от 35000 RUB" />
-          <p class="form-error" id="owner-preset-price-error"></p>
-          <label class="form-label">Картинка (необязательно)</label>
-          <input class="form-input" id="owner-preset-image" type="file" accept="image/*" />
-          <p class="form-error" id="owner-preset-image-error"></p>
-          <label class="form-label">Описание</label>
-          <textarea class="form-textarea form-textarea-sm" id="owner-preset-description" placeholder="Кратко опишите сборку..." rows="3"></textarea>
-          <p class="form-error" id="owner-preset-description-error"></p>
-          <button type="button" class="submit-btn" id="owner-preset-save-btn">Сохранить предложение</button>
+      <main class="page-content wizard-content">
+        <label class="form-label">Описание</label>
+        <textarea class="form-textarea" id="create-step-desc" placeholder="Например: Игровой ПК для 1080p, 60 FPS. Ryzen 5, GTX 1660, 16 ГБ RAM..." rows="5"></textarea>
+        <p class="form-error" id="create-step-desc-error"></p>
+        <button type="button" class="submit-btn" id="create-step-1-next">Далее</button>
+      </main>
+    </div>
+
+    <div class="view" id="view-owner-create-2">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-owner-create-1">‹</button>
+        <div class="page-header-center">
+          <p class="page-step">Шаг 2 из 5</p>
+          <h1 class="page-title">Название</h1>
+          <p class="page-subtitle">Короткое название объявления</p>
         </div>
+      </header>
+      <main class="page-content wizard-content">
+        <label class="form-label">Название</label>
+        <input class="form-input" id="create-step-title" placeholder="Игровой ПК 1080p" />
+        <p class="form-error" id="create-step-title-error"></p>
+        <button type="button" class="submit-btn" id="create-step-2-next">Далее</button>
+      </main>
+    </div>
+
+    <div class="view" id="view-owner-create-3">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-owner-create-2">‹</button>
+        <div class="page-header-center">
+          <p class="page-step">Шаг 3 из 5</p>
+          <h1 class="page-title">Цена</h1>
+          <p class="page-subtitle">Укажите цену или диапазон</p>
+        </div>
+      </header>
+      <main class="page-content wizard-content">
+        <label class="form-label">Цена</label>
+        <input class="form-input" id="create-step-price" placeholder="от 35 000 ₽" />
+        <p class="form-error" id="create-step-price-error"></p>
+        <button type="button" class="submit-btn" id="create-step-3-next">Далее</button>
+      </main>
+    </div>
+
+    <div class="view" id="view-owner-create-4">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-owner-create-3">‹</button>
+        <div class="page-header-center">
+          <p class="page-step">Шаг 4 из 5</p>
+          <h1 class="page-title">Фото</h1>
+          <p class="page-subtitle">Добавьте фото сборки (необязательно)</p>
+        </div>
+      </header>
+      <main class="page-content wizard-content">
+        <label class="form-label">Картинка</label>
+        <input class="form-input" id="create-step-image" type="file" accept="image/*" />
+        <p class="form-error" id="create-step-image-error"></p>
+        <button type="button" class="submit-btn" id="create-step-4-next">Далее</button>
+      </main>
+    </div>
+
+    <div class="view" id="view-owner-create-5">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-owner-create-4">‹</button>
+        <div class="page-header-center">
+          <p class="page-step">Шаг 5 из 5</p>
+          <h1 class="page-title">Проверьте</h1>
+          <p class="page-subtitle">Всё верно? Опубликуйте объявление</p>
+        </div>
+      </header>
+      <main class="page-content wizard-content">
+        <div class="create-review" id="create-review">
+          <p class="create-review-label">Название</p>
+          <p class="create-review-value" id="review-title"></p>
+          <p class="create-review-label">Описание</p>
+          <p class="create-review-value" id="review-desc"></p>
+          <p class="create-review-label">Цена</p>
+          <p class="create-review-value" id="review-price"></p>
+          <p class="create-review-label">Фото</p>
+          <p class="create-review-value" id="review-photo"></p>
+        </div>
+        <button type="button" class="submit-btn" id="create-step-5-publish">Опубликовать</button>
       </main>
     </div>
 
@@ -455,7 +521,16 @@
       }
 
       if (action === 'owner_create') {
-        showView('view-owner-create');
+        createDraft = { description: '', title: '', price: '', image: '' };
+        var d = document.getElementById('create-step-desc');
+        var t = document.getElementById('create-step-title');
+        var p = document.getElementById('create-step-price');
+        var i = document.getElementById('create-step-image');
+        if (d) d.value = '';
+        if (t) t.value = '';
+        if (p) p.value = '';
+        if (i) i.value = '';
+        showView('view-owner-create-1');
         return;
       }
 
@@ -805,6 +880,7 @@
     }
 
     var lastPresetsList = [];
+    var createDraft = { description: '', title: '', price: '', image: '' };
 
     function renderPresetCard(item) {
       var hasImage = item.image && item.image.length > 0;
@@ -1015,79 +1091,102 @@
     }
 
     if (isOwnerApp) {
-      var ownerSaveBtn = document.getElementById('owner-preset-save-btn');
-      if (ownerSaveBtn) {
-        ownerSaveBtn.addEventListener('click', async function () {
+      function createStep1Next() {
+        var descEl = document.getElementById('create-step-desc');
+        var errEl = document.getElementById('create-step-desc-error');
+        var v = (descEl && descEl.value || '').trim();
+        if (!v) {
+          if (errEl) errEl.textContent = 'Введите описание.';
+          return;
+        }
+        if (errEl) errEl.textContent = '';
+        createDraft.description = v;
+        showView('view-owner-create-2', 'right');
+        var t = document.getElementById('create-step-title');
+        if (t) t.value = createDraft.title || '';
+      }
+      function createStep2Next() {
+        var titleEl = document.getElementById('create-step-title');
+        var errEl = document.getElementById('create-step-title-error');
+        var v = (titleEl && titleEl.value || '').trim();
+        if (!v) {
+          if (errEl) errEl.textContent = 'Введите название.';
+          return;
+        }
+        if (errEl) errEl.textContent = '';
+        createDraft.title = v;
+        showView('view-owner-create-3', 'right');
+        var p = document.getElementById('create-step-price');
+        if (p) p.value = createDraft.price || '';
+      }
+      function createStep3Next() {
+        var priceEl = document.getElementById('create-step-price');
+        createDraft.price = (priceEl && priceEl.value || '').trim();
+        showView('view-owner-create-4', 'right');
+      }
+      function createStep4Next() {
+        var imageInput = document.getElementById('create-step-image');
+        var errEl = document.getElementById('create-step-image-error');
+        if (errEl) errEl.textContent = '';
+        createDraft.image = '';
+        if (imageInput && imageInput.files && imageInput.files[0]) {
+          readFileAsDataUrl(imageInput.files[0]).then(function (dataUrl) {
+            createDraft.image = dataUrl;
+            goToCreateStep5();
+          }).catch(function () {
+            if (errEl) errEl.textContent = 'Не удалось прочитать файл.';
+          });
+        } else {
+          goToCreateStep5();
+        }
+      }
+      function goToCreateStep5() {
+        var titleEl = document.getElementById('review-title');
+        var descEl = document.getElementById('review-desc');
+        var priceEl = document.getElementById('review-price');
+        var photoEl = document.getElementById('review-photo');
+        if (titleEl) titleEl.textContent = createDraft.title || '—';
+        if (descEl) descEl.textContent = (createDraft.description || '—').slice(0, 200) + (createDraft.description && createDraft.description.length > 200 ? '…' : '');
+        if (priceEl) priceEl.textContent = createDraft.price || '—';
+        if (photoEl) photoEl.textContent = createDraft.image ? 'Добавлено' : 'Нет';
+        showView('view-owner-create-5', 'right');
+      }
+      document.getElementById('create-step-1-next')?.addEventListener('click', createStep1Next);
+      document.getElementById('create-step-2-next')?.addEventListener('click', createStep2Next);
+      document.getElementById('create-step-3-next')?.addEventListener('click', createStep3Next);
+      document.getElementById('create-step-4-next')?.addEventListener('click', createStep4Next);
+
+      var publishBtn = document.getElementById('create-step-5-publish');
+      if (publishBtn) {
+        publishBtn.addEventListener('click', async function () {
           if (!tg || !currentUser) return;
-          var titleEl = document.getElementById('owner-preset-title');
-          var priceEl = document.getElementById('owner-preset-price');
-          var imageInput = document.getElementById('owner-preset-image');
-          var descEl = document.getElementById('owner-preset-description');
-          var titleErr = document.getElementById('owner-preset-title-error');
-          var priceErr = document.getElementById('owner-preset-price-error');
-          var imageErr = document.getElementById('owner-preset-image-error');
-          var descErr = document.getElementById('owner-preset-description-error');
-
-          titleErr.textContent = '';
-          priceErr.textContent = '';
-          imageErr.textContent = '';
-          descErr.textContent = '';
-
-          var title = (titleEl.value || '').trim();
-          var price = (priceEl.value || '').trim();
-          var imageFile = imageInput && imageInput.files && imageInput.files[0];
-          var description = (descEl.value || '').trim();
-          var hasError = false;
-
-          if (!title) {
-            titleErr.textContent = 'Заполните поле «Название».';
-            hasError = true;
-          }
-          if (!description) {
-            descErr.textContent = 'Заполните поле «Описание».';
-            hasError = true;
-          }
-          if (hasError) return;
-
-          var imageData = '';
-          if (imageFile) {
-            try {
-              imageData = await readFileAsDataUrl(imageFile);
-            } catch (_) {
-              imageErr.textContent = 'Не удалось прочитать файл.';
-              return;
-            }
-          }
-
-          ownerSaveBtn.disabled = true;
-          ownerSaveBtn.textContent = 'Сохранение...';
+          publishBtn.disabled = true;
+          publishBtn.textContent = 'Публикация...';
           try {
             var res = await fetch('/api/presets', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 userId: currentUser.id,
-                title: title,
-                price: price,
-                image: imageData,
-                description: description
+                title: createDraft.title,
+                price: createDraft.price,
+                image: createDraft.image || '',
+                description: createDraft.description
               })
             });
             var data = await res.json();
             if (!data || !data.ok) {
               tg.showPopup({ title: 'Ошибка', message: 'Не удалось сохранить предложение.', buttons: [{ type: 'ok' }] });
             } else {
-              titleEl.value = '';
-              priceEl.value = '';
-              if (imageInput) imageInput.value = '';
-              descEl.value = '';
-              tg.showPopup({ title: 'Готово', message: 'Предложение сохранено.', buttons: [{ type: 'ok' }] });
+              createDraft = { description: '', title: '', price: '', image: '' };
+              showView('view-owner-presets');
+              tg.showPopup({ title: 'Готово', message: 'Объявление опубликовано.', buttons: [{ type: 'ok' }] });
             }
           } catch (e) {
             tg.showPopup({ title: 'Ошибка', message: 'Не удалось сохранить предложение.', buttons: [{ type: 'ok' }] });
           } finally {
-            ownerSaveBtn.disabled = false;
-            ownerSaveBtn.textContent = 'Сохранить предложение';
+            publishBtn.disabled = false;
+            publishBtn.textContent = 'Опубликовать';
           }
         });
       }
