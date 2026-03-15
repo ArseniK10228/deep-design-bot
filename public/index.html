@@ -217,25 +217,21 @@
         </div>
       </header>
       <main class="page-content">
-        <section class="card-list">
-          <article class="service-card service-card-owner">
-            <div class="service-content">
-              <h2 class="service-title">Новое предложение</h2>
-              <label class="form-label">Название</label>
-              <input class="form-input" id="owner-preset-title" placeholder="Игровой ПК 1080p" />
-              <p class="form-error" id="owner-preset-title-error"></p>
-              <label class="form-label">Цена</label>
-              <input class="form-input" id="owner-preset-price" placeholder="от 35000 RUB" />
-              <p class="form-error" id="owner-preset-price-error"></p>
-              <label class="form-label">Картинка (необязательно)</label>
-              <input class="form-input" id="owner-preset-image" type="file" accept="image/*" />
-              <p class="form-error" id="owner-preset-image-error"></p>
-              <label class="form-label">Описание</label>
-              <textarea class="form-textarea form-textarea-sm" id="owner-preset-description" placeholder="Кратко опишите сборку..." rows="3"></textarea>
-              <p class="form-error" id="owner-preset-description-error"></p>
-              <button type="button" class="submit-btn" id="owner-preset-save-btn">Сохранить предложение</button>
-            </div>
-          </article>
+        <section class="owner-form">
+          <h2 class="owner-form-title">Новое предложение</h2>
+          <label class="form-label">Название</label>
+          <input class="form-input" id="owner-preset-title" placeholder="Игровой ПК 1080p" />
+          <p class="form-error" id="owner-preset-title-error"></p>
+          <label class="form-label">Цена</label>
+          <input class="form-input" id="owner-preset-price" placeholder="от 35000 RUB" />
+          <p class="form-error" id="owner-preset-price-error"></p>
+          <label class="form-label">Картинка (необязательно)</label>
+          <input class="form-input" id="owner-preset-image" type="file" accept="image/*" />
+          <p class="form-error" id="owner-preset-image-error"></p>
+          <label class="form-label">Описание</label>
+          <textarea class="form-textarea form-textarea-sm" id="owner-preset-description" placeholder="Кратко опишите сборку..." rows="3"></textarea>
+          <p class="form-error" id="owner-preset-description-error"></p>
+          <button type="button" class="submit-btn" id="owner-preset-save-btn">Сохранить предложение</button>
         </section>
         <section class="card-list" id="owner-presets-list"></section>
       </main>

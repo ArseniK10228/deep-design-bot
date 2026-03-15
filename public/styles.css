@@ -206,8 +206,22 @@ a:active {
   gap: 12px;
 }
 
-.service-card-owner {
-  border: 1px dashed rgba(139, 108, 255, 0.4);
+.owner-form {
+  width: 100%;
+  border-radius: 18px;
+  background: #101018;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6);
+  padding: 16px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.owner-form-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 4px;
 }
 
 .preset-card {
