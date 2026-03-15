@@ -432,6 +432,26 @@ a:active {
   resize: vertical;
 }
 
+.input-with-ruble {
+  position: relative;
+  display: block;
+}
+
+.input-with-ruble .form-input {
+  padding-right: 32px;
+}
+
+.input-ruble-suffix {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  font-weight: 500;
+  color: #8a8599;
+  pointer-events: none;
+}
+
 .create-review {
   background: #0f0d14;
   border-radius: 14px;

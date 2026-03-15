@@ -218,20 +218,20 @@
       </main>
     </div>
 
-    <!-- Пошаговое создание объявления (как на Авито) -->
+    <!-- Пошаговое создание объявления: название → описание → цена → фото → проверка -->
     <div class="view" id="view-owner-create-1">
       <header class="page-header">
         <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-owner-presets">‹</button>
         <div class="page-header-center">
           <p class="page-step">Шаг 1 из 5</p>
-          <h1 class="page-title">Описание</h1>
-          <p class="page-subtitle">Опишите сборку: для каких задач, комплектующие</p>
+          <h1 class="page-title">Название</h1>
+          <p class="page-subtitle">Короткое название объявления</p>
         </div>
       </header>
       <main class="page-content wizard-content">
-        <label class="form-label">Описание</label>
-        <textarea class="form-textarea" id="create-step-desc" placeholder="Например: Игровой ПК для 1080p, 60 FPS. Ryzen 5, GTX 1660, 16 ГБ RAM..." rows="5"></textarea>
-        <p class="form-error" id="create-step-desc-error"></p>
+        <label class="form-label">Название</label>
+        <input class="form-input" id="create-step-title" placeholder="Игровой ПК 1080p" />
+        <p class="form-error" id="create-step-title-error"></p>
         <button type="button" class="submit-btn" id="create-step-1-next">Далее</button>
       </main>
     </div>
@@ -241,14 +241,14 @@
         <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-owner-create-1">‹</button>
         <div class="page-header-center">
           <p class="page-step">Шаг 2 из 5</p>
-          <h1 class="page-title">Название</h1>
-          <p class="page-subtitle">Короткое название объявления</p>
+          <h1 class="page-title">Описание</h1>
+          <p class="page-subtitle">Опишите сборку: для каких задач, комплектующие</p>
         </div>
       </header>
       <main class="page-content wizard-content">
-        <label class="form-label">Название</label>
-        <input class="form-input" id="create-step-title" placeholder="Игровой ПК 1080p" />
-        <p class="form-error" id="create-step-title-error"></p>
+        <label class="form-label">Описание</label>
+        <textarea class="form-textarea" id="create-step-desc" placeholder="Например: Игровой ПК для 1080p, 60 FPS. Ryzen 5, GTX 1660, 16 ГБ RAM..." rows="5"></textarea>
+        <p class="form-error" id="create-step-desc-error"></p>
         <button type="button" class="submit-btn" id="create-step-2-next">Далее</button>
       </main>
     </div>
@@ -264,7 +264,10 @@
       </header>
       <main class="page-content wizard-content">
         <label class="form-label">Цена</label>
-        <input class="form-input" id="create-step-price" placeholder="от 35 000 ₽" />
+        <div class="input-with-ruble">
+          <input class="form-input" id="create-step-price" placeholder="от 35 000" />
+          <span class="input-ruble-suffix">₽</span>
+        </div>
         <p class="form-error" id="create-step-price-error"></p>
         <button type="button" class="submit-btn" id="create-step-3-next">Далее</button>
       </main>
@@ -521,13 +524,13 @@
       }
 
       if (action === 'owner_create') {
-        createDraft = { description: '', title: '', price: '', image: '' };
-        var d = document.getElementById('create-step-desc');
+        createDraft = { title: '', description: '', price: '', image: '' };
         var t = document.getElementById('create-step-title');
+        var d = document.getElementById('create-step-desc');
         var p = document.getElementById('create-step-price');
         var i = document.getElementById('create-step-image');
-        if (d) d.value = '';
         if (t) t.value = '';
+        if (d) d.value = '';
         if (p) p.value = '';
         if (i) i.value = '';
         showView('view-owner-create-1');
@@ -929,7 +932,7 @@
       html += '<label class=\"form-label\">Название</label>';
       html += '<input class=\"form-input preset-edit-title\" value=\"' + escapeAttr(item.title) + '\" data-preset-id=\"' + escapeAttr(item.id) + '\" />';
       html += '<label class=\"form-label\">Цена</label>';
-      html += '<input class=\"form-input preset-edit-price\" value=\"' + escapeAttr(item.price) + '\" data-preset-id=\"' + escapeAttr(item.id) + '\" />';
+      html += '<div class=\"input-with-ruble\"><input class=\"form-input preset-edit-price\" value=\"' + escapeAttr(item.price) + '\" data-preset-id=\"' + escapeAttr(item.id) + '\" /><span class=\"input-ruble-suffix\">₽</span></div>';
       html += '<label class=\"form-label\">Картинка</label>';
       html += '<div class=\"preset-edit-image-wrap\">' + imgBlock + '</div>';
       html += '<label class=\"form-label\">Описание</label>';
@@ -1053,6 +1056,7 @@
         btn.addEventListener('click', async function (e) {
           e.stopPropagation();
           if (!tg || !currentUser) return;
+          if (!confirm('Вы точно хотите удалить объявление?')) return;
           var id = btn.getAttribute('data-preset-id');
           try {
             var res = await fetch('/api/presets/delete', {
@@ -1092,20 +1096,6 @@
 
     if (isOwnerApp) {
       function createStep1Next() {
-        var descEl = document.getElementById('create-step-desc');
-        var errEl = document.getElementById('create-step-desc-error');
-        var v = (descEl && descEl.value || '').trim();
-        if (!v) {
-          if (errEl) errEl.textContent = 'Введите описание.';
-          return;
-        }
-        if (errEl) errEl.textContent = '';
-        createDraft.description = v;
-        showView('view-owner-create-2', 'right');
-        var t = document.getElementById('create-step-title');
-        if (t) t.value = createDraft.title || '';
-      }
-      function createStep2Next() {
         var titleEl = document.getElementById('create-step-title');
         var errEl = document.getElementById('create-step-title-error');
         var v = (titleEl && titleEl.value || '').trim();
@@ -1115,6 +1105,20 @@
         }
         if (errEl) errEl.textContent = '';
         createDraft.title = v;
+        showView('view-owner-create-2', 'right');
+        var d = document.getElementById('create-step-desc');
+        if (d) d.value = createDraft.description || '';
+      }
+      function createStep2Next() {
+        var descEl = document.getElementById('create-step-desc');
+        var errEl = document.getElementById('create-step-desc-error');
+        var v = (descEl && descEl.value || '').trim();
+        if (!v) {
+          if (errEl) errEl.textContent = 'Введите описание.';
+          return;
+        }
+        if (errEl) errEl.textContent = '';
+        createDraft.description = v;
         showView('view-owner-create-3', 'right');
         var p = document.getElementById('create-step-price');
         if (p) p.value = createDraft.price || '';
