@@ -268,8 +268,26 @@
         </div>
       </header>
       <main class="page-content">
-        <section class="card-list" id="presets-list">
+        <section class="avito-list" id="presets-list">
         </section>
+      </main>
+    </div>
+
+    <div class="view" id="view-preset-detail">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-presets">‹</button>
+        <div class="page-header-center">
+          <h1 class="page-title page-title-sm">Объявление</h1>
+        </div>
+      </header>
+      <main class="page-content preset-detail-content">
+        <div class="preset-detail-image-wrap" id="preset-detail-image-wrap"></div>
+        <div class="preset-detail-body">
+          <h2 class="preset-detail-title" id="preset-detail-title"></h2>
+          <p class="preset-detail-price" id="preset-detail-price"></p>
+          <div class="preset-detail-desc" id="preset-detail-desc"></div>
+          <button type="button" class="submit-btn preset-detail-cta" id="preset-detail-cta">Написать продавцу</button>
+        </div>
       </main>
     </div>
 
@@ -786,26 +804,30 @@
       }
     }
 
+    var lastPresetsList = [];
+
     function renderPresetCard(item) {
       var hasImage = item.image && item.image.length > 0;
-      var imgHtml = '';
+      var imgHtml = '<div class=\"avito-card-photo\"><div class=\"avito-card-photo-inner\">';
       if (hasImage) {
-        imgHtml =
-          '<div class=\"preset-image-wrap\">' +
-            '<img class=\"preset-image\" src=\"' + item.image + '\" alt=\"' + (item.title || '') + '\" />' +
-          '</div>';
+        imgHtml += '<img class=\"avito-card-img\" src=\"' + item.image + '\" alt=\"\" />';
+      } else {
+        imgHtml += '<span class=\"avito-card-no-img\">Нет фото</span>';
       }
-      var html = '<article class=\"preset-card\">';
+      imgHtml += '</div></div>';
+      var html = '<article class=\"avito-card\" data-preset-id=\"' + escapeAttr(item.id) + '\" tabindex=\"0\" role=\"button\">';
       html += imgHtml;
-      html += '<div class=\"preset-content\">';
-      html += '<h2 class=\"preset-title\">' + (item.title || '') + '</h2>';
+      html += '<div class=\"avito-card-content\">';
+      html += '<h2 class=\"avito-card-title\">' + escapeAttr(item.title || '') + '</h2>';
       if (item.price) {
-        html += '<p class=\"preset-price\">' + item.price + '</p>';
+        html += '<p class=\"avito-card-price\">' + escapeAttr(item.price) + '</p>';
       }
       if (item.description) {
-        html += '<p class=\"preset-desc\">' + item.description + '</p>';
+        var shortDesc = (item.description || '').replace(/\s+/g, ' ').trim().slice(0, 60);
+        if (item.description.length > 60) shortDesc += '…';
+        html += '<p class=\"avito-card-desc\">' + escapeAttr(shortDesc) + '</p>';
       }
-      html += '</div></article>';
+      html += '</div><div class=\"avito-card-arrow\">›</div></article>';
       return html;
     }
 
@@ -843,13 +865,52 @@
       return html;
     }
 
+    function showPresetDetail(item) {
+      var wrap = document.getElementById('preset-detail-image-wrap');
+      var titleEl = document.getElementById('preset-detail-title');
+      var priceEl = document.getElementById('preset-detail-price');
+      var descEl = document.getElementById('preset-detail-desc');
+      if (!wrap || !titleEl || !priceEl || !descEl) return;
+      if (item.image && item.image.length > 0) {
+        wrap.innerHTML = '<img class=\"preset-detail-image\" src=\"' + item.image + '\" alt=\"\" />';
+        wrap.classList.remove('hidden');
+      } else {
+        wrap.innerHTML = '';
+        wrap.classList.add('hidden');
+      }
+      titleEl.textContent = item.title || '';
+      priceEl.textContent = item.price || '';
+      priceEl.style.display = item.price ? '' : 'none';
+      descEl.textContent = item.description || '';
+      var cta = document.getElementById('preset-detail-cta');
+      if (cta) {
+        cta.onclick = function () {
+          var label = (item.title || '') + (item.price ? ' — ' + item.price : '');
+          sendActionToBot('preset_contact', label);
+        };
+      }
+      showView('view-preset-detail', 'right');
+    }
+
     async function loadPublicPresets() {
       var listEl = document.getElementById('presets-list');
       if (!listEl) return;
       listEl.innerHTML = '';
       var items = await fetchPresets();
-      if (!items.length) return;
+      lastPresetsList = items || [];
+      if (!items.length) {
+        listEl.innerHTML = '<p class=\"consult-text\">Пока нет готовых сборок.</p>';
+        return;
+      }
       listEl.innerHTML = items.map(renderPresetCard).join('');
+      listEl.querySelectorAll('.avito-card').forEach(function (card) {
+        var id = card.getAttribute('data-preset-id');
+        var item = lastPresetsList.find(function (p) { return String(p.id) === String(id); });
+        if (!item) return;
+        function openDetail() { showPresetDetail(item); }
+        card.addEventListener('click', openDetail);
+        card.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail(); } });
+      });
     }
 
     async function loadOwnerEditPresets() {
