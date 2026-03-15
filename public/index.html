@@ -197,29 +197,64 @@
         </div>
       </header>
       <main class="page-content">
-        <div class="owner-presets-tabs">
-          <button type="button" class="owner-tab-btn is-active" id="owner-tab-create">Создать новое предложение</button>
-          <button type="button" class="owner-tab-btn" id="owner-tab-edit">Редактировать предложения</button>
-        </div>
-        <section class="owner-create-panel" id="owner-create-panel">
-          <div class="owner-form">
-            <h2 class="owner-form-title">Новое предложение</h2>
-            <label class="form-label">Название</label>
-            <input class="form-input" id="owner-preset-title" placeholder="Игровой ПК 1080p" />
-            <p class="form-error" id="owner-preset-title-error"></p>
-            <label class="form-label">Цена</label>
-            <input class="form-input" id="owner-preset-price" placeholder="от 35000 RUB" />
-            <p class="form-error" id="owner-preset-price-error"></p>
-            <label class="form-label">Картинка (необязательно)</label>
-            <input class="form-input" id="owner-preset-image" type="file" accept="image/*" />
-            <p class="form-error" id="owner-preset-image-error"></p>
-            <label class="form-label">Описание</label>
-            <textarea class="form-textarea form-textarea-sm" id="owner-preset-description" placeholder="Кратко опишите сборку..." rows="3"></textarea>
-            <p class="form-error" id="owner-preset-description-error"></p>
-            <button type="button" class="submit-btn" id="owner-preset-save-btn">Сохранить предложение</button>
-          </div>
+        <section class="service-list">
+          <article class="service-card" data-action="owner_create">
+            <div class="service-icon service-icon-add"></div>
+            <div class="service-content">
+              <h2 class="service-title">Создать новое предложение</h2>
+              <p class="service-desc">Добавить сборку в каталог</p>
+            </div>
+            <div class="service-arrow">›</div>
+          </article>
+          <article class="service-card" data-action="owner_edit">
+            <div class="service-icon service-icon-edit"></div>
+            <div class="service-content">
+              <h2 class="service-title">Редактировать предложения</h2>
+              <p class="service-desc">Изменить цену, описание или удалить</p>
+            </div>
+            <div class="service-arrow">›</div>
+          </article>
         </section>
-        <section class="owner-edit-panel card-list hidden" id="owner-edit-panel">
+      </main>
+    </div>
+
+    <div class="view" id="view-owner-create">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-owner-presets">‹</button>
+        <div class="page-header-center">
+          <h1 class="page-title">Новое предложение</h1>
+          <p class="page-subtitle">Добавить сборку в каталог</p>
+        </div>
+      </header>
+      <main class="page-content">
+        <div class="owner-form">
+          <label class="form-label">Название</label>
+          <input class="form-input" id="owner-preset-title" placeholder="Игровой ПК 1080p" />
+          <p class="form-error" id="owner-preset-title-error"></p>
+          <label class="form-label">Цена</label>
+          <input class="form-input" id="owner-preset-price" placeholder="от 35000 RUB" />
+          <p class="form-error" id="owner-preset-price-error"></p>
+          <label class="form-label">Картинка (необязательно)</label>
+          <input class="form-input" id="owner-preset-image" type="file" accept="image/*" />
+          <p class="form-error" id="owner-preset-image-error"></p>
+          <label class="form-label">Описание</label>
+          <textarea class="form-textarea form-textarea-sm" id="owner-preset-description" placeholder="Кратко опишите сборку..." rows="3"></textarea>
+          <p class="form-error" id="owner-preset-description-error"></p>
+          <button type="button" class="submit-btn" id="owner-preset-save-btn">Сохранить предложение</button>
+        </div>
+      </main>
+    </div>
+
+    <div class="view" id="view-owner-edit">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-owner-presets">‹</button>
+        <div class="page-header-center">
+          <h1 class="page-title">Редактировать предложения</h1>
+          <p class="page-subtitle">Изменить или удалить</p>
+        </div>
+      </header>
+      <main class="page-content">
+        <section class="card-list">
           <div id="owner-presets-list"></div>
         </section>
       </main>
@@ -398,6 +433,17 @@
       if (action === 'presets') {
         showView('view-presets', 'right');
         loadPublicPresets();
+        return;
+      }
+
+      if (action === 'owner_create') {
+        showView('view-owner-create');
+        return;
+      }
+
+      if (action === 'owner_edit') {
+        showView('view-owner-edit');
+        loadOwnerEditPresets();
         return;
       }
 
@@ -890,26 +936,6 @@
       });
     }
 
-    function switchOwnerPresetsTab(mode) {
-      var createPanel = document.getElementById('owner-create-panel');
-      var editPanel = document.getElementById('owner-edit-panel');
-      var tabCreate = document.getElementById('owner-tab-create');
-      var tabEdit = document.getElementById('owner-tab-edit');
-      if (!createPanel || !editPanel || !tabCreate || !tabEdit) return;
-      if (mode === 'edit') {
-        createPanel.classList.add('hidden');
-        editPanel.classList.remove('hidden');
-        tabCreate.classList.remove('is-active');
-        tabEdit.classList.add('is-active');
-        loadOwnerEditPresets();
-      } else {
-        createPanel.classList.remove('hidden');
-        editPanel.classList.add('hidden');
-        tabCreate.classList.add('is-active');
-        tabEdit.classList.remove('is-active');
-      }
-    }
-
     const presetsCard = document.querySelector('[data-action=\"presets\"]');
     if (presetsCard) {
       presetsCard.addEventListener('click', () => {
@@ -928,11 +954,6 @@
     }
 
     if (isOwnerApp) {
-      var ownerTabCreate = document.getElementById('owner-tab-create');
-      var ownerTabEdit = document.getElementById('owner-tab-edit');
-      if (ownerTabCreate) ownerTabCreate.addEventListener('click', function () { switchOwnerPresetsTab('create'); });
-      if (ownerTabEdit) ownerTabEdit.addEventListener('click', function () { switchOwnerPresetsTab('edit'); });
-
       var ownerSaveBtn = document.getElementById('owner-preset-save-btn');
       if (ownerSaveBtn) {
         ownerSaveBtn.addEventListener('click', async function () {
