@@ -328,7 +328,7 @@
       this.classList.remove('view-enter');
     }, { once: true });
 
-    function showView(viewId) {
+    function showView(viewId, direction) {
       const views = document.querySelectorAll('.view');
       const target = document.getElementById(viewId);
       const current = document.querySelector('.view-active');
@@ -338,10 +338,10 @@
       current.addEventListener('animationend', function handler() {
         current.removeEventListener('animationend', handler);
         current.classList.remove('view-active', 'view-leaving');
-        target.classList.add('view-active', 'view-enter');
+        target.classList.add('view-active', direction === 'right' ? 'view-enter-right' : 'view-enter');
         target.addEventListener('animationend', function h() {
           target.removeEventListener('animationend', h);
-          target.classList.remove('view-enter');
+          target.classList.remove('view-enter', 'view-enter-right');
         }, { once: true });
       }, { once: true });
     }
@@ -373,7 +373,7 @@
       }
 
       if (action === 'presets') {
-        showView('view-presets');
+        showView('view-presets', 'right');
         loadPublicPresets();
         return;
       }
@@ -402,21 +402,33 @@
     const tabPortfolio = document.getElementById('tab-portfolio');
     const tabProfile = document.getElementById('tab-profile');
     const tabOwner = document.getElementById('tab-owner');
+    const allTabs = [tabOrder, tabPortfolio, tabProfile, tabOwner];
+
+    function setActiveTab(tab) {
+      allTabs.forEach(function (t) {
+        if (!t) return;
+        if (t === tab) t.classList.add('tabbar-item-active');
+        else t.classList.remove('tabbar-item-active');
+      });
+    }
 
     if (tabOrder) {
       tabOrder.addEventListener('click', () => {
+        setActiveTab(tabOrder);
         showView('view-main');
       });
     }
 
     if (tabPortfolio) {
       tabPortfolio.addEventListener('click', () => {
+        setActiveTab(tabPortfolio);
         showView('view-main');
       });
     }
 
     if (tabProfile) {
       tabProfile.addEventListener('click', () => {
+        setActiveTab(tabProfile);
         showView('view-main');
       });
     }
@@ -425,7 +437,8 @@
       if (isOwnerApp) {
         tabOwner.style.display = 'flex';
         tabOwner.addEventListener('click', () => {
-          showView('view-owner-presets');
+          setActiveTab(tabOwner);
+          showView('view-owner-presets', 'right');
           loadOwnerPresets();
         });
       } else {
@@ -780,7 +793,7 @@
     const presetsCard = document.querySelector('[data-action=\"presets\"]');
     if (presetsCard) {
       presetsCard.addEventListener('click', () => {
-        showView('view-presets');
+        showView('view-presets', 'right');
         loadPublicPresets();
       });
     }
