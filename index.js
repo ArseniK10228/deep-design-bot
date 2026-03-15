@@ -4,6 +4,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const TelegramBot = require('node-telegram-bot-api');
+const { Redis } = require('@upstash/redis');
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 
@@ -15,18 +16,55 @@ if (!token) {
 // Инициализируем бота до любого использования
 const bot = new TelegramBot(token, { polling: false });
 
-const MAINTENANCE_FILE = path.join(__dirname, '.maintenance');
+// Хранение флага техработ: при наличии UPSTASH_REDIS_* — в Redis (сохраняется после деплоя),
+// иначе в файл (сбрасывается при деплое).
+const maintenanceDir = process.env.PERSISTENT_DATA_PATH || __dirname;
+const MAINTENANCE_FILE = path.join(maintenanceDir, '.maintenance');
 
-function getMaintenanceFlag() {
-  try {
-    return fs.readFileSync(MAINTENANCE_FILE, 'utf8').trim() === 'true';
-  } catch (_) {
-    return false;
+let redisClient = null;
+if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+  redisClient = new Redis({
+    url: process.env.UPSTASH_REDIS_REST_URL,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    enableTelemetry: false
+  });
+}
+
+let maintenanceCache = false;
+
+async function initMaintenanceStorage() {
+  if (redisClient) {
+    try {
+      const v = await redisClient.get('maintenance');
+      maintenanceCache = v === 'true' || v === true;
+    } catch (e) {
+      console.error('Redis init maintenance:', e?.message || e);
+    }
+  } else {
+    try {
+      maintenanceCache = fs.readFileSync(MAINTENANCE_FILE, 'utf8').trim() === 'true';
+    } catch (_) {}
   }
 }
 
-function setMaintenanceFlag(value) {
-  fs.writeFileSync(MAINTENANCE_FILE, value ? 'true' : 'false', 'utf8');
+function getMaintenanceFlag() {
+  return maintenanceCache;
+}
+
+async function setMaintenanceFlag(value) {
+  maintenanceCache = !!value;
+  if (redisClient) {
+    try {
+      await redisClient.set('maintenance', value ? 'true' : 'false');
+    } catch (e) {
+      console.error('Redis set maintenance:', e?.message || e);
+    }
+  } else {
+    try {
+      fs.mkdirSync(maintenanceDir, { recursive: true });
+      fs.writeFileSync(MAINTENANCE_FILE, value ? 'true' : 'false', 'utf8');
+    } catch (_) {}
+  }
 }
 
 const app = express();
@@ -189,7 +227,7 @@ bot.on('callback_query', async (query) => {
         return;
       }
       const wasOn = getMaintenanceFlag();
-      setMaintenanceFlag(!wasOn);
+      await setMaintenanceFlag(!wasOn);
       const nowOn = getMaintenanceFlag();
       await bot.answerCallbackQuery(query.id, { text: nowOn ? 'Техработы включены' : 'Техработы выключены' });
       const isPhotoMessage = query.message?.photo && query.message.photo.length > 0;
@@ -231,22 +269,30 @@ bot.on('polling_error', (err) => console.error('Polling error:', err.message));
 
 const baseUrl = process.env.RENDER_EXTERNAL_URL || process.env.WEBHOOK_URL;
 
-if (baseUrl) {
-  const webhookPath = '/webhook';
-  app.post(webhookPath, (req, res) => {
-    bot.processUpdate(req.body);
-    res.sendStatus(200);
-  });
-
-  app.listen(PORT, async () => {
-    const webhookUrl = `${baseUrl.replace(/\/$/, '')}${webhookPath}`;
-    await bot.setWebHook(webhookUrl);
-    console.log('Webhook:', webhookUrl);
-    console.log('Сервер:', PORT);
-  });
-} else {
-  bot.startPolling();
-  app.listen(PORT, () => {
-    console.log('Polling. Порт:', PORT);
-  });
+async function start() {
+  await initMaintenanceStorage();
+  if (redisClient) console.log('Техработы: хранение в Redis (сохраняется после деплоя)');
+  if (baseUrl) {
+    const webhookPath = '/webhook';
+    app.post(webhookPath, (req, res) => {
+      bot.processUpdate(req.body);
+      res.sendStatus(200);
+    });
+    app.listen(PORT, async () => {
+      const webhookUrl = `${baseUrl.replace(/\/$/, '')}${webhookPath}`;
+      await bot.setWebHook(webhookUrl);
+      console.log('Webhook:', webhookUrl);
+      console.log('Сервер:', PORT);
+    });
+  } else {
+    bot.startPolling();
+    app.listen(PORT, () => {
+      console.log('Polling. Порт:', PORT);
+    });
+  }
 }
+
+start().catch((err) => {
+  console.error('Start error:', err?.message || err);
+  process.exit(1);
+});
