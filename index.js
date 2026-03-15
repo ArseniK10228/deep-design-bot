@@ -134,6 +134,71 @@ app.post('/api/build-request', async (req, res) => {
   }
 });
 
+// ----- Готовые сборки (presets) -----
+// Храним массив предложений в Redis под ключом "presets".
+// Каждый элемент: { id, title, price, image, description, createdAt }
+
+async function getPresets() {
+  if (!redisClient) return [];
+  try {
+    const raw = await redisClient.get('presets');
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error('Redis get presets:', e?.message || e);
+    return [];
+  }
+}
+
+async function savePresets(list) {
+  if (!redisClient) return;
+  try {
+    await redisClient.set('presets', JSON.stringify(list));
+  } catch (e) {
+    console.error('Redis set presets:', e?.message || e);
+  }
+}
+
+app.get('/api/presets', async (req, res) => {
+  try {
+    const list = await getPresets();
+    res.json({ ok: true, items: list });
+  } catch (e) {
+    res.status(500).json({ ok: false });
+  }
+});
+
+app.post('/api/presets', async (req, res) => {
+  try {
+    const ownerId = process.env.OWNER_CHAT_ID;
+    const { userId, title, price, image, description } = req.body || {};
+    if (!ownerId || !userId || String(ownerId) !== String(userId)) {
+      return res.status(403).json({ ok: false });
+    }
+    const safeTitle = String(title || '').trim();
+    if (!safeTitle) {
+      return res.status(400).json({ ok: false });
+    }
+    const list = await getPresets();
+    const now = Date.now();
+    const item = {
+      id: String(now),
+      title: safeTitle,
+      price: String(price || '').trim(),
+      image: String(image || '').trim(),
+      description: String(description || '').trim(),
+      createdAt: now
+    };
+    list.unshift(item);
+    await savePresets(list);
+    res.json({ ok: true, item });
+  } catch (e) {
+    console.error('Presets add error:', e?.message || e);
+    res.status(500).json({ ok: false });
+  }
+});
+
 let welcomePhotoFileId = null;
 
 function buildStartKeyboard(chatId, fullWebAppUrl) {

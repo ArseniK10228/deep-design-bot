@@ -92,6 +92,10 @@
           <span class="tabbar-icon tabbar-icon-profile"></span>
           <span class="tabbar-label">Мои заказы</span>
         </button>
+        <button class="tabbar-item tabbar-item-owner" type="button" id="tab-owner">
+          <span class="tabbar-icon">✎</span>
+          <span class="tabbar-label">Предложения</span>
+        </button>
       </nav>
     </div>
 
@@ -204,6 +208,52 @@
       </main>
     </div>
 
+    <div class="view" id="view-owner-presets">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-main">‹</button>
+        <div class="page-header-center">
+          <h1 class="page-title">Предложения</h1>
+          <p class="page-subtitle">Готовые сборки в меню</p>
+        </div>
+      </header>
+      <main class="page-content">
+        <section class="card-list">
+          <article class="service-card service-card-owner">
+            <div class="service-content">
+              <h2 class="service-title">Новое предложение</h2>
+              <label class="form-label">Название</label>
+              <input class="form-input" id="owner-preset-title" placeholder="Игровой ПК 1080p" />
+              <p class="form-error" id="owner-preset-title-error"></p>
+              <label class="form-label">Цена</label>
+              <input class="form-input" id="owner-preset-price" placeholder="от 35000 RUB" />
+              <p class="form-error" id="owner-preset-price-error"></p>
+              <label class="form-label">Ссылка на картинку (необязательно)</label>
+              <input class="form-input" id="owner-preset-image" placeholder="https://..." />
+              <p class="form-error" id="owner-preset-image-error"></p>
+              <label class="form-label">Описание</label>
+              <textarea class="form-textarea form-textarea-sm" id="owner-preset-description" placeholder="Кратко опишите сборку..." rows="3"></textarea>
+              <p class="form-error" id="owner-preset-description-error"></p>
+              <button type="button" class="submit-btn" id="owner-preset-save-btn">Сохранить предложение</button>
+            </div>
+          </article>
+        </section>
+        <section class="card-list" id="owner-presets-list"></section>
+      </main>
+    </div>
+
+    <div class="view" id="view-presets">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-main">‹</button>
+        <div class="page-header-center">
+          <h1 class="page-title">Готовые сборки</h1>
+        </div>
+      </header>
+      <main class="page-content">
+        <section class="card-list" id="presets-list">
+        </section>
+      </main>
+    </div>
+
     <div class="view" id="view-build-success">
       <main class="page-content page-content-center">
         <p class="success-icon">✓</p>
@@ -232,6 +282,8 @@
 
   <script>
     const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    const currentUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
+    const isOwnerApp = !!currentUser && currentUser.username === 'ShadowwOneLove';
     if (tg) {
       tg.expand();
       tg.MainButton.hide();
@@ -348,6 +400,7 @@
     const tabOrder = document.getElementById('tab-order');
     const tabPortfolio = document.getElementById('tab-portfolio');
     const tabProfile = document.getElementById('tab-profile');
+    const tabOwner = document.getElementById('tab-owner');
 
     if (tabOrder) {
       tabOrder.addEventListener('click', () => {
@@ -374,6 +427,18 @@
       tabProfile.addEventListener('click', () => {
         showInDevelopment();
       });
+    }
+
+    if (tabOwner) {
+      if (isOwnerApp) {
+        tabOwner.style.display = 'flex';
+        tabOwner.addEventListener('click', () => {
+          showView('view-owner-presets');
+          loadOwnerPresets();
+        });
+      } else {
+        tabOwner.style.display = 'none';
+      }
     }
 
     document.getElementById('consult-link-btn').addEventListener('click', () => {
@@ -633,6 +698,136 @@
     document.getElementById('success-home-btn').addEventListener('click', () => {
       showView('view-main');
     });
+
+    async function fetchPresets() {
+      try {
+        const res = await fetch('/api/presets');
+        const data = await res.json();
+        if (!data || !data.ok || !Array.isArray(data.items)) return [];
+        return data.items;
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function renderPresetCard(item) {
+      var hasImage = item.image && item.image.length > 0;
+      var imgHtml = '';
+      if (hasImage) {
+        imgHtml =
+          '<div class=\"preset-image-wrap\">' +
+            '<img class=\"preset-image\" src=\"' + item.image + '\" alt=\"' + (item.title || '') + '\" />' +
+          '</div>';
+      }
+      var html = '<article class=\"preset-card\">';
+      html += imgHtml;
+      html += '<div class=\"preset-content\">';
+      html += '<h2 class=\"preset-title\">' + (item.title || '') + '</h2>';
+      if (item.price) {
+        html += '<p class=\"preset-price\">' + item.price + '</p>';
+      }
+      if (item.description) {
+        html += '<p class=\"preset-desc\">' + item.description + '</p>';
+      }
+      html += '</div></article>';
+      return html;
+    }
+
+    async function loadPublicPresets() {
+      var listEl = document.getElementById('presets-list');
+      if (!listEl) return;
+      listEl.innerHTML = '';
+      var items = await fetchPresets();
+      if (!items.length) return;
+      listEl.innerHTML = items.map(renderPresetCard).join('');
+    }
+
+    async function loadOwnerPresets() {
+      var listEl = document.getElementById('owner-presets-list');
+      if (!listEl) return;
+      listEl.innerHTML = '';
+      var items = await fetchPresets();
+      if (!items.length) return;
+      listEl.innerHTML = items.map(renderPresetCard).join('');
+    }
+
+    const presetsCard = document.querySelector('[data-action=\"presets\"]');
+    if (presetsCard) {
+      presetsCard.addEventListener('click', () => {
+        showView('view-presets');
+        loadPublicPresets();
+      });
+    }
+
+    if (isOwnerApp) {
+      var ownerSaveBtn = document.getElementById('owner-preset-save-btn');
+      if (ownerSaveBtn) {
+        ownerSaveBtn.addEventListener('click', async function () {
+          if (!tg || !currentUser) return;
+          var titleEl = document.getElementById('owner-preset-title');
+          var priceEl = document.getElementById('owner-preset-price');
+          var imageEl = document.getElementById('owner-preset-image');
+          var descEl = document.getElementById('owner-preset-description');
+          var titleErr = document.getElementById('owner-preset-title-error');
+          var priceErr = document.getElementById('owner-preset-price-error');
+          var imageErr = document.getElementById('owner-preset-image-error');
+          var descErr = document.getElementById('owner-preset-description-error');
+
+          titleErr.textContent = '';
+          priceErr.textContent = '';
+          imageErr.textContent = '';
+          descErr.textContent = '';
+
+          var title = (titleEl.value || '').trim();
+          var price = (priceEl.value || '').trim();
+          var image = (imageEl.value || '').trim();
+          var description = (descEl.value || '').trim();
+          var hasError = false;
+
+          if (!title) {
+            titleErr.textContent = 'Заполните поле «Название».';
+            hasError = true;
+          }
+          if (!description) {
+            descErr.textContent = 'Заполните поле «Описание».';
+            hasError = true;
+          }
+          if (hasError) return;
+
+          ownerSaveBtn.disabled = true;
+          ownerSaveBtn.textContent = 'Сохранение...';
+          try {
+            var res = await fetch('/api/presets', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                userId: currentUser.id,
+                title: title,
+                price: price,
+                image: image,
+                description: description
+              })
+            });
+            var data = await res.json();
+            if (!data || !data.ok) {
+              tg.showPopup({ title: 'Ошибка', message: 'Не удалось сохранить предложение.', buttons: [{ type: 'ok' }] });
+            } else {
+              titleEl.value = '';
+              priceEl.value = '';
+              imageEl.value = '';
+              descEl.value = '';
+              await loadOwnerPresets();
+              tg.showPopup({ title: 'Готово', message: 'Предложение сохранено.', buttons: [{ type: 'ok' }] });
+            }
+          } catch (e) {
+            tg.showPopup({ title: 'Ошибка', message: 'Не удалось сохранить предложение.', buttons: [{ type: 'ok' }] });
+          } finally {
+            ownerSaveBtn.disabled = false;
+            ownerSaveBtn.textContent = 'Сохранить предложение';
+          }
+        });
+      }
+    }
 
     document.querySelectorAll('.service-card').forEach((card) => {
       card.addEventListener('click', () => {
