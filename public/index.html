@@ -1183,16 +1183,26 @@
                 description: createDraft.description
               })
             });
-            var data = await res.json();
-            if (!data || !data.ok) {
-              tg.showPopup({ title: 'Ошибка', message: 'Не удалось сохранить предложение.', buttons: [{ type: 'ok' }] });
+            var data = null;
+            try {
+              data = await res.json();
+            } catch (_) {
+              data = { ok: false };
+            }
+            if (res.status === 413) {
+              tg.showPopup({ title: 'Ошибка', message: 'Фото слишком большое. Выберите изображение до 2–3 МБ.', buttons: [{ type: 'ok' }] });
+            } else if (!data || !data.ok) {
+              var msg = 'Не удалось сохранить предложение.';
+              if (res.status === 403) msg = 'Нет доступа. Войдите как владелец.';
+              else if (res.status === 400) msg = 'Заполните название объявления.';
+              tg.showPopup({ title: 'Ошибка', message: msg, buttons: [{ type: 'ok' }] });
             } else {
-              createDraft = { description: '', title: '', price: '', image: '' };
+              createDraft = { title: '', description: '', price: '', image: '' };
               showView('view-owner-presets');
               tg.showPopup({ title: 'Готово', message: 'Объявление опубликовано.', buttons: [{ type: 'ok' }] });
             }
           } catch (e) {
-            tg.showPopup({ title: 'Ошибка', message: 'Не удалось сохранить предложение.', buttons: [{ type: 'ok' }] });
+            tg.showPopup({ title: 'Ошибка', message: 'Нет связи или сервер недоступен. Проверьте интернет.', buttons: [{ type: 'ok' }] });
           } finally {
             publishBtn.disabled = false;
             publishBtn.textContent = 'Опубликовать';

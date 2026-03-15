@@ -70,7 +70,7 @@ async function setMaintenanceFlag(value) {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/health', (req, res) => {
