@@ -468,23 +468,23 @@
 
       if (!usernameValue) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = 'Заполните поле @username';
+        usernameErr.textContent = 'Заполните поле @username.';
         hasError = true;
       } else if (usernameValue.indexOf(' ') !== -1) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = 'В @username нельзя использовать пробелы';
+        usernameErr.textContent = 'В @username нельзя использовать пробелы.';
         hasError = true;
       } else if (!/^[A-Za-z0-9_@]+$/.test(usernameValue)) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = 'Юзернейм должен быть на английском';
+        usernameErr.textContent = '@username должен быть на английском.';
         hasError = true;
       } else if (usernameValue.length < 3) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = 'Слишком короткий @username';
+        usernameErr.textContent = 'Слишком короткий @username.';
         hasError = true;
       } else if (!usernameValue.startsWith('@')) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = '@username должен начинаться с @';
+        usernameErr.textContent = '@username должен начинаться с @.';
         hasError = true;
       } else {
         usernameInput.classList.remove('form-input-error');
@@ -565,23 +565,23 @@
       const usernameErr = document.getElementById('comp-username-error');
       if (!usernameValue) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = 'Заполните поле @username';
+        usernameErr.textContent = 'Заполните поле @username.';
         hasError = true;
       } else if (usernameValue.indexOf(' ') !== -1) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = 'В @username нельзя использовать пробелы';
+        usernameErr.textContent = 'В @username нельзя использовать пробелы.';
         hasError = true;
       } else if (!/^[A-Za-z0-9_@]+$/.test(usernameValue)) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = 'Юзернейм должен быть на английском';
+        usernameErr.textContent = '@username должен быть на английском.';
         hasError = true;
       } else if (usernameValue.length < 3) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = 'Слишком короткий @username';
+        usernameErr.textContent = 'Слишком короткий @username.';
         hasError = true;
       } else if (!usernameValue.startsWith('@')) {
         usernameInput.classList.add('form-input-error');
-        usernameErr.textContent = '@username должен начинаться с @';
+        usernameErr.textContent = '@username должен начинаться с @.';
         hasError = true;
       } else {
         usernameInput.classList.remove('form-input-error');
