@@ -968,10 +968,12 @@
       showView('view-preset-detail', 'right');
     }
 
+    var loadingPresetsHtml = '<div class=\"list-loading\"><div class=\"list-loading-spinner\"></div><span>Загрузка сборок...</span></div>';
+
     async function loadPublicPresets() {
       var listEl = document.getElementById('presets-list');
       if (!listEl) return;
-      listEl.innerHTML = '';
+      listEl.innerHTML = loadingPresetsHtml;
       var items = await fetchPresets();
       lastPresetsList = items || [];
       if (!items.length) {
@@ -989,10 +991,12 @@
       });
     }
 
+    var loadingOwnerHtml = '<div class=\"list-loading\"><div class=\"list-loading-spinner\"></div><span>Загрузка...</span></div>';
+
     async function loadOwnerEditPresets() {
       var listEl = document.getElementById('owner-presets-list');
       if (!listEl) return;
-      listEl.innerHTML = '';
+      listEl.innerHTML = loadingOwnerHtml;
       var items = await fetchPresets();
       if (!items.length) {
         listEl.innerHTML = '<p class="consult-text">Нет предложений. Создайте новое во вкладке «Создать новое предложение».</p>';

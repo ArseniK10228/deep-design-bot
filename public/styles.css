@@ -155,6 +155,26 @@
   animation: maintenance-spin 0.8s linear infinite;
 }
 
+.list-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 48px 24px;
+  color: #8a8599;
+  font-size: 15px;
+}
+
+.list-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(139, 108, 255, 0.2);
+  border-top-color: #8b6cff;
+  border-radius: 50%;
+  animation: maintenance-spin 0.7s linear infinite;
+}
+
 .maintenance-retry-btn {
   margin-top: 28px;
   padding: 12px 24px;
@@ -292,7 +312,7 @@ a:active {
 .avito-card-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
@@ -345,9 +365,12 @@ a:active {
 
 .preset-detail-image-wrap {
   width: 100%;
-  max-height: 280px;
+  max-height: 400px;
   background: #1a1722;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .preset-detail-image-wrap.hidden {
@@ -356,9 +379,9 @@ a:active {
 
 .preset-detail-image {
   width: 100%;
-  height: 100%;
-  max-height: 280px;
-  object-fit: cover;
+  height: auto;
+  max-height: 400px;
+  object-fit: contain;
   display: block;
 }
 
