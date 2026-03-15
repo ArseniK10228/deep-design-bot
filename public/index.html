@@ -247,16 +247,17 @@
         var tg = window.Telegram && window.Telegram.WebApp;
         return (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) || '';
       }
+      var pollInterval = 12000;
       function poll() {
         var uid = getUserId();
         var url = '/health' + (uid ? '?user_id=' + encodeURIComponent(uid) : '');
         fetch(url).then(function(r) { return r.json(); }).then(function(data) {
           setOverlay(!!data.maintenance);
-          if (data.maintenance) setTimeout(poll, 10000);
-        }).catch(function() { setTimeout(poll, 10000); });
+          setTimeout(poll, pollInterval);
+        }).catch(function() { setTimeout(poll, pollInterval); });
       }
       var retryBtn = document.getElementById('maintenance-retry-btn');
-      if (retryBtn) retryBtn.addEventListener('click', function() { poll(); });
+      if (retryBtn) retryBtn.addEventListener('click', function() { location.reload(); });
       if (window.location.protocol !== 'file:') poll();
     })();
 
