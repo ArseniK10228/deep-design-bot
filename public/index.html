@@ -279,12 +279,14 @@
         <div class="page-header-center">
           <p class="page-step">Шаг 4 из 5</p>
           <h1 class="page-title">Фото</h1>
-          <p class="page-subtitle">Добавьте фото сборки (необязательно)</p>
+          <p class="page-subtitle">Добавьте фото сборки</p>
         </div>
       </header>
       <main class="page-content wizard-content">
         <label class="form-label">Картинка</label>
-        <input class="form-input" id="create-step-image" type="file" accept="image/*" />
+        <div class="input-wrap" id="create-step-image-wrap">
+          <input class="form-input" id="create-step-image" type="file" accept="image/*" />
+        </div>
         <p class="form-error" id="create-step-image-error"></p>
         <button type="button" class="submit-btn" id="create-step-4-next">Далее</button>
       </main>
@@ -1100,9 +1102,11 @@
         var errEl = document.getElementById('create-step-title-error');
         var v = (titleEl && titleEl.value || '').trim();
         if (!v) {
-          if (errEl) errEl.textContent = 'Введите название.';
+          if (titleEl) titleEl.classList.add('form-input-error');
+          if (errEl) errEl.textContent = 'Заполните поле.';
           return;
         }
+        if (titleEl) titleEl.classList.remove('form-input-error');
         if (errEl) errEl.textContent = '';
         createDraft.title = v;
         showView('view-owner-create-2', 'right');
@@ -1114,9 +1118,11 @@
         var errEl = document.getElementById('create-step-desc-error');
         var v = (descEl && descEl.value || '').trim();
         if (!v) {
-          if (errEl) errEl.textContent = 'Введите описание.';
+          if (descEl) descEl.classList.add('form-textarea-error');
+          if (errEl) errEl.textContent = 'Заполните поле.';
           return;
         }
+        if (descEl) descEl.classList.remove('form-textarea-error');
         if (errEl) errEl.textContent = '';
         createDraft.description = v;
         showView('view-owner-create-3', 'right');
@@ -1130,19 +1136,23 @@
       }
       function createStep4Next() {
         var imageInput = document.getElementById('create-step-image');
+        var wrap = document.getElementById('create-step-image-wrap');
         var errEl = document.getElementById('create-step-image-error');
         if (errEl) errEl.textContent = '';
+        if (wrap) wrap.classList.remove('form-input-error');
         createDraft.image = '';
-        if (imageInput && imageInput.files && imageInput.files[0]) {
-          readFileAsDataUrl(imageInput.files[0]).then(function (dataUrl) {
-            createDraft.image = dataUrl;
-            goToCreateStep5();
-          }).catch(function () {
-            if (errEl) errEl.textContent = 'Не удалось прочитать файл.';
-          });
-        } else {
-          goToCreateStep5();
+        if (!imageInput || !imageInput.files || !imageInput.files[0]) {
+          if (wrap) wrap.classList.add('form-input-error');
+          if (errEl) errEl.textContent = 'Заполните поле.';
+          return;
         }
+        readFileAsDataUrl(imageInput.files[0]).then(function (dataUrl) {
+          createDraft.image = dataUrl;
+          goToCreateStep5();
+        }).catch(function () {
+          if (wrap) wrap.classList.add('form-input-error');
+          if (errEl) errEl.textContent = 'Не удалось прочитать файл.';
+        });
       }
       function goToCreateStep5() {
         var titleEl = document.getElementById('review-title');

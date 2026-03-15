@@ -434,18 +434,22 @@ a:active {
 
 .input-with-ruble {
   position: relative;
-  display: block;
+  display: flex;
+  align-items: center;
 }
 
 .input-with-ruble .form-input {
   padding-right: 32px;
+  flex: 1;
 }
 
 .input-ruble-suffix {
   position: absolute;
   right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
   font-size: 16px;
   font-weight: 500;
   color: #8a8599;
@@ -1272,12 +1276,13 @@ a:active {
   color: #5d5b76;
 }
 
+.form-input.form-input-error,
 .form-textarea.form-textarea-error {
   border-color: #e53935;
   box-shadow: 0 0 0 1px #e53935;
 }
 
-.form-input.form-input-error {
+.input-wrap.form-input-error .form-input {
   border-color: #e53935;
   box-shadow: 0 0 0 1px #e53935;
 }
