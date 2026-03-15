@@ -434,7 +434,7 @@
         const lastTs = lastTsRaw ? parseInt(lastTsRaw, 10) : 0;
         const now = Date.now();
         if (lastTs && now - lastTs < RATE_LIMIT_MS) {
-          alertEl.textContent = 'Повторно заявку можно отправить через 5 минут';
+          alertEl.textContent = 'Повторно заявку можно отправить через 5 минут.';
           alertEl.classList.add('alert-banner-visible');
           return;
         } else {
@@ -455,11 +455,11 @@
 
       if (!tasks) {
         tasksEl.classList.add('form-textarea-error');
-        errEl.textContent = 'Заполните поле «Задачи и бюджет»';
+        errEl.textContent = 'Заполните поле «Задачи и бюджет».';
         hasError = true;
       } else if (tasks.length < 10) {
         tasksEl.classList.add('form-textarea-error');
-        errEl.textContent = 'Сообщение должно содержать минимум 10 символов';
+        errEl.textContent = 'Сообщение должно содержать минимум 10 символов.';
         hasError = true;
       } else {
         tasksEl.classList.remove('form-textarea-error');
@@ -537,7 +537,7 @@
         const lastTs = lastTsRaw ? parseInt(lastTsRaw, 10) : 0;
         const now = Date.now();
         if (lastTs && now - lastTs < RATE_LIMIT_MS) {
-          alertEl.textContent = 'Повторно заявку можно отправить через 5 минут';
+          alertEl.textContent = 'Повторно заявку можно отправить через 5 минут.';
           alertEl.classList.add('alert-banner-visible');
           return;
         }
@@ -552,7 +552,7 @@
         const v = (el && el.value || '').trim();
         if (!v) {
           el.classList.add('form-input-error');
-          errEl.textContent = 'Заполните поле «' + label + '»';
+          errEl.textContent = 'Заполните поле «' + label + '».';
           hasError = true;
         } else {
           el.classList.remove('form-input-error');
