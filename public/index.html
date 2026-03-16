@@ -339,7 +339,7 @@
         </div>
       </header>
       <main class="page-content">
-        <section class="avito-list" id="presets-list">
+        <section id="presets-list">
         </section>
       </main>
     </div>
@@ -895,26 +895,14 @@
     }
 
     function renderPresetCard(item) {
-      var hasImage = item.image && item.image.length > 0;
-      var imgSection = '<div class=\"avito-card-photo\"><div class=\"avito-card-photo-inner\">';
-      if (hasImage) {
-        imgSection += '<img class=\"avito-card-img\" src=\"' + item.image + '\" alt=\"\" />';
-      } else {
-        imgSection += '<span class=\"avito-card-no-img\">Нет фото</span>';
-      }
-      imgSection += '<div class=\"avito-card-photo-badges\"><span class=\"avito-card-badge-heart\"></span></div>';
-      imgSection += '</div></div>';
-
       var priceText = formatPriceWithRub(item.price);
-      var html = '<article class=\"avito-card\" data-preset-id=\"' + escapeAttr(item.id) + '\" tabindex=\"0\" role=\"button\">';
-      html += imgSection;
-      html += '<div class=\"avito-card-body\">';
-      html += '<h2 class=\"avito-card-title\">' + escapeAttr(item.title || '') + '</h2>';
-      if (priceText) {
-        html += '<p class=\"avito-card-price\">' + escapeAttr(priceText) + '</p>';
+      var html = '<div data-preset-id=\"' + escapeAttr(item.id) + '\" tabindex=\"0\" role=\"button\">';
+      if (item.image && item.image.length > 0) {
+        html += '<img src=\"' + escapeAttr(item.image) + '\" alt=\"\" />';
       }
+      html += escapeAttr(item.title || '');
+      if (priceText) html += ' — ' + escapeAttr(priceText);
       html += '</div>';
-      html += '</article>';
       return html;
     }
 
@@ -924,10 +912,7 @@
 
     function renderOwnerPresetCard(item) {
       var base = renderPresetCard(item);
-      return base.replace(
-        '</div></article>',
-        '<button type=\"button\" class=\"preset-delete-btn\" data-preset-id=\"' + item.id + '\">Удалить</button></article>'
-      );
+      return base.replace('</div>', '<button type=\"button\" class=\"preset-delete-btn\" data-preset-id=\"' + escapeAttr(item.id) + '\">Удалить</button></div>');
     }
 
     function renderOwnerPresetEditCard(item) {
@@ -993,7 +978,7 @@
         return;
       }
       listEl.innerHTML = items.map(renderPresetCard).join('');
-      listEl.querySelectorAll('.avito-card').forEach(function (card) {
+      listEl.querySelectorAll('[data-preset-id]').forEach(function (card) {
         var id = card.getAttribute('data-preset-id');
         var item = lastPresetsList.find(function (p) { return String(p.id) === String(id); });
         if (!item) return;
