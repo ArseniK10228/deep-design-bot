@@ -252,7 +252,7 @@ a:active {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 16px 12px 72px;
+  padding: 16px 6px 72px;
   position: relative;
 }
 
@@ -274,11 +274,11 @@ a:active {
 .avito-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 4px;
 }
 
 #view-presets .page-content {
-  padding: 8px 4px 20px;
+  padding: 4px 0 16px;
 }
 
 .avito-card {
