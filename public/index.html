@@ -891,7 +891,7 @@
       var raw = String(price || '').trim();
       if (!raw) return '';
       raw = raw.replace(/[₽рp]+$/gi, '').replace(/\s+$/g, '');
-      return raw ? raw + '₽' : '';
+      return raw ? raw + ' ₽' : '';
     }
 
     function renderPresetCard(item) {
