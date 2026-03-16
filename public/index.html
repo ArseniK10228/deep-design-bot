@@ -520,7 +520,7 @@
       }
 
       if (action === 'presets') {
-        showView('view-presets', 'right');
+        showView('view-presets');
         loadPublicPresets();
         return;
       }
@@ -1081,7 +1081,7 @@
     const presetsCard = document.querySelector('[data-action=\"presets\"]');
     if (presetsCard) {
       presetsCard.addEventListener('click', () => {
-        showView('view-presets', 'right');
+        showView('view-presets');
         loadPublicPresets();
       });
     }
