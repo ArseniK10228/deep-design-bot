@@ -896,13 +896,28 @@
 
     function renderPresetCard(item) {
       var priceText = formatPriceWithRub(item.price);
-      var html = '<div data-preset-id=\"' + escapeAttr(item.id) + '\" tabindex=\"0\" role=\"button\">';
+      var title = escapeAttr(item.title || '');
+      var html = '<article class=\"preset-announcement-card\" data-preset-id=\"' + escapeAttr(item.id) + '\" tabindex=\"0\" role=\"button\">';
+      html += '<div class=\"preset-card-image-wrap\">';
       if (item.image && item.image.length > 0) {
         html += '<img src=\"' + escapeAttr(item.image) + '\" alt=\"\" />';
+      } else {
+        html += '<div style=\"width:100%;height:100%;background:#1a1722;display:flex;align-items:center;justify-content:center;color:#5d5b76;font-size:12px;\">Нет фото</div>';
       }
-      html += escapeAttr(item.title || '');
-      if (priceText) html += ' — ' + escapeAttr(priceText);
+      if (item.delivery) {
+        html += '<span class=\"preset-card-delivery-icon\" aria-hidden=\"true\">🚚</span>';
+      }
       html += '</div>';
+      html += '<div class=\"preset-card-info\">';
+      html += '<button type=\"button\" class=\"preset-card-heart\" aria-label=\"В избранное\" data-preset-id=\"' + escapeAttr(item.id) + '\">♥</button>';
+      html += '<p class=\"preset-card-title\">' + title + '</p>';
+      html += '<p class=\"preset-card-price' + (priceText ? '' : ' preset-card-price-empty') + '\">' + escapeAttr(priceText || '') + '</p>';
+      if (item.oldPrice || item.location) {
+        var extra = [item.oldPrice, item.location].filter(Boolean).join(' · ');
+        html += '<p class=\"preset-card-extra\">' + escapeAttr(extra) + '</p>';
+      }
+      html += '<button type=\"button\" class=\"preset-card-more\" aria-label=\"Ещё\" data-preset-id=\"' + escapeAttr(item.id) + '\">⋮</button>';
+      html += '</div></article>';
       return html;
     }
 
@@ -974,17 +989,26 @@
       var items = await fetchPresets();
       lastPresetsList = items || [];
       if (!items.length) {
+        listEl.classList.add('preset-list-empty');
         listEl.innerHTML = '<p class=\"consult-text\">Пока нет готовых сборок.</p>';
         return;
       }
+      listEl.classList.remove('preset-list-empty');
       listEl.innerHTML = items.map(renderPresetCard).join('');
-      listEl.querySelectorAll('[data-preset-id]').forEach(function (card) {
+      listEl.querySelectorAll('.preset-announcement-card').forEach(function (card) {
         var id = card.getAttribute('data-preset-id');
         var item = lastPresetsList.find(function (p) { return String(p.id) === String(id); });
         if (!item) return;
         function openDetail() { showPresetDetail(item); }
-        card.addEventListener('click', openDetail);
+        card.addEventListener('click', function (e) {
+          if (e.target.closest('.preset-card-heart') || e.target.closest('.preset-card-more')) return;
+          openDetail();
+        });
         card.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail(); } });
+        var heartBtn = card.querySelector('.preset-card-heart');
+        var moreBtn = card.querySelector('.preset-card-more');
+        if (heartBtn) heartBtn.addEventListener('click', function (ev) { ev.preventDefault(); ev.stopPropagation(); });
+        if (moreBtn) moreBtn.addEventListener('click', function (ev) { ev.preventDefault(); ev.stopPropagation(); });
       });
     }
 
