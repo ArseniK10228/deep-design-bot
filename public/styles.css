@@ -270,7 +270,7 @@ a:active {
   gap: 12px;
 }
 
-/* Список объявлений: картинка сверху, название, цена (как в примере) */
+/* Список объявлений: большие почти квадратные карточки вплотную к краям (как на референсе) */
 .avito-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -278,32 +278,34 @@ a:active {
 }
 
 #view-presets .page-content {
-  padding: 4px 0 16px;
+  padding: 4px 2px 16px;
 }
 
 .avito-card {
   display: flex;
   flex-direction: column;
+  aspect-ratio: 1 / 1;
   background: #050507;
-  border-radius: 16px;
+  border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
   border: 1px solid #17171c;
   width: 100%;
   text-align: left;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
   transition: background 0.12s ease, transform 0.08s ease, box-shadow 0.12s ease;
 }
 
 .avito-card:active {
   background: #101016;
   transform: translateY(1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
 .avito-card-photo {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
   background: #000;
 }
@@ -329,10 +331,11 @@ a:active {
 }
 
 .avito-card-body {
-  padding: 9px 10px 10px;
+  flex-shrink: 0;
+  padding: 6px 8px 8px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .avito-card-title {
