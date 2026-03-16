@@ -273,15 +273,15 @@ a:active {
 /* Список объявлений: картинка сверху, название, цена (как в примере) */
 .avito-list {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .avito-card {
   display: flex;
   flex-direction: column;
   background: #0f0d14;
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
   cursor: pointer;
   border: none;
@@ -459,7 +459,7 @@ a:active {
   position: absolute;
   right: 14px;
   top: 50%;
-  transform: translateY(-65%);
+  transform: translateY(-72%);
   font-size: 18px;
   font-weight: 500;
   color: #8a8599;
