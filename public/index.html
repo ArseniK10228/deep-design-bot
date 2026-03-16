@@ -887,6 +887,13 @@
     var lastPresetsList = [];
     var createDraft = { description: '', title: '', price: '', image: '' };
 
+    function formatPriceWithRub(price) {
+      var raw = String(price || '').trim();
+      if (!raw) return '';
+      raw = raw.replace(/[₽рp]+$/gi, '').replace(/\s+$/g, '');
+      return raw ? raw + '₽' : '';
+    }
+
     function renderPresetCard(item) {
       var hasImage = item.image && item.image.length > 0;
       var imgHtml = '<div class=\"avito-card-photo\"><div class=\"avito-card-photo-inner\">';
@@ -900,8 +907,9 @@
       html += imgHtml;
       html += '<div class=\"avito-card-body\">';
       html += '<h2 class=\"avito-card-title\">' + escapeAttr(item.title || '') + '</h2>';
-      if (item.price) {
-        html += '<p class=\"avito-card-price\">' + escapeAttr(item.price) + ' <span class=\"avito-card-ruble\">Р</span></p>';
+      var priceText = formatPriceWithRub(item.price);
+      if (priceText) {
+        html += '<p class=\"avito-card-price\">' + escapeAttr(priceText) + '</p>';
       }
       html += '</div></article>';
       return html;
@@ -955,8 +963,9 @@
         wrap.classList.add('hidden');
       }
       titleEl.textContent = item.title || '';
-      priceEl.textContent = item.price || '';
-      priceEl.style.display = item.price ? '' : 'none';
+      var priceText = formatPriceWithRub(item.price);
+      priceEl.textContent = priceText || '';
+      priceEl.style.display = priceText ? '' : 'none';
       descEl.textContent = item.description || '';
       var cta = document.getElementById('preset-detail-cta');
       if (cta) {
@@ -1016,15 +1025,16 @@
           var imageInput = card.querySelector('.preset-edit-image-input');
           var title = (titleEl && titleEl.value || '').trim();
           var price = (priceEl && priceEl.value || '').trim();
+          var priceFormatted = formatPriceWithRub(price);
           var description = (descEl && descEl.value || '').trim();
           if (!title) {
             tg.showPopup({ title: 'Ошибка', message: 'Заполните название.', buttons: [{ type: 'ok' }] });
             return;
           }
-          var payload = { userId: currentUser.id, id: id, title: title, price: price, description: description };
+          var payload = { userId: currentUser.id, id: id, title: title, price: priceFormatted, description: description };
           if (imageInput && imageInput.files && imageInput.files[0]) {
             try {
-              payload.image = await readFileAsDataUrl(imageInput.files[0]);
+              payload.image = await compressImageFile(imageInput.files[0], 1280, 0.8);
             } catch (_) {
               tg.showPopup({ title: 'Ошибка', message: 'Не удалось прочитать картинку.', buttons: [{ type: 'ok' }] });
               return;
@@ -1095,6 +1105,47 @@
       });
     }
 
+    // Сжатие изображений перед загрузкой (уменьшаем размер, оставляя приемлемое качество)
+    function compressImageFile(file, maxSize, quality) {
+      maxSize = maxSize || 1280;
+      quality = quality || 0.8;
+      return new Promise(function (resolve, reject) {
+        readFileAsDataUrl(file).then(function (dataUrl) {
+          var img = new Image();
+          img.onload = function () {
+            try {
+              var w = img.width;
+              var h = img.height;
+              if (!w || !h) {
+                return resolve(dataUrl);
+              }
+              var scale = 1;
+              if (w > h && w > maxSize) scale = maxSize / w;
+              else if (h >= w && h > maxSize) scale = maxSize / h;
+              if (scale >= 1) {
+                return resolve(dataUrl);
+              }
+              var canvas = document.createElement('canvas');
+              canvas.width = Math.round(w * scale);
+              canvas.height = Math.round(h * scale);
+              var ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+              try {
+                var compressed = canvas.toDataURL('image/jpeg', quality);
+                resolve(compressed && compressed.length < dataUrl.length ? compressed : dataUrl);
+              } catch (e) {
+                resolve(dataUrl);
+              }
+            } catch (e) {
+              resolve(dataUrl);
+            }
+          };
+          img.onerror = function (e) { reject(e); };
+          img.src = dataUrl;
+        }).catch(reject);
+      });
+    }
+
     if (isOwnerApp) {
       function createStep1Next() {
         var titleEl = document.getElementById('create-step-title');
@@ -1130,7 +1181,8 @@
       }
       function createStep3Next() {
         var priceEl = document.getElementById('create-step-price');
-        createDraft.price = (priceEl && priceEl.value || '').trim();
+        var v = (priceEl && priceEl.value || '').trim();
+        createDraft.price = v;
         showView('view-owner-create-4', 'right');
       }
       function createStep4Next() {
@@ -1145,7 +1197,7 @@
           if (errEl) errEl.textContent = 'Заполните поле.';
           return;
         }
-        readFileAsDataUrl(imageInput.files[0]).then(function (dataUrl) {
+        compressImageFile(imageInput.files[0], 1280, 0.8).then(function (dataUrl) {
           createDraft.image = dataUrl;
           goToCreateStep5();
         }).catch(function () {
@@ -1176,13 +1228,14 @@
           publishBtn.disabled = true;
           publishBtn.textContent = 'Публикация...';
           try {
+            var priceFormatted = formatPriceWithRub(createDraft.price);
             var res = await fetch('/api/presets', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 userId: currentUser.id,
                 title: createDraft.title,
-                price: createDraft.price,
+                price: priceFormatted,
                 image: createDraft.image || '',
                 description: createDraft.description
               })
