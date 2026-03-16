@@ -274,14 +274,18 @@ a:active {
 .avito-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 6px;
+}
+
+#view-presets .page-content {
+  padding: 12px 6px 24px;
 }
 
 .avito-card {
   display: flex;
   flex-direction: column;
   background: #0f0d14;
-  border-radius: 14px;
+  border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
   border: none;
@@ -322,14 +326,14 @@ a:active {
 }
 
 .avito-card-body {
-  padding: 10px 12px;
+  padding: 8px 10px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .avito-card-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #e8e4f0;
   margin: 0;
@@ -341,7 +345,7 @@ a:active {
 }
 
 .avito-card-price {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: #e8e4f0;
   margin: 0;
@@ -459,7 +463,7 @@ a:active {
   position: absolute;
   right: 14px;
   top: 50%;
-  transform: translateY(-72%);
+  transform: translateY(-78%);
   font-size: 18px;
   font-weight: 500;
   color: #8a8599;
