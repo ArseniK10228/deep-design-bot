@@ -896,22 +896,25 @@
 
     function renderPresetCard(item) {
       var hasImage = item.image && item.image.length > 0;
-      var imgHtml = '<div class=\"avito-card-photo\"><div class=\"avito-card-photo-inner\">';
+      var imgSection = '<div class=\"avito-card-photo\"><div class=\"avito-card-photo-inner\">';
       if (hasImage) {
-        imgHtml += '<img class=\"avito-card-img\" src=\"' + item.image + '\" alt=\"\" />';
+        imgSection += '<img class=\"avito-card-img\" src=\"' + item.image + '\" alt=\"\" />';
       } else {
-        imgHtml += '<span class=\"avito-card-no-img\">Нет фото</span>';
+        imgSection += '<span class=\"avito-card-no-img\">Нет фото</span>';
       }
-      imgHtml += '</div></div>';
+      imgSection += '<div class=\"avito-card-photo-badges\"><span class=\"avito-card-badge-heart\"></span></div>';
+      imgSection += '</div></div>';
+
+      var priceText = formatPriceWithRub(item.price);
       var html = '<article class=\"avito-card\" data-preset-id=\"' + escapeAttr(item.id) + '\" tabindex=\"0\" role=\"button\">';
-      html += imgHtml;
+      html += imgSection;
       html += '<div class=\"avito-card-body\">';
       html += '<h2 class=\"avito-card-title\">' + escapeAttr(item.title || '') + '</h2>';
-      var priceText = formatPriceWithRub(item.price);
       if (priceText) {
         html += '<p class=\"avito-card-price\">' + escapeAttr(priceText) + '</p>';
       }
-      html += '</div></article>';
+      html += '</div>';
+      html += '</article>';
       return html;
     }
 
