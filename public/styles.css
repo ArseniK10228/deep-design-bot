@@ -252,7 +252,7 @@ a:active {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 16px 6px 72px;
+  padding: 16px 12px 72px;
   position: relative;
 }
 
