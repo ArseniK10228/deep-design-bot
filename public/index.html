@@ -475,7 +475,8 @@
       const tabbar = document.querySelector('.app-tabbar');
       const tabbarViews = ['view-main', 'view-owner-presets', 'view-presets'];
       if (tabbar) {
-        tabbar.style.display = tabbarViews.indexOf(viewId) !== -1 ? 'flex' : 'none';
+        const shouldShow = tabbarViews.indexOf(viewId) !== -1;
+        tabbar.classList.toggle('app-tabbar-hidden', !shouldShow);
       }
 
       let leaveClass = 'view-leaving';

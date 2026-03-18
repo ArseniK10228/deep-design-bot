@@ -341,8 +341,8 @@ a:active {
 }
 
 #view-presets .page-content {
-  padding: 6px 6px 12px;
-  margin: 0 -6px 0 -6px;
+  padding: 6px 4px 12px;
+  margin: 0 -8px 0 -8px;
 }
 
 #presets-list.preset-list-loading {
@@ -994,6 +994,16 @@ a:active {
   bottom: 0;
   max-width: 480px;
   margin: 0 auto;
+  transition: transform 0.22s ease, opacity 0.22s ease;
+  transform: translateY(0);
+  opacity: 1;
+  will-change: transform, opacity;
+}
+
+.app-tabbar.app-tabbar-hidden {
+  transform: translateY(110%);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .tabbar-item {
