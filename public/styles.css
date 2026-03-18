@@ -576,20 +576,14 @@ a:active {
   gap: 12px;
 }
 
-.preset-edit-preview-wrap {
-  width: 100%;
-  max-width: 160px;
-  aspect-ratio: 1;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #2c2c2e;
+.preset-edit-gallery {
+  flex-wrap: wrap;
 }
 
-.preset-edit-current-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+.preset-edit-preview-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .preset-edit-photo-title {
@@ -1441,6 +1435,80 @@ a:active {
 .photo-add-card.form-input-error {
   border: 2px solid #e53935;
   box-shadow: 0 0 0 1px #e53935;
+}
+
+.photo-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.photo-preview-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.photo-preview-card {
+  position: relative;
+  width: 100px;
+  min-width: 100px;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #2c2c2e;
+  flex-shrink: 0;
+}
+
+.photo-preview-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-preview-card .photo-preview-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.photo-preview-card .photo-preview-edit {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.photo-preview-card .photo-preview-edit svg {
+  width: 14px;
+  height: 14px;
+}
+
+.photo-add-card.photo-add-inline {
+  width: 100px;
+  min-width: 100px;
+  aspect-ratio: 1;
+  min-height: 0;
+  padding: 0;
 }
 
 .form-error {

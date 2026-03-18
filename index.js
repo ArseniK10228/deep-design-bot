@@ -172,7 +172,7 @@ app.get('/api/presets', async (req, res) => {
 app.post('/api/presets', async (req, res) => {
   try {
     const ownerId = process.env.OWNER_CHAT_ID;
-    const { userId, title, price, image, description } = req.body || {};
+    const { userId, title, price, image, images, description } = req.body || {};
     if (!ownerId || !userId || String(ownerId) !== String(userId)) {
       return res.status(403).json({ ok: false });
     }
@@ -182,11 +182,16 @@ app.post('/api/presets', async (req, res) => {
     }
     const list = await getPresets();
     const now = Date.now();
+    const imagesArr = Array.isArray(images) && images.length > 0
+      ? images.map((img) => String(img || '').trim()).filter(Boolean)
+      : (image ? [String(image).trim()] : []);
+    const mainImage = imagesArr[0] || String(image || '').trim();
     const item = {
       id: String(now),
       title: safeTitle,
       price: String(price || '').trim(),
-      image: String(image || '').trim(),
+      image: mainImage,
+      images: imagesArr,
       description: String(description || '').trim(),
       createdAt: now
     };
@@ -202,7 +207,7 @@ app.post('/api/presets', async (req, res) => {
 app.post('/api/presets/update', async (req, res) => {
   try {
     const ownerId = process.env.OWNER_CHAT_ID;
-    const { userId, id, title, price, image, description } = req.body || {};
+    const { userId, id, title, price, image, images, description } = req.body || {};
     if (!ownerId || !userId || String(ownerId) !== String(userId)) {
       return res.status(403).json({ ok: false });
     }
@@ -214,6 +219,11 @@ app.post('/api/presets/update', async (req, res) => {
     if (title !== undefined) cur[idx].title = String(title || '').trim();
     if (price !== undefined) cur[idx].price = String(price || '').trim();
     if (image !== undefined) cur[idx].image = String(image || '').trim();
+    if (images !== undefined) {
+      const arr = Array.isArray(images) ? images.map((img) => String(img || '').trim()).filter(Boolean) : [];
+      cur[idx].images = arr;
+      cur[idx].image = arr.length > 0 ? arr[0] : '';
+    }
     if (description !== undefined) cur[idx].description = String(description || '').trim();
     await savePresets(cur);
     res.json({ ok: true, item: cur[idx] });

@@ -285,11 +285,14 @@
       <main class="page-content wizard-content">
         <div class="photo-section">
           <h2 class="photo-section-title">Фотографии</h2>
-          <label class="photo-add-card" id="create-step-image-wrap" for="create-step-image">
-            <input class="photo-add-input" id="create-step-image" type="file" accept="image/*" />
-            <span class="photo-add-icon"></span>
-            <span class="photo-add-text">Добавить фото</span>
-          </label>
+          <div class="photo-gallery" id="create-step-photo-gallery">
+            <div class="photo-preview-list" id="create-step-preview-list"></div>
+            <label class="photo-add-card" id="create-step-image-wrap" for="create-step-image">
+              <input class="photo-add-input" id="create-step-image" type="file" accept="image/*" />
+              <span class="photo-add-icon"></span>
+              <span class="photo-add-text">Добавить фото</span>
+            </label>
+          </div>
         </div>
         <p class="form-error" id="create-step-image-error"></p>
         <button type="button" class="submit-btn" id="create-step-4-next">Далее</button>
@@ -530,7 +533,7 @@
       }
 
       if (action === 'owner_create') {
-        createDraft = { title: '', description: '', price: '', image: '' };
+        createDraft = { title: '', description: '', price: '', image: '', images: [] };
         var t = document.getElementById('create-step-title');
         var d = document.getElementById('create-step-desc');
         var p = document.getElementById('create-step-price');
@@ -889,7 +892,7 @@
     }
 
     var lastPresetsList = [];
-    var createDraft = { description: '', title: '', price: '', image: '' };
+    var createDraft = { description: '', title: '', price: '', image: '', images: [] };
 
     function formatPriceWithRub(price) {
       var raw = String(price || '').trim();
@@ -934,17 +937,28 @@
       return base.replace('</div>', '<button type=\"button\" class=\"preset-delete-btn\" data-preset-id=\"' + escapeAttr(item.id) + '\">Удалить</button></div>');
     }
 
+    var editPresetImages = {};
+
     function renderOwnerPresetEditCard(item) {
+      var pid = String(item.id);
+      var imgs = editPresetImages[pid] || item.images || (item.image ? [item.image] : []);
       var inputId = 'preset-edit-image-' + escapeAttr(item.id);
-      var imgBlock = '';
-      if (item.image) {
-        imgBlock = '<div class=\"preset-edit-preview-wrap\"><img class=\"preset-edit-current-img\" src=\"' + escapeAttr(item.image) + '\" alt=\"\" /></div>';
+      var imgBlock = '<div class=\"photo-gallery preset-edit-gallery\">';
+      imgBlock += '<div class=\"photo-preview-list preset-edit-preview-list\" data-preset-id=\"' + escapeAttr(item.id) + '\">';
+      for (var idx = 0; idx < imgs.length; idx++) {
+        imgBlock += '<div class=\"photo-preview-card\" data-photo-index=\"' + idx + '\">';
+        imgBlock += '<img src=\"' + escapeAttr(imgs[idx]) + '\" alt=\"\" />';
+        if (idx === 0) imgBlock += '<span class=\"photo-preview-badge\">Главная</span>';
+        imgBlock += '<button type=\"button\" class=\"photo-preview-edit preset-edit-photo-replace\" data-preset-id=\"' + escapeAttr(item.id) + '\" data-photo-index=\"' + idx + '\" aria-label=\"Изменить\">';
+        imgBlock += '<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\"/><path d=\"M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\"/></svg>';
+        imgBlock += '</button></div>';
       }
-      imgBlock += '<label class=\"photo-add-card preset-edit-photo-card\" for=\"' + inputId + '\">';
+      imgBlock += '</div>';
+      imgBlock += '<label class=\"photo-add-card preset-edit-photo-card photo-add-inline\" for=\"' + inputId + '\">';
       imgBlock += '<input type=\"file\" class=\"photo-add-input preset-edit-image-input\" id=\"' + inputId + '\" accept=\"image/*\" data-preset-id=\"' + escapeAttr(item.id) + '\" />';
       imgBlock += '<span class=\"photo-add-icon\"></span>';
-      imgBlock += '<span class=\"photo-add-text\">' + (item.image ? 'Изменить фото' : 'Добавить фото') + '</span>';
-      imgBlock += '</label>';
+      imgBlock += '<span class=\"photo-add-text\">Добавить фото</span>';
+      imgBlock += '</label></div>';
       var html = '<article class=\"preset-edit-card\" data-preset-id=\"' + escapeAttr(item.id) + '\">';
       html += '<label class=\"form-label\">Название</label>';
       html += '<input class=\"form-input preset-edit-title\" value=\"' + escapeAttr(item.title) + '\" data-preset-id=\"' + escapeAttr(item.id) + '\" />';
@@ -1023,6 +1037,9 @@
 
     var loadingOwnerHtml = '<div class=\"list-loading\"><div class=\"list-loading-spinner\"></div><span>Загрузка...</span></div>';
 
+    var replaceEditIndex = null;
+    var replaceEditPresetId = null;
+
     async function loadOwnerEditPresets() {
       var listEl = document.getElementById('owner-presets-list');
       if (!listEl) return;
@@ -1032,7 +1049,84 @@
         listEl.innerHTML = '<p class="consult-text">Нет предложений. Создайте новое во вкладке «Создать новое предложение».</p>';
         return;
       }
+      editPresetImages = {};
+      items.forEach(function (it) {
+        editPresetImages[String(it.id)] = it.images || (it.image ? [it.image] : []);
+      });
       listEl.innerHTML = items.map(renderOwnerPresetEditCard).join('');
+
+      listEl.querySelectorAll('.preset-edit-image-input').forEach(function (input) {
+        input.addEventListener('change', function () {
+          var pid = this.getAttribute('data-preset-id');
+          if (!pid || !this.files || !this.files[0]) return;
+          var file = this.files[0];
+          compressImageFile(file, 1280, 0.8).then(function (dataUrl) {
+            var imgs = editPresetImages[pid] || [];
+            var idx = replaceEditIndex;
+            var replacePid = replaceEditPresetId;
+            replaceEditIndex = null;
+            replaceEditPresetId = null;
+            if (typeof idx === 'number' && idx >= 0 && replacePid === pid && imgs[idx] !== undefined) {
+              imgs[idx] = dataUrl;
+              var card = listEl.querySelector('.preset-edit-preview-list[data-preset-id="' + pid.replace(/"/g, '\\"') + '"] .photo-preview-card[data-photo-index="' + idx + '"]');
+              if (card) {
+                var imgEl = card.querySelector('img');
+                if (imgEl) imgEl.src = dataUrl;
+              }
+            } else {
+              imgs.push(dataUrl);
+              var list = listEl.querySelector('.preset-edit-preview-list[data-preset-id="' + pid.replace(/"/g, '\\"') + '"]');
+              if (list) {
+                var newIdx = imgs.length - 1;
+                var div = document.createElement('div');
+                div.className = 'photo-preview-card';
+                div.setAttribute('data-photo-index', String(newIdx));
+                var img = document.createElement('img');
+                img.src = dataUrl;
+                img.alt = '';
+                div.appendChild(img);
+                if (newIdx === 0) {
+                  var badge = document.createElement('span');
+                  badge.className = 'photo-preview-badge';
+                  badge.textContent = 'Главная';
+                  div.appendChild(badge);
+                }
+                var editBtn = document.createElement('button');
+                editBtn.type = 'button';
+                editBtn.className = 'photo-preview-edit preset-edit-photo-replace';
+                editBtn.setAttribute('data-preset-id', pid);
+                editBtn.setAttribute('data-photo-index', String(newIdx));
+                editBtn.setAttribute('aria-label', 'Изменить');
+                editBtn.innerHTML = '<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\"/><path d=\"M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\"/></svg>';
+                div.appendChild(editBtn);
+                list.appendChild(div);
+                editBtn.addEventListener('click', function (ev) {
+                  ev.preventDefault();
+                  ev.stopPropagation();
+                  replaceEditIndex = parseInt(this.getAttribute('data-photo-index'), 10);
+                  replaceEditPresetId = this.getAttribute('data-preset-id');
+                  input.click();
+                });
+              }
+            }
+            editPresetImages[pid] = imgs;
+          });
+          this.value = '';
+        });
+      });
+
+      listEl.querySelectorAll('.preset-edit-photo-replace').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var pid = this.getAttribute('data-preset-id');
+          replaceEditIndex = parseInt(this.getAttribute('data-photo-index'), 10);
+          replaceEditPresetId = pid;
+          var inp = document.getElementById('preset-edit-image-' + pid);
+          if (inp) inp.click();
+        });
+      });
+
       listEl.querySelectorAll('.preset-save-btn').forEach(function (btn) {
         btn.addEventListener('click', async function (e) {
           e.stopPropagation();
@@ -1043,7 +1137,6 @@
           var titleEl = card.querySelector('.preset-edit-title');
           var priceEl = card.querySelector('.preset-edit-price');
           var descEl = card.querySelector('.preset-edit-desc');
-          var imageInput = card.querySelector('.preset-edit-image-input');
           var title = (titleEl && titleEl.value || '').trim();
           var price = (priceEl && priceEl.value || '').trim();
           var priceFormatted = formatPriceWithRub(price);
@@ -1052,15 +1145,9 @@
             tg.showPopup({ title: 'Ошибка', message: 'Заполните название.', buttons: [{ type: 'ok' }] });
             return;
           }
-          var payload = { userId: currentUser.id, id: id, title: title, price: priceFormatted, description: description };
-          if (imageInput && imageInput.files && imageInput.files[0]) {
-            try {
-              payload.image = await compressImageFile(imageInput.files[0], 1280, 0.8);
-            } catch (_) {
-              tg.showPopup({ title: 'Ошибка', message: 'Не удалось прочитать картинку.', buttons: [{ type: 'ok' }] });
-              return;
-            }
-          }
+          var imgs = editPresetImages[id] || [];
+          var payload = { userId: currentUser.id, id: id, title: title, price: priceFormatted, description: description, images: imgs };
+          if (imgs.length > 0) payload.image = imgs[0];
           btn.disabled = true;
           btn.textContent = 'Сохранение...';
           try {
@@ -1200,31 +1287,54 @@
         var p = document.getElementById('create-step-price');
         if (p) p.value = createDraft.price || '';
       }
+      var replacePhotoIndex = null;
+
+      function renderCreateStep4Gallery() {
+        var listEl = document.getElementById('create-step-preview-list');
+        var wrap = document.getElementById('create-step-image-wrap');
+        if (!listEl || !wrap) return;
+        var imgs = createDraft.images || [];
+        var html = '';
+        for (var idx = 0; idx < imgs.length; idx++) {
+          html += '<div class=\"photo-preview-card\" data-photo-index=\"' + idx + '\">';
+          html += '<img src=\"' + escapeAttr(imgs[idx]) + '\" alt=\"\" />';
+          if (idx === 0) html += '<span class=\"photo-preview-badge\">Главная</span>';
+          html += '<button type=\"button\" class=\"photo-preview-edit\" data-photo-index=\"' + idx + '\" aria-label=\"Изменить фото\">';
+          html += '<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\"/><path d=\"M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\"/></svg>';
+          html += '</button></div>';
+        }
+        listEl.innerHTML = html;
+        listEl.querySelectorAll('.photo-preview-edit').forEach(function (btn) {
+          btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            replacePhotoIndex = parseInt(btn.getAttribute('data-photo-index'), 10);
+            document.getElementById('create-step-image').click();
+          });
+        });
+        wrap.classList.toggle('photo-add-inline', imgs.length > 0);
+      }
+
       function createStep3Next() {
         var priceEl = document.getElementById('create-step-price');
         var v = (priceEl && priceEl.value || '').trim();
         createDraft.price = v;
         showView('view-owner-create-4', 'right');
+        renderCreateStep4Gallery();
       }
       function createStep4Next() {
-        var imageInput = document.getElementById('create-step-image');
         var wrap = document.getElementById('create-step-image-wrap');
         var errEl = document.getElementById('create-step-image-error');
         if (errEl) errEl.textContent = '';
         if (wrap) wrap.classList.remove('form-input-error');
-        createDraft.image = '';
-        if (!imageInput || !imageInput.files || !imageInput.files[0]) {
+        var imgs = createDraft.images || [];
+        if (!imgs.length) {
           if (wrap) wrap.classList.add('form-input-error');
-          if (errEl) errEl.textContent = 'Заполните поле.';
+          if (errEl) errEl.textContent = 'Добавьте хотя бы одно фото.';
           return;
         }
-        compressImageFile(imageInput.files[0], 1280, 0.8).then(function (dataUrl) {
-          createDraft.image = dataUrl;
-          goToCreateStep5();
-        }).catch(function () {
-          if (wrap) wrap.classList.add('form-input-error');
-          if (errEl) errEl.textContent = 'Не удалось прочитать файл.';
-        });
+        createDraft.image = imgs[0];
+        goToCreateStep5();
       }
       function goToCreateStep5() {
         var titleEl = document.getElementById('review-title');
@@ -1234,9 +1344,36 @@
         if (titleEl) titleEl.textContent = createDraft.title || '—';
         if (descEl) descEl.textContent = (createDraft.description || '—').slice(0, 200) + (createDraft.description && createDraft.description.length > 200 ? '…' : '');
         if (priceEl) priceEl.textContent = createDraft.price || '—';
-        if (photoEl) photoEl.textContent = createDraft.image ? 'Добавлено' : 'Нет';
+        if (photoEl) photoEl.textContent = (createDraft.images && createDraft.images.length) ? 'Добавлено ' + createDraft.images.length + ' фото' : 'Нет';
         showView('view-owner-create-5', 'right');
       }
+      var createImageInput = document.getElementById('create-step-image');
+      if (createImageInput) {
+        createImageInput.addEventListener('change', function () {
+          var wrap = document.getElementById('create-step-image-wrap');
+          var errEl = document.getElementById('create-step-image-error');
+          if (!this.files || !this.files[0]) return;
+          var file = this.files[0];
+          compressImageFile(file, 1280, 0.8).then(function (dataUrl) {
+            if (errEl) errEl.textContent = '';
+            if (wrap) wrap.classList.remove('form-input-error');
+            var idx = replacePhotoIndex;
+            replacePhotoIndex = null;
+            if (typeof idx === 'number' && idx >= 0 && createDraft.images && createDraft.images[idx] !== undefined) {
+              createDraft.images[idx] = dataUrl;
+            } else {
+              if (!createDraft.images) createDraft.images = [];
+              createDraft.images.push(dataUrl);
+            }
+            renderCreateStep4Gallery();
+          }).catch(function () {
+            if (wrap) wrap.classList.add('form-input-error');
+            if (errEl) errEl.textContent = 'Не удалось прочитать файл.';
+          });
+          this.value = '';
+        });
+      }
+
       document.getElementById('create-step-1-next')?.addEventListener('click', createStep1Next);
       document.getElementById('create-step-2-next')?.addEventListener('click', createStep2Next);
       document.getElementById('create-step-3-next')?.addEventListener('click', createStep3Next);
@@ -1250,6 +1387,8 @@
           publishBtn.textContent = 'Публикация...';
           try {
             var priceFormatted = formatPriceWithRub(createDraft.price);
+            var imgs = createDraft.images || [];
+            var mainImage = imgs.length ? imgs[0] : (createDraft.image || '');
             var res = await fetch('/api/presets', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -1257,7 +1396,8 @@
                 userId: currentUser.id,
                 title: createDraft.title,
                 price: priceFormatted,
-                image: createDraft.image || '',
+                image: mainImage,
+                images: imgs,
                 description: createDraft.description
               })
             });
@@ -1275,7 +1415,7 @@
               else if (res.status === 400) msg = 'Заполните название объявления.';
               tg.showPopup({ title: 'Ошибка', message: msg, buttons: [{ type: 'ok' }] });
             } else {
-              createDraft = { title: '', description: '', price: '', image: '' };
+              createDraft = { title: '', description: '', price: '', image: '', images: [] };
               showView('view-owner-presets');
               tg.showPopup({ title: 'Готово', message: 'Объявление опубликовано.', buttons: [{ type: 'ok' }] });
             }
