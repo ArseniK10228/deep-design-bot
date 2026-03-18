@@ -964,29 +964,29 @@ a:active {
 }
 
 #view-owner-presets .service-card {
-  padding: 14px 16px;
+  padding: 22px 20px;
 }
 
 #view-owner-presets .service-icon {
-  width: 40px;
-  height: 40px;
-  font-size: 20px;
+  width: 56px;
+  height: 56px;
+  font-size: 28px;
 }
 
 #view-owner-presets .service-title {
-  font-size: 15px;
+  font-size: 22px;
 }
 
 #view-owner-presets .service-desc {
-  font-size: 12px;
+  font-size: 16px;
 }
 
 #view-owner-presets .service-arrow {
-  font-size: 20px;
+  font-size: 28px;
 }
 
 #view-owner-presets .service-list {
-  gap: 10px;
+  gap: 16px;
 }
 
 .service-icon-add {
