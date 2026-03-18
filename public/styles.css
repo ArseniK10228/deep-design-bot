@@ -335,17 +335,18 @@ a:active {
 #presets-list {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4px;
+  column-gap: 8px;
+  row-gap: 4px;
   padding: 0;
 }
 
 #view-presets .page-content {
-  padding: 6px 4px 12px;
-  margin: 0 -8px 0 -8px;
+  padding: 6px 2px 12px;
+  margin: 0 -10px 0 -10px;
 }
 
 .preset-announcement-card {
-  border-radius: 0;
+  border-radius: 6px;
   overflow: hidden;
   background: #0f0d14;
   cursor: pointer;
