@@ -916,14 +916,12 @@
       }
       html += '</div>';
       html += '<div class=\"preset-card-info\">';
-      html += '<button type=\"button\" class=\"preset-card-heart\" aria-label=\"В избранное\" data-preset-id=\"' + escapeAttr(item.id) + '\">♥</button>';
       html += '<p class=\"preset-card-title\">' + title + '</p>';
       html += '<p class=\"preset-card-price' + (priceText ? '' : ' preset-card-price-empty') + '\">' + escapeAttr(priceText || '') + '</p>';
       if (item.oldPrice || item.location) {
         var extra = [item.oldPrice, item.location].filter(Boolean).join(' · ');
         html += '<p class=\"preset-card-extra\">' + escapeAttr(extra) + '</p>';
       }
-      html += '<button type=\"button\" class=\"preset-card-more\" aria-label=\"Ещё\" data-preset-id=\"' + escapeAttr(item.id) + '\">⋮</button>';
       html += '</div></article>';
       return html;
     }
@@ -1023,15 +1021,8 @@
         var item = lastPresetsList.find(function (p) { return String(p.id) === String(id); });
         if (!item) return;
         function openDetail() { showPresetDetail(item); }
-        card.addEventListener('click', function (e) {
-          if (e.target.closest('.preset-card-heart') || e.target.closest('.preset-card-more')) return;
-          openDetail();
-        });
+        card.addEventListener('click', openDetail);
         card.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail(); } });
-        var heartBtn = card.querySelector('.preset-card-heart');
-        var moreBtn = card.querySelector('.preset-card-more');
-        if (heartBtn) heartBtn.addEventListener('click', function (ev) { ev.preventDefault(); ev.stopPropagation(); });
-        if (moreBtn) moreBtn.addEventListener('click', function (ev) { ev.preventDefault(); ev.stopPropagation(); });
       });
     }
 
