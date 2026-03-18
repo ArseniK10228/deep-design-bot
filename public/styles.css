@@ -964,29 +964,29 @@ a:active {
 }
 
 #view-owner-presets .service-card {
-  padding: 22px 20px;
+  padding: 14px 16px;
 }
 
 #view-owner-presets .service-icon {
-  width: 52px;
-  height: 52px;
-  font-size: 26px;
-}
-
-#view-owner-presets .service-title {
+  width: 40px;
+  height: 40px;
   font-size: 20px;
 }
 
-#view-owner-presets .service-desc {
+#view-owner-presets .service-title {
   font-size: 15px;
 }
 
+#view-owner-presets .service-desc {
+  font-size: 12px;
+}
+
 #view-owner-presets .service-arrow {
-  font-size: 26px;
+  font-size: 20px;
 }
 
 #view-owner-presets .service-list {
-  gap: 16px;
+  gap: 10px;
 }
 
 .service-icon-add {
