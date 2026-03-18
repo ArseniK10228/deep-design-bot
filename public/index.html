@@ -1006,14 +1006,18 @@
     async function loadPublicPresets() {
       var listEl = document.getElementById('presets-list');
       if (!listEl) return;
+      listEl.classList.add('preset-list-loading');
+      listEl.classList.remove('preset-list-empty');
       listEl.innerHTML = loadingPresetsHtml;
       var items = await fetchPresets();
       lastPresetsList = items || [];
       if (!items.length) {
+        listEl.classList.remove('preset-list-loading');
         listEl.classList.add('preset-list-empty');
         listEl.innerHTML = '<p class=\"consult-text\">Пока нет готовых сборок.</p>';
         return;
       }
+      listEl.classList.remove('preset-list-loading');
       listEl.classList.remove('preset-list-empty');
       listEl.innerHTML = items.map(renderPresetCard).join('');
       listEl.querySelectorAll('.preset-announcement-card').forEach(function (card) {

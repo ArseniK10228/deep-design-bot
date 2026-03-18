@@ -341,8 +341,19 @@ a:active {
 }
 
 #view-presets .page-content {
-  padding: 6px 2px 12px;
-  margin: 0 -10px 0 -10px;
+  padding: 6px 6px 12px;
+  margin: 0 -6px 0 -6px;
+}
+
+#presets-list.preset-list-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 220px);
+}
+
+#presets-list.preset-list-loading .list-loading {
+  padding: 0;
 }
 
 .preset-announcement-card {
