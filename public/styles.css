@@ -297,6 +297,60 @@ a:active {
   display: block;
 }
 
+/* Свайп-галерея в деталях объявления */
+.preset-detail-carousel {
+  width: 100%;
+  max-height: 400px;
+  position: relative;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.preset-detail-carousel-track {
+  display: flex;
+  width: 100%;
+  will-change: transform;
+  transition: transform 0.22s ease;
+}
+
+.preset-detail-carousel-slide {
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #242424;
+}
+
+.preset-detail-carousel-slide img {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: contain;
+  display: block;
+}
+
+.preset-detail-dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.preset-detail-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.preset-detail-dot-active {
+  background: rgba(255, 255, 255, 0.9);
+}
+
 .preset-detail-body {
   padding: 16px;
   display: flex;

@@ -980,9 +980,87 @@
       var priceEl = document.getElementById('preset-detail-price');
       var descEl = document.getElementById('preset-detail-desc');
       if (!wrap || !titleEl || !priceEl || !descEl) return;
-      if (item.image && item.image.length > 0) {
-        wrap.innerHTML = '<img class=\"preset-detail-image\" src=\"' + item.image + '\" alt=\"\" />';
+      var imgs = [];
+      if (Array.isArray(item.images) && item.images.length) imgs = item.images.filter(Boolean);
+      if (!imgs.length && item.image) imgs = [item.image];
+
+      if (imgs.length) {
+        var track = '<div class=\"preset-detail-carousel\" id=\"preset-detail-carousel\">';
+        track += '<div class=\"preset-detail-carousel-track\" id=\"preset-detail-carousel-track\">';
+        for (var i = 0; i < imgs.length; i++) {
+          track += '<div class=\"preset-detail-carousel-slide\"><img src=\"' + escapeAttr(imgs[i]) + '\" alt=\"\" /></div>';
+        }
+        track += '</div>';
+        if (imgs.length > 1) {
+          track += '<div class=\"preset-detail-dots\" id=\"preset-detail-dots\">';
+          for (var d = 0; d < imgs.length; d++) {
+            track += '<span class=\"preset-detail-dot' + (d === 0 ? ' preset-detail-dot-active' : '') + '\"></span>';
+          }
+          track += '</div>';
+        }
+        track += '</div>';
+        wrap.innerHTML = track;
         wrap.classList.remove('hidden');
+
+        (function initCarousel() {
+          var carousel = document.getElementById('preset-detail-carousel');
+          var trackEl = document.getElementById('preset-detail-carousel-track');
+          if (!carousel || !trackEl || imgs.length <= 1) return;
+          var dotsWrap = document.getElementById('preset-detail-dots');
+          var dots = dotsWrap ? Array.from(dotsWrap.querySelectorAll('.preset-detail-dot')) : [];
+          var idx = 0;
+          var startX = 0;
+          var curX = 0;
+          var isDown = false;
+
+          function setIndex(next) {
+            idx = Math.max(0, Math.min(imgs.length - 1, next));
+            trackEl.style.transition = 'transform 0.22s ease';
+            trackEl.style.transform = 'translateX(' + (-idx * 100) + '%)';
+            if (dots.length) {
+              dots.forEach(function (dot, i) {
+                if (i === idx) dot.classList.add('preset-detail-dot-active');
+                else dot.classList.remove('preset-detail-dot-active');
+              });
+            }
+          }
+
+          function onStart(x) {
+            isDown = true;
+            startX = x;
+            curX = x;
+            trackEl.style.transition = 'none';
+          }
+
+          function onMove(x) {
+            if (!isDown) return;
+            curX = x;
+            var dx = curX - startX;
+            var w = carousel.clientWidth || 1;
+            var px = (-idx * w) + dx;
+            trackEl.style.transform = 'translateX(' + px + 'px)';
+          }
+
+          function onEnd() {
+            if (!isDown) return;
+            isDown = false;
+            var dx = curX - startX;
+            var threshold = Math.min(60, (carousel.clientWidth || 300) * 0.18);
+            if (dx > threshold) setIndex(idx - 1);
+            else if (dx < -threshold) setIndex(idx + 1);
+            else setIndex(idx);
+          }
+
+          carousel.addEventListener('touchstart', function (e) { if (e.touches && e.touches[0]) onStart(e.touches[0].clientX); }, { passive: true });
+          carousel.addEventListener('touchmove', function (e) { if (e.touches && e.touches[0]) onMove(e.touches[0].clientX); }, { passive: true });
+          carousel.addEventListener('touchend', onEnd);
+
+          carousel.addEventListener('mousedown', function (e) { onStart(e.clientX); });
+          window.addEventListener('mousemove', function (e) { onMove(e.clientX); });
+          window.addEventListener('mouseup', onEnd);
+
+          setIndex(0);
+        })();
       } else {
         wrap.innerHTML = '';
         wrap.classList.add('hidden');
