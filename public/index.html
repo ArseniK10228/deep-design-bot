@@ -278,14 +278,18 @@
         <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-owner-create-3">‹</button>
         <div class="page-header-center">
           <p class="page-step">Шаг 4 из 5</p>
-          <h1 class="page-title">Фото</h1>
-          <p class="page-subtitle">Добавьте фото сборки</p>
+          <h1 class="page-title">Внешний вид</h1>
+          <p class="page-subtitle">Фотографии</p>
         </div>
       </header>
       <main class="page-content wizard-content">
-        <label class="form-label">Картинка</label>
-        <div class="input-wrap" id="create-step-image-wrap">
-          <input class="form-input" id="create-step-image" type="file" accept="image/*" />
+        <div class="photo-section">
+          <h2 class="photo-section-title">Фотографии</h2>
+          <label class="photo-add-card" id="create-step-image-wrap" for="create-step-image">
+            <input class="photo-add-input" id="create-step-image" type="file" accept="image/*" />
+            <span class="photo-add-icon"></span>
+            <span class="photo-add-text">Добавить фото</span>
+          </label>
         </div>
         <p class="form-error" id="create-step-image-error"></p>
         <button type="button" class="submit-btn" id="create-step-4-next">Далее</button>
@@ -931,17 +935,22 @@
     }
 
     function renderOwnerPresetEditCard(item) {
+      var inputId = 'preset-edit-image-' + escapeAttr(item.id);
       var imgBlock = '';
       if (item.image) {
-        imgBlock = '<img class=\"preset-edit-current-img\" src=\"' + escapeAttr(item.image) + '\" alt=\"\" />';
+        imgBlock = '<div class=\"preset-edit-preview-wrap\"><img class=\"preset-edit-current-img\" src=\"' + escapeAttr(item.image) + '\" alt=\"\" /></div>';
       }
-      imgBlock += '<input type=\"file\" class=\"form-input preset-edit-image-input\" accept=\"image/*\" data-preset-id=\"' + escapeAttr(item.id) + '\" />';
+      imgBlock += '<label class=\"photo-add-card preset-edit-photo-card\" for=\"' + inputId + '\">';
+      imgBlock += '<input type=\"file\" class=\"photo-add-input preset-edit-image-input\" id=\"' + inputId + '\" accept=\"image/*\" data-preset-id=\"' + escapeAttr(item.id) + '\" />';
+      imgBlock += '<span class=\"photo-add-icon\"></span>';
+      imgBlock += '<span class=\"photo-add-text\">' + (item.image ? 'Изменить фото' : 'Добавить фото') + '</span>';
+      imgBlock += '</label>';
       var html = '<article class=\"preset-edit-card\" data-preset-id=\"' + escapeAttr(item.id) + '\">';
       html += '<label class=\"form-label\">Название</label>';
       html += '<input class=\"form-input preset-edit-title\" value=\"' + escapeAttr(item.title) + '\" data-preset-id=\"' + escapeAttr(item.id) + '\" />';
       html += '<label class=\"form-label\">Цена</label>';
       html += '<div class=\"input-with-ruble\"><input class=\"form-input preset-edit-price\" value=\"' + escapeAttr(item.price) + '\" data-preset-id=\"' + escapeAttr(item.id) + '\" /><span class=\"input-ruble-suffix\">₽</span></div>';
-      html += '<label class=\"form-label\">Картинка</label>';
+      html += '<h3 class=\"photo-section-title preset-edit-photo-title\">Фотографии</h3>';
       html += '<div class=\"preset-edit-image-wrap\">' + imgBlock + '</div>';
       html += '<label class=\"form-label\">Описание</label>';
       html += '<textarea class=\"form-textarea form-textarea-sm preset-edit-desc\" data-preset-id=\"' + escapeAttr(item.id) + '\">' + escapeAttr(item.description) + '</textarea>';
