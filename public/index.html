@@ -846,7 +846,12 @@
 
     document.querySelectorAll('.back-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
-        const target = btn.dataset.backTo || 'view-main';
+        let target = btn.dataset.backTo || 'view-main';
+        // В режиме апгрейда возвращаемся сразу на главный экран
+        if (isUpgradeMode && target === 'view-build') {
+          target = 'view-main';
+          isUpgradeMode = false;
+        }
         showView(target);
         const tabbar = document.querySelector('.app-tabbar');
         if (tabbar && (target === 'view-main' || target === 'view-presets' || target === 'view-portfolio' || target === 'view-profile' || target === 'view-owner-presets')) {
