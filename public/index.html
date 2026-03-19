@@ -736,6 +736,12 @@
       }
 
       if (action === 'build_no') {
+        var labelEl = document.querySelector('#view-build-no .form-label');
+        var textareaEl = document.getElementById('build-tasks');
+        if (labelEl) labelEl.textContent = 'ЗАДАЧИ И БЮДЖЕТ';
+        if (textareaEl && !textareaEl.value) {
+          textareaEl.placeholder = 'ПК для игр, бюджет 30000 RUB...';
+        }
         showView('view-build-no');
         return;
       }
@@ -800,6 +806,13 @@
       }
 
       if (action === 'upgrade') {
+        var upLabelEl = document.querySelector('#view-build-no .form-label');
+        var upTextareaEl = document.getElementById('build-tasks');
+        if (upLabelEl) upLabelEl.textContent = 'ЧТО ХОТИТЕ УЛУЧШИТЬ';
+        if (upTextareaEl && !upTextareaEl.value) {
+          upTextareaEl.placeholder = 'Улучшить GPU, добавить ОЗУ...';
+        }
+        showView('view-build-no');
         return;
       }
 
