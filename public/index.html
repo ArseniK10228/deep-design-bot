@@ -595,7 +595,7 @@
           </div>
           <p class="profile-username" id="profile-username"></p>
         </div>
-        <p class="profile-empty">Заказов пока что нет у вас</p>
+        <p class="profile-empty">У вас пока что нет заказов.</p>
       </main>
     </div>
   </div>
@@ -627,6 +627,14 @@
       tg.expand();
       tg.MainButton.hide();
     }
+
+    // Прогреваем аватар/имя сразу при входе (чтобы в "Мои заказы" появлялось мгновенно)
+    (function preloadProfile() {
+      try {
+        updateProfileView();
+        preloadProfileAvatar();
+      } catch (_) {}
+    })();
 
     (function checkMaintenance() {
       var overlay = document.getElementById('maintenance-overlay');
@@ -1133,7 +1141,20 @@
 
       // Telegram WebApp иногда отдаёт photo_url в user
       var photoUrl = user && user.photo_url ? String(user.photo_url) : '';
-      if (photoUrl) {
+      var cached = '';
+      try { cached = localStorage.getItem('profileAvatarCompressed') || ''; } catch (_) {}
+
+      if (cached) {
+        avatarImg.onload = function () {
+          avatarImg.classList.add('profile-avatar-img-visible');
+          avatarEl.classList.add('profile-avatar-fallback-hidden');
+        };
+        avatarImg.onerror = function () {
+          avatarImg.classList.remove('profile-avatar-img-visible');
+          avatarEl.classList.remove('profile-avatar-fallback-hidden');
+        };
+        avatarImg.src = cached;
+      } else if (photoUrl) {
         avatarImg.onload = function () {
           avatarImg.classList.add('profile-avatar-img-visible');
           avatarEl.classList.add('profile-avatar-fallback-hidden');
@@ -1148,6 +1169,55 @@
         avatarImg.classList.remove('profile-avatar-img-visible');
         avatarEl.classList.remove('profile-avatar-fallback-hidden');
       }
+    }
+
+    async function preloadProfileAvatar() {
+      try {
+        var user = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
+        var photoUrl = user && user.photo_url ? String(user.photo_url) : '';
+        if (!photoUrl) return;
+
+        // Уже есть сжатая версия — ничего не делаем
+        try {
+          var exists = localStorage.getItem('profileAvatarCompressed');
+          if (exists && exists.length > 50) return;
+        } catch (_) {}
+
+        // Пытаемся скачать и сжать (в localStorage, не в базе)
+        var res = await fetch(photoUrl, { cache: 'force-cache' });
+        if (!res.ok) return;
+        var blob = await res.blob();
+        var bitmap = null;
+        try {
+          bitmap = await createImageBitmap(blob);
+        } catch (_) {
+          return;
+        }
+
+        var max = 160;
+        var w = bitmap.width || max;
+        var h = bitmap.height || max;
+        var scale = Math.min(1, max / Math.max(w, h));
+        var cw = Math.max(1, Math.round(w * scale));
+        var ch = Math.max(1, Math.round(h * scale));
+        var canvas = document.createElement('canvas');
+        canvas.width = cw;
+        canvas.height = ch;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(bitmap, 0, 0, cw, ch);
+
+        var dataUrl = '';
+        try {
+          dataUrl = canvas.toDataURL('image/jpeg', 0.78);
+        } catch (_) {
+          return;
+        }
+        if (!dataUrl || dataUrl.length < 50) return;
+        try { localStorage.setItem('profileAvatarCompressed', dataUrl); } catch (_) {}
+
+        // Если пользователь уже на экране "Мои заказы" или аватар ещё не показан — обновим
+        updateProfileView();
+      } catch (_) {}
     }
 
     async function fetchPresets() {
