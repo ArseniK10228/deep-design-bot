@@ -93,8 +93,7 @@ app.post('/api/build-request', async (req, res) => {
       requestType,
       userId,
       username_form: usernameForm,
-      username_tg: usernameTg,
-      firstName
+      username_tg: usernameTg
     } = req.body || {};
 
     const ownerId = process.env.OWNER_CHAT_ID;

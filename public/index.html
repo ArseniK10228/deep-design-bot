@@ -1000,13 +1000,12 @@
         const res = await fetch('/api/build-request', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            tasks,
-            userId: user.id,
-            username_form: usernameValue || '',
-            username_tg: user.username || '',
-            firstName: user.first_name
-          })
+            body: JSON.stringify({
+              tasks,
+              userId: user.id,
+              username_form: usernameValue || '',
+              username_tg: user.username || ''
+            })
         });
         const data = await res.json();
         if (data.ok) {
@@ -1110,8 +1109,7 @@
             requestType: 'components',
             userId: user.id,
             username_form: usernameValue || '',
-            username_tg: user.username || '',
-            firstName: user.first_name
+            username_tg: user.username || ''
           })
         });
         const data = await res.json();
