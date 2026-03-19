@@ -810,6 +810,10 @@
       btn.addEventListener('click', () => {
         const target = btn.dataset.backTo || 'view-main';
         showView(target);
+        const tabbar = document.querySelector('.app-tabbar');
+        if (tabbar && (target === 'view-main' || target === 'view-presets' || target === 'view-portfolio' || target === 'view-profile' || target === 'view-owner-presets')) {
+          tabbar.classList.remove('app-tabbar-hidden');
+        }
       });
     });
 
