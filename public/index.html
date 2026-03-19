@@ -719,6 +719,8 @@
       }, { once: true });
     }
 
+    let isUpgradeMode = false;
+
     function sendActionToBot(action, label) {
       if (!tg) {
         alert('Это мини-приложение предназначено для запуска внутри Telegram.');
@@ -736,12 +738,21 @@
       }
 
       if (action === 'build_no') {
+        isUpgradeMode = false;
         var labelEl = document.querySelector('#view-build-no .form-label');
         var textareaEl = document.getElementById('build-tasks');
+        var titleEl = document.querySelector('#view-build-no .page-title');
+        var subtitleEl = document.querySelector('#view-build-no .page-subtitle');
+        var priceLabelEl = document.querySelector('#view-build-no .form-price-label');
+        var priceValueEl = document.querySelector('#view-build-no .form-price-value');
         if (labelEl) labelEl.textContent = 'ЗАДАЧИ И БЮДЖЕТ';
         if (textareaEl && !textareaEl.value) {
           textareaEl.placeholder = 'ПК для игр, бюджет 30000 RUB...';
         }
+        if (titleEl) titleEl.textContent = 'Сборка ПК';
+        if (subtitleEl) subtitleEl.textContent = 'Опишите задачи';
+        if (priceLabelEl) priceLabelEl.textContent = 'Сборка';
+        if (priceValueEl) priceValueEl.textContent = 'от 1500 RUB';
         showView('view-build-no');
         return;
       }
@@ -806,12 +817,21 @@
       }
 
       if (action === 'upgrade') {
+        isUpgradeMode = true;
         var upLabelEl = document.querySelector('#view-build-no .form-label');
         var upTextareaEl = document.getElementById('build-tasks');
+        var upTitleEl = document.querySelector('#view-build-no .page-title');
+        var upSubtitleEl = document.querySelector('#view-build-no .page-subtitle');
+        var upPriceLabelEl = document.querySelector('#view-build-no .form-price-label');
+        var upPriceValueEl = document.querySelector('#view-build-no .form-price-value');
         if (upLabelEl) upLabelEl.textContent = 'ЧТО ХОТИТЕ УЛУЧШИТЬ';
         if (upTextareaEl && !upTextareaEl.value) {
           upTextareaEl.placeholder = 'Улучшить GPU, добавить ОЗУ...';
         }
+        if (upTitleEl) upTitleEl.textContent = 'Апгрейд ПК';
+        if (upSubtitleEl) upSubtitleEl.textContent = 'Опишите, что нужно улучшить';
+        if (upPriceLabelEl) upPriceLabelEl.textContent = 'Замена комплектующих';
+        if (upPriceValueEl) upPriceValueEl.textContent = 'от 800 RUB';
         showView('view-build-no');
         return;
       }
@@ -975,7 +995,7 @@
 
       if (!tasks) {
         tasksEl.classList.add('form-textarea-error');
-        errEl.textContent = 'Заполните поле «Задачи и бюджет».';
+        errEl.textContent = isUpgradeMode ? 'Заполните поле.' : 'Заполните поле «Задачи и бюджет».';
         hasError = true;
       } else if (tasks.length < 10) {
         tasksEl.classList.add('form-textarea-error');
@@ -1024,6 +1044,7 @@
           headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               tasks,
+              requestType: isUpgradeMode ? 'upgrade' : undefined,
               userId: user.id,
               username_form: usernameValue || '',
               username_tg: user.username || ''

@@ -99,8 +99,17 @@ app.post('/api/build-request', async (req, res) => {
     const ownerId = process.env.OWNER_CHAT_ID;
     const tasksText = (tasks || '').trim() || '(не указано)';
     const isComponents = requestType === 'components';
-    const taskLabel = isComponents ? 'Список комплектующих' : 'Задачи и бюджет';
-    const subtitle = isComponents ? 'Сборка (список комплектующих)' : 'Сборка (соберём вместе)';
+    const isUpgrade = requestType === 'upgrade';
+    const taskLabel = isComponents
+      ? 'Список комплектующих'
+      : isUpgrade
+        ? 'Что улучшить'
+        : 'Задачи и бюджет';
+    const subtitle = isComponents
+      ? 'Сборка (список комплектующих)'
+      : isUpgrade
+        ? 'Апгрейд ПК'
+        : 'Сборка (соберём вместе)';
 
     // Логируем для отладки, что реально приходит с фронта
     console.log('Build request body:', req.body);
