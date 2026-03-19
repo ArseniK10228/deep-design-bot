@@ -587,9 +587,14 @@
           <h1 class="page-title">Мои заказы</h1>
         </div>
       </header>
-      <main class="page-content page-content-center">
-        <div class="profile-avatar" id="profile-avatar" aria-hidden="true"></div>
-        <p class="profile-username" id="profile-username"></p>
+      <main class="page-content profile-content">
+        <div class="profile-top">
+          <div class="profile-avatar-wrap" aria-hidden="true">
+            <img class="profile-avatar-img" id="profile-avatar-img" alt="" />
+            <div class="profile-avatar-fallback" id="profile-avatar">U</div>
+          </div>
+          <p class="profile-username" id="profile-username"></p>
+        </div>
         <p class="profile-empty">Заказов пока что нет у вас</p>
       </main>
     </div>
@@ -673,7 +678,7 @@
       if (!target || !current || target === current) return;
 
       const tabbar = document.querySelector('.app-tabbar');
-      const tabbarViews = ['view-main', 'view-owner-presets', 'view-presets', 'view-portfolio'];
+      const tabbarViews = ['view-main', 'view-owner-presets', 'view-presets', 'view-portfolio', 'view-profile'];
       if (tabbar) {
         const shouldShow = tabbarViews.indexOf(viewId) !== -1;
         tabbar.classList.toggle('app-tabbar-hidden', !shouldShow);
@@ -826,16 +831,20 @@
 
     if (tabPortfolio) {
       tabPortfolio.addEventListener('click', () => {
+        const current = document.querySelector('.view-active');
+        const dir = current && current.id === 'view-profile' ? 'left' : (current && current.id === 'view-main' ? 'right' : undefined);
         setActiveTab(tabPortfolio);
-        showView('view-portfolio');
+        showView('view-portfolio', dir);
         loadPublicPortfolio();
       });
     }
 
     if (tabProfile) {
       tabProfile.addEventListener('click', () => {
+        const current = document.querySelector('.view-active');
+        const dir = current && (current.id === 'view-main' || current.id === 'view-portfolio') ? 'right' : undefined;
         setActiveTab(tabProfile);
-        showView('view-profile');
+        showView('view-profile', dir);
         updateProfileView();
       });
     }
@@ -1113,13 +1122,32 @@
     function updateProfileView() {
       var avatarEl = document.getElementById('profile-avatar');
       var usernameEl = document.getElementById('profile-username');
-      if (!avatarEl || !usernameEl) return;
+      var avatarImg = document.getElementById('profile-avatar-img');
+      if (!avatarEl || !usernameEl || !avatarImg) return;
       var user = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
       var name = user && (user.first_name || user.last_name) ? String((user.first_name || '') + ' ' + (user.last_name || '')).trim() : '';
       var display = name || 'Пользователь';
       usernameEl.textContent = display;
       var letter = (display && display[0]) ? display[0].toUpperCase() : 'U';
       avatarEl.textContent = letter;
+
+      // Telegram WebApp иногда отдаёт photo_url в user
+      var photoUrl = user && user.photo_url ? String(user.photo_url) : '';
+      if (photoUrl) {
+        avatarImg.onload = function () {
+          avatarImg.classList.add('profile-avatar-img-visible');
+          avatarEl.classList.add('profile-avatar-fallback-hidden');
+        };
+        avatarImg.onerror = function () {
+          avatarImg.classList.remove('profile-avatar-img-visible');
+          avatarEl.classList.remove('profile-avatar-fallback-hidden');
+        };
+        avatarImg.src = photoUrl;
+      } else {
+        avatarImg.removeAttribute('src');
+        avatarImg.classList.remove('profile-avatar-img-visible');
+        avatarEl.classList.remove('profile-avatar-fallback-hidden');
+      }
     }
 
     async function fetchPresets() {
