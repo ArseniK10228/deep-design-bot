@@ -250,6 +250,117 @@ app.post('/api/presets/delete', async (req, res) => {
   }
 });
 
+// ----- Портфолио -----
+// Храним массив работ в Redis под ключом "portfolio".
+// Каждый элемент: { id, title, image, images, description, createdAt }
+
+async function getPortfolio() {
+  if (!redisClient) return [];
+  try {
+    const raw = await redisClient.get('portfolio');
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error('Redis get portfolio:', e?.message || e);
+    return [];
+  }
+}
+
+async function savePortfolio(list) {
+  if (!redisClient) return;
+  try {
+    await redisClient.set('portfolio', JSON.stringify(list));
+  } catch (e) {
+    console.error('Redis set portfolio:', e?.message || e);
+  }
+}
+
+app.get('/api/portfolio', async (req, res) => {
+  try {
+    const list = await getPortfolio();
+    res.json({ ok: true, items: list });
+  } catch (e) {
+    res.status(500).json({ ok: false });
+  }
+});
+
+app.post('/api/portfolio', async (req, res) => {
+  try {
+    const ownerId = process.env.OWNER_CHAT_ID;
+    const { userId, title, images, description } = req.body || {};
+    if (!ownerId || !userId || String(ownerId) !== String(userId)) {
+      return res.status(403).json({ ok: false });
+    }
+    const safeTitle = String(title || '').trim();
+    if (!safeTitle) {
+      return res.status(400).json({ ok: false });
+    }
+    const list = await getPortfolio();
+    const now = Date.now();
+    const imagesArr = Array.isArray(images) && images.length > 0
+      ? images.map((img) => String(img || '').trim()).filter(Boolean)
+      : [];
+    const mainImage = imagesArr[0] || '';
+    const item = {
+      id: String(now),
+      title: safeTitle,
+      image: mainImage,
+      images: imagesArr,
+      description: String(description || '').trim(),
+      createdAt: now
+    };
+    list.unshift(item);
+    await savePortfolio(list);
+    res.json({ ok: true, item });
+  } catch (e) {
+    console.error('Portfolio add error:', e?.message || e);
+    res.status(500).json({ ok: false });
+  }
+});
+
+app.post('/api/portfolio/update', async (req, res) => {
+  try {
+    const ownerId = process.env.OWNER_CHAT_ID;
+    const { userId, id, title, images, description } = req.body || {};
+    if (!ownerId || !userId || String(ownerId) !== String(userId)) {
+      return res.status(403).json({ ok: false });
+    }
+    const cur = await getPortfolio();
+    const idx = cur.findIndex((item) => String(item.id) === String(id));
+    if (idx === -1) return res.status(404).json({ ok: false });
+    if (title !== undefined) cur[idx].title = String(title || '').trim();
+    if (description !== undefined) cur[idx].description = String(description || '').trim();
+    if (images !== undefined) {
+      const arr = Array.isArray(images) ? images.map((img) => String(img || '').trim()).filter(Boolean) : [];
+      cur[idx].images = arr;
+      cur[idx].image = arr.length > 0 ? arr[0] : '';
+    }
+    await savePortfolio(cur);
+    res.json({ ok: true, item: cur[idx] });
+  } catch (e) {
+    console.error('Portfolio update error:', e?.message || e);
+    res.status(500).json({ ok: false });
+  }
+});
+
+app.post('/api/portfolio/delete', async (req, res) => {
+  try {
+    const ownerId = process.env.OWNER_CHAT_ID;
+    const { userId, id } = req.body || {};
+    if (!ownerId || !userId || String(ownerId) !== String(userId)) {
+      return res.status(403).json({ ok: false });
+    }
+    const cur = await getPortfolio();
+    const next = cur.filter((item) => String(item.id) !== String(id));
+    await savePortfolio(next);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('Portfolio delete error:', e?.message || e);
+    res.status(500).json({ ok: false });
+  }
+});
+
 let welcomePhotoFileId = null;
 
 function buildStartKeyboard(chatId, fullWebAppUrl) {

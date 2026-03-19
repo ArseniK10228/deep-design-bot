@@ -198,6 +198,36 @@
       </header>
       <main class="page-content">
         <section class="service-list">
+          <article class="service-card" data-action="owner_portfolio_menu">
+            <div class="service-icon service-icon-consult"></div>
+            <div class="service-content">
+              <h2 class="service-title">Портфолио</h2>
+              <p class="service-desc">Добавить и редактировать работы</p>
+            </div>
+            <div class="service-arrow">›</div>
+          </article>
+          <article class="service-card" data-action="owner_presets_menu">
+            <div class="service-icon service-icon-ready"></div>
+            <div class="service-content">
+              <h2 class="service-title">Готовые сборки</h2>
+              <p class="service-desc">Добавить и редактировать сборки</p>
+            </div>
+            <div class="service-arrow">›</div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <div class="view" id="view-owner-presets-ready">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-owner-presets">‹</button>
+        <div class="page-header-center">
+          <h1 class="page-title">Готовые сборки</h1>
+          <p class="page-subtitle">Создание и редактирование</p>
+        </div>
+      </header>
+      <main class="page-content">
+        <section class="service-list">
           <article class="service-card" data-action="owner_create">
             <div class="service-icon service-icon-add"></div>
             <div class="service-content">
@@ -218,10 +248,138 @@
       </main>
     </div>
 
+    <div class="view" id="view-owner-portfolio">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-owner-presets">‹</button>
+        <div class="page-header-center">
+          <h1 class="page-title">Портфолио</h1>
+          <p class="page-subtitle">Создание и редактирование</p>
+        </div>
+      </header>
+      <main class="page-content">
+        <section class="service-list">
+          <article class="service-card" data-action="portfolio_create">
+            <div class="service-icon service-icon-add"></div>
+            <div class="service-content">
+              <h2 class="service-title">Создать новую работу</h2>
+              <p class="service-desc">Добавить в портфолио</p>
+            </div>
+            <div class="service-arrow">›</div>
+          </article>
+          <article class="service-card" data-action="portfolio_edit">
+            <div class="service-icon service-icon-edit"></div>
+            <div class="service-content">
+              <h2 class="service-title">Редактировать работы</h2>
+              <p class="service-desc">Изменить описание или удалить</p>
+            </div>
+            <div class="service-arrow">›</div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <!-- Пошаговое создание работы в портфолио: название → описание → фото → проверка -->
+    <div class="view" id="view-portfolio-create-1">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-owner-portfolio">‹</button>
+        <div class="page-header-center">
+          <p class="page-step">Шаг 1 из 4</p>
+          <h1 class="page-title">Название</h1>
+          <p class="page-subtitle">Короткое название работы</p>
+        </div>
+      </header>
+      <main class="page-content wizard-content">
+        <label class="form-label">Название</label>
+        <input class="form-input" id="portfolio-step-title" placeholder="Сборка ПК..." />
+        <p class="form-error" id="portfolio-step-title-error"></p>
+        <button type="button" class="submit-btn" id="portfolio-step-1-next">Далее</button>
+      </main>
+    </div>
+
+    <div class="view" id="view-portfolio-create-2">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-portfolio-create-1">‹</button>
+        <div class="page-header-center">
+          <p class="page-step">Шаг 2 из 4</p>
+          <h1 class="page-title">Описание</h1>
+          <p class="page-subtitle">Что сделано, комплектующие, детали</p>
+        </div>
+      </header>
+      <main class="page-content wizard-content">
+        <label class="form-label">Описание</label>
+        <textarea class="form-textarea" id="portfolio-step-desc" placeholder="Например: Установка AIO, кабель-менеджмент, тесты..." rows="5"></textarea>
+        <p class="form-error" id="portfolio-step-desc-error"></p>
+        <button type="button" class="submit-btn" id="portfolio-step-2-next">Далее</button>
+      </main>
+    </div>
+
+    <div class="view" id="view-portfolio-create-3">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-portfolio-create-2">‹</button>
+        <div class="page-header-center">
+          <p class="page-step">Шаг 3 из 4</p>
+          <h1 class="page-title">Внешний вид</h1>
+          <p class="page-subtitle">Фотографии</p>
+        </div>
+      </header>
+      <main class="page-content wizard-content">
+        <div class="photo-section">
+          <h2 class="photo-section-title">Фотографии</h2>
+          <div class="photo-gallery" id="portfolio-step-photo-gallery">
+            <div class="photo-preview-list" id="portfolio-step-preview-list"></div>
+            <label class="photo-add-card" id="portfolio-step-image-wrap" for="portfolio-step-image">
+              <input class="photo-add-input" id="portfolio-step-image" type="file" accept="image/*" />
+              <span class="photo-add-icon"></span>
+              <span class="photo-add-text">Добавить фото</span>
+            </label>
+          </div>
+        </div>
+        <p class="form-error" id="portfolio-step-image-error"></p>
+        <button type="button" class="submit-btn" id="portfolio-step-3-next">Далее</button>
+      </main>
+    </div>
+
+    <div class="view" id="view-portfolio-create-4">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-portfolio-create-3">‹</button>
+        <div class="page-header-center">
+          <p class="page-step">Шаг 4 из 4</p>
+          <h1 class="page-title">Проверьте</h1>
+          <p class="page-subtitle">Всё верно? Опубликуйте</p>
+        </div>
+      </header>
+      <main class="page-content wizard-content">
+        <div class="create-review">
+          <p class="create-review-label">Название</p>
+          <p class="create-review-value" id="portfolio-review-title"></p>
+          <p class="create-review-label">Описание</p>
+          <p class="create-review-value" id="portfolio-review-desc"></p>
+          <p class="create-review-label">Фото</p>
+          <p class="create-review-value" id="portfolio-review-photo"></p>
+        </div>
+        <button type="button" class="submit-btn" id="portfolio-step-4-publish">Опубликовать</button>
+      </main>
+    </div>
+
+    <div class="view" id="view-owner-portfolio-edit">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-owner-portfolio">‹</button>
+        <div class="page-header-center">
+          <h1 class="page-title">Редактировать портфолио</h1>
+          <p class="page-subtitle">Изменить или удалить</p>
+        </div>
+      </header>
+      <main class="page-content">
+        <section class="card-list">
+          <div id="owner-portfolio-list"></div>
+        </section>
+      </main>
+    </div>
+
     <!-- Пошаговое создание объявления: название → описание → цена → фото → проверка -->
     <div class="view" id="view-owner-create-1">
       <header class="page-header">
-        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-owner-presets">‹</button>
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-owner-presets-ready">‹</button>
         <div class="page-header-center">
           <p class="page-step">Шаг 1 из 5</p>
           <h1 class="page-title">Название</h1>
@@ -325,7 +483,7 @@
 
     <div class="view" id="view-owner-edit">
       <header class="page-header">
-        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-owner-presets">‹</button>
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-owner-presets-ready">‹</button>
         <div class="page-header-center">
           <h1 class="page-title">Редактировать предложения</h1>
           <p class="page-subtitle">Изменить или удалить</p>
@@ -351,6 +509,18 @@
       </main>
     </div>
 
+    <div class="view" id="view-portfolio">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-main">‹</button>
+        <div class="page-header-center">
+          <h1 class="page-title">Портфолио</h1>
+        </div>
+      </header>
+      <main class="page-content">
+        <section id="portfolio-list"></section>
+      </main>
+    </div>
+
     <div class="view" id="view-preset-detail">
       <header class="page-header">
         <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-presets">‹</button>
@@ -365,6 +535,22 @@
           <p class="preset-detail-price" id="preset-detail-price"></p>
           <div class="preset-detail-desc" id="preset-detail-desc"></div>
           <button type="button" class="submit-btn preset-detail-cta" id="preset-detail-cta">Написать продавцу</button>
+        </div>
+      </main>
+    </div>
+
+    <div class="view" id="view-portfolio-detail">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-portfolio">‹</button>
+        <div class="page-header-center">
+          <h1 class="page-title page-title-sm">Работа</h1>
+        </div>
+      </header>
+      <main class="page-content preset-detail-content">
+        <div class="preset-detail-image-wrap" id="portfolio-detail-image-wrap"></div>
+        <div class="preset-detail-body">
+          <h2 class="preset-detail-title" id="portfolio-detail-title"></h2>
+          <div class="preset-detail-desc" id="portfolio-detail-desc"></div>
         </div>
       </main>
     </div>
@@ -473,7 +659,7 @@
       if (!target || !current || target === current) return;
 
       const tabbar = document.querySelector('.app-tabbar');
-      const tabbarViews = ['view-main', 'view-owner-presets', 'view-presets'];
+      const tabbarViews = ['view-main', 'view-owner-presets', 'view-presets', 'view-portfolio'];
       if (tabbar) {
         const shouldShow = tabbarViews.indexOf(viewId) !== -1;
         tabbar.classList.toggle('app-tabbar-hidden', !shouldShow);
@@ -530,6 +716,34 @@
       if (action === 'presets') {
         showView('view-presets');
         loadPublicPresets();
+        return;
+      }
+
+      if (action === 'owner_presets_menu') {
+        showView('view-owner-presets-ready', 'right');
+        return;
+      }
+
+      if (action === 'owner_portfolio_menu') {
+        showView('view-owner-portfolio', 'right');
+        return;
+      }
+
+      if (action === 'portfolio_create') {
+        portfolioDraft = { title: '', description: '', images: [] };
+        var pt = document.getElementById('portfolio-step-title');
+        var pd = document.getElementById('portfolio-step-desc');
+        var pi = document.getElementById('portfolio-step-image');
+        if (pt) pt.value = '';
+        if (pd) pd.value = '';
+        if (pi) pi.value = '';
+        showView('view-portfolio-create-1', 'right');
+        return;
+      }
+
+      if (action === 'portfolio_edit') {
+        showView('view-owner-portfolio-edit', 'right');
+        loadOwnerEditPortfolio();
         return;
       }
 
@@ -590,7 +804,7 @@
     if (tabOrder) {
       tabOrder.addEventListener('click', () => {
         const current = document.querySelector('.view-active');
-        const dir = current && (current.id === 'view-owner-presets' || current.id === 'view-presets') ? 'left' : undefined;
+        const dir = current && (current.id === 'view-owner-presets' || current.id === 'view-presets' || current.id === 'view-portfolio') ? 'left' : undefined;
         setActiveTab(tabOrder);
         showView('view-main', dir);
       });
@@ -599,7 +813,8 @@
     if (tabPortfolio) {
       tabPortfolio.addEventListener('click', () => {
         setActiveTab(tabPortfolio);
-        showView('view-main');
+        showView('view-portfolio');
+        loadPublicPortfolio();
       });
     }
 
@@ -616,7 +831,6 @@
         tabOwner.addEventListener('click', () => {
           setActiveTab(tabOwner);
           showView('view-owner-presets', 'right');
-          loadOwnerPresets();
         });
       } else {
         tabOwner.style.display = 'none';
@@ -892,8 +1106,21 @@
       }
     }
 
+    async function fetchPortfolio() {
+      try {
+        const res = await fetch('/api/portfolio');
+        const data = await res.json();
+        if (!data || !data.ok || !Array.isArray(data.items)) return [];
+        return data.items;
+      } catch (_) {
+        return [];
+      }
+    }
+
     var lastPresetsList = [];
+    var lastPortfolioList = [];
     var createDraft = { description: '', title: '', price: '', image: '', images: [] };
+    var portfolioDraft = { title: '', description: '', images: [] };
 
     function formatPriceWithRub(price) {
       var raw = String(price || '').trim();
@@ -923,6 +1150,23 @@
         var extra = [item.oldPrice, item.location].filter(Boolean).join(' · ');
         html += '<p class=\"preset-card-extra\">' + escapeAttr(extra) + '</p>';
       }
+      html += '</div></article>';
+      return html;
+    }
+
+    function renderPortfolioCard(item) {
+      var title = escapeAttr(item.title || '');
+      var img = '';
+      var imgs = Array.isArray(item.images) ? item.images.filter(Boolean) : [];
+      if (!imgs.length && item.image) imgs = [item.image];
+      img = imgs[0] || '';
+      var html = '<article class=\"preset-announcement-card\" data-portfolio-id=\"' + escapeAttr(item.id) + '\" tabindex=\"0\" role=\"button\">';
+      html += '<div class=\"preset-card-image-wrap\">';
+      if (img) html += '<img src=\"' + escapeAttr(img) + '\" alt=\"\" />';
+      else html += '<div style=\"width:100%;height:100%;background:#242424;display:flex;align-items:center;justify-content:center;color:#8e8e93;font-size:12px;\">Нет фото</div>';
+      html += '</div>';
+      html += '<div class=\"preset-card-info\">';
+      html += '<p class=\"preset-card-title\">' + title + '</p>';
       html += '</div></article>';
       return html;
     }
@@ -1080,7 +1324,104 @@
       showView('view-preset-detail', 'right');
     }
 
+    function showPortfolioDetail(item) {
+      var wrap = document.getElementById('portfolio-detail-image-wrap');
+      var titleEl = document.getElementById('portfolio-detail-title');
+      var descEl = document.getElementById('portfolio-detail-desc');
+      if (!wrap || !titleEl || !descEl) return;
+      var imgs = [];
+      if (Array.isArray(item.images) && item.images.length) imgs = item.images.filter(Boolean);
+      if (!imgs.length && item.image) imgs = [item.image];
+
+      if (imgs.length) {
+        var track = '<div class=\"preset-detail-carousel\" id=\"portfolio-detail-carousel\">';
+        track += '<div class=\"preset-detail-carousel-track\" id=\"portfolio-detail-carousel-track\">';
+        for (var i = 0; i < imgs.length; i++) {
+          track += '<div class=\"preset-detail-carousel-slide\"><img src=\"' + escapeAttr(imgs[i]) + '\" alt=\"\" /></div>';
+        }
+        track += '</div>';
+        if (imgs.length > 1) {
+          track += '<div class=\"preset-detail-dots\" id=\"portfolio-detail-dots\">';
+          for (var d = 0; d < imgs.length; d++) {
+            track += '<span class=\"preset-detail-dot' + (d === 0 ? ' preset-detail-dot-active' : '') + '\"></span>';
+          }
+          track += '</div>';
+        }
+        track += '</div>';
+        wrap.innerHTML = track;
+        wrap.classList.remove('hidden');
+
+        (function initCarousel() {
+          var carousel = document.getElementById('portfolio-detail-carousel');
+          var trackEl = document.getElementById('portfolio-detail-carousel-track');
+          if (!carousel || !trackEl || imgs.length <= 1) return;
+          var dotsWrap = document.getElementById('portfolio-detail-dots');
+          var dots = dotsWrap ? Array.from(dotsWrap.querySelectorAll('.preset-detail-dot')) : [];
+          var idx = 0;
+          var startX = 0;
+          var curX = 0;
+          var isDown = false;
+
+          function setIndex(next) {
+            idx = Math.max(0, Math.min(imgs.length - 1, next));
+            trackEl.style.transition = 'transform 0.22s ease';
+            trackEl.style.transform = 'translateX(' + (-idx * 100) + '%)';
+            if (dots.length) {
+              dots.forEach(function (dot, i) {
+                if (i === idx) dot.classList.add('preset-detail-dot-active');
+                else dot.classList.remove('preset-detail-dot-active');
+              });
+            }
+          }
+
+          function onStart(x) {
+            isDown = true;
+            startX = x;
+            curX = x;
+            trackEl.style.transition = 'none';
+          }
+
+          function onMove(x) {
+            if (!isDown) return;
+            curX = x;
+            var dx = curX - startX;
+            var w = carousel.clientWidth || 1;
+            var px = (-idx * w) + dx;
+            trackEl.style.transform = 'translateX(' + px + 'px)';
+          }
+
+          function onEnd() {
+            if (!isDown) return;
+            isDown = false;
+            var dx = curX - startX;
+            var threshold = Math.min(60, (carousel.clientWidth || 300) * 0.18);
+            if (dx > threshold) setIndex(idx - 1);
+            else if (dx < -threshold) setIndex(idx + 1);
+            else setIndex(idx);
+          }
+
+          carousel.addEventListener('touchstart', function (e) { if (e.touches && e.touches[0]) onStart(e.touches[0].clientX); }, { passive: true });
+          carousel.addEventListener('touchmove', function (e) { if (e.touches && e.touches[0]) onMove(e.touches[0].clientX); }, { passive: true });
+          carousel.addEventListener('touchend', onEnd);
+
+          carousel.addEventListener('mousedown', function (e) { onStart(e.clientX); });
+          window.addEventListener('mousemove', function (e) { onMove(e.clientX); });
+          window.addEventListener('mouseup', onEnd);
+
+          setIndex(0);
+        })();
+      } else {
+        wrap.innerHTML = '';
+        wrap.classList.add('hidden');
+      }
+
+      titleEl.textContent = item.title || '';
+      descEl.textContent = item.description || '';
+      showView('view-portfolio-detail', 'right');
+    }
+
     var loadingPresetsHtml = '<div class=\"list-loading\"><div class=\"list-loading-spinner\"></div><span>Загрузка сборок...</span></div>';
+    var loadingPortfolioHtml = '<div class=\"list-loading\"><div class=\"list-loading-spinner\"></div><span>Загрузка...</span></div>';
 
     async function loadPublicPresets() {
       var listEl = document.getElementById('presets-list');
@@ -1104,6 +1445,33 @@
         var item = lastPresetsList.find(function (p) { return String(p.id) === String(id); });
         if (!item) return;
         function openDetail() { showPresetDetail(item); }
+        card.addEventListener('click', openDetail);
+        card.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail(); } });
+      });
+    }
+
+    async function loadPublicPortfolio() {
+      var listEl = document.getElementById('portfolio-list');
+      if (!listEl) return;
+      listEl.classList.add('preset-list-loading');
+      listEl.classList.remove('preset-list-empty');
+      listEl.innerHTML = loadingPortfolioHtml;
+      var items = await fetchPortfolio();
+      lastPortfolioList = items || [];
+      if (!items.length) {
+        listEl.classList.remove('preset-list-loading');
+        listEl.classList.add('preset-list-empty');
+        listEl.innerHTML = '<p class=\"consult-text\">Пока нет работ.</p>';
+        return;
+      }
+      listEl.classList.remove('preset-list-loading');
+      listEl.classList.remove('preset-list-empty');
+      listEl.innerHTML = items.map(renderPortfolioCard).join('');
+      listEl.querySelectorAll('[data-portfolio-id]').forEach(function (card) {
+        var id = card.getAttribute('data-portfolio-id');
+        var item = lastPortfolioList.find(function (p) { return String(p.id) === String(id); });
+        if (!item) return;
+        function openDetail() { showPortfolioDetail(item); }
         card.addEventListener('click', openDetail);
         card.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail(); } });
       });
@@ -1265,6 +1633,200 @@
             }
           } catch (_) {
             tg.showPopup({ title: 'Ошибка', message: 'Не удалось удалить предложение.', buttons: [{ type: 'ok' }] });
+          }
+        });
+      });
+    }
+
+    // ----- Портфолио (public + owner edit) -----
+    function renderOwnerPortfolioEditCard(item) {
+      var pid = String(item.id);
+      var imgs = editPortfolioImages[pid] || item.images || (item.image ? [item.image] : []);
+      var inputId = 'portfolio-edit-image-' + escapeAttr(item.id);
+      var imgBlock = '<div class=\"photo-gallery preset-edit-gallery\">';
+      imgBlock += '<div class=\"photo-preview-list preset-edit-preview-list\" data-portfolio-id=\"' + escapeAttr(item.id) + '\">';
+      for (var idx = 0; idx < imgs.length; idx++) {
+        imgBlock += '<div class=\"photo-preview-card\" data-photo-index=\"' + idx + '\">';
+        imgBlock += '<img src=\"' + escapeAttr(imgs[idx]) + '\" alt=\"\" />';
+        if (idx === 0) imgBlock += '<span class=\"photo-preview-badge\">Главная</span>';
+        imgBlock += '<button type=\"button\" class=\"photo-preview-edit portfolio-edit-photo-replace\" data-portfolio-id=\"' + escapeAttr(item.id) + '\" data-photo-index=\"' + idx + '\" aria-label=\"Изменить\">';
+        imgBlock += '<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\"/><path d=\"M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\"/></svg>';
+        imgBlock += '</button></div>';
+      }
+      imgBlock += '</div>';
+      imgBlock += '<label class=\"photo-add-card preset-edit-photo-card photo-add-inline\" for=\"' + inputId + '\">';
+      imgBlock += '<input type=\"file\" class=\"photo-add-input portfolio-edit-image-input\" id=\"' + inputId + '\" accept=\"image/*\" data-portfolio-id=\"' + escapeAttr(item.id) + '\" />';
+      imgBlock += '<span class=\"photo-add-icon\"></span>';
+      imgBlock += '<span class=\"photo-add-text\">Добавить фото</span>';
+      imgBlock += '</label></div>';
+
+      var html = '<article class=\"preset-edit-card\" data-portfolio-id=\"' + escapeAttr(item.id) + '\">';
+      html += '<label class=\"form-label\">Название</label>';
+      html += '<input class=\"form-input portfolio-edit-title\" value=\"' + escapeAttr(item.title) + '\" data-portfolio-id=\"' + escapeAttr(item.id) + '\" />';
+      html += '<h3 class=\"photo-section-title preset-edit-photo-title\">Фотографии</h3>';
+      html += '<div class=\"preset-edit-image-wrap\">' + imgBlock + '</div>';
+      html += '<label class=\"form-label\">Описание</label>';
+      html += '<textarea class=\"form-textarea form-textarea-sm portfolio-edit-desc\" data-portfolio-id=\"' + escapeAttr(item.id) + '\">' + escapeAttr(item.description) + '</textarea>';
+      html += '<div class=\"preset-edit-actions\">';
+      html += '<button type=\"button\" class=\"submit-btn preset-save-btn portfolio-save-btn\" data-portfolio-id=\"' + escapeAttr(item.id) + '\">Сохранить изменения</button>';
+      html += '<button type=\"button\" class=\"preset-delete-btn portfolio-delete-btn\" data-portfolio-id=\"' + escapeAttr(item.id) + '\">Удалить</button>';
+      html += '</div></article>';
+      return html;
+    }
+
+    var editPortfolioImages = {};
+    var replacePortfolioEditIndex = null;
+    var replacePortfolioEditId = null;
+
+    async function loadOwnerEditPortfolio() {
+      var listEl = document.getElementById('owner-portfolio-list');
+      if (!listEl) return;
+      listEl.innerHTML = loadingOwnerHtml;
+      var items = await fetchPortfolio();
+      if (!items.length) {
+        listEl.innerHTML = '<p class=\"consult-text\">Нет работ. Создайте новую в разделе «Создать новую работу».</p>';
+        return;
+      }
+      editPortfolioImages = {};
+      items.forEach(function (it) {
+        editPortfolioImages[String(it.id)] = it.images || (it.image ? [it.image] : []);
+      });
+      listEl.innerHTML = items.map(renderOwnerPortfolioEditCard).join('');
+
+      listEl.querySelectorAll('.portfolio-edit-image-input').forEach(function (input) {
+        input.addEventListener('change', function () {
+          var pid = this.getAttribute('data-portfolio-id');
+          if (!pid || !this.files || !this.files[0]) return;
+          var file = this.files[0];
+          compressImageFile(file, 1280, 0.8).then(function (dataUrl) {
+            var imgs = editPortfolioImages[pid] || [];
+            var idx = replacePortfolioEditIndex;
+            var replacePid = replacePortfolioEditId;
+            replacePortfolioEditIndex = null;
+            replacePortfolioEditId = null;
+
+            if (typeof idx === 'number' && idx >= 0 && replacePid === pid && imgs[idx] !== undefined) {
+              imgs[idx] = dataUrl;
+              var card = listEl.querySelector('.preset-edit-preview-list[data-portfolio-id=\"' + pid.replace(/\"/g, '\\\\\"') + '\"] .photo-preview-card[data-photo-index=\"' + idx + '\"]');
+              if (card) {
+                var imgEl = card.querySelector('img');
+                if (imgEl) imgEl.src = dataUrl;
+              }
+            } else {
+              imgs.push(dataUrl);
+              var list = listEl.querySelector('.preset-edit-preview-list[data-portfolio-id=\"' + pid.replace(/\"/g, '\\\\\"') + '\"]');
+              if (list) {
+                var newIdx = imgs.length - 1;
+                var div = document.createElement('div');
+                div.className = 'photo-preview-card';
+                div.setAttribute('data-photo-index', String(newIdx));
+                var img = document.createElement('img');
+                img.src = dataUrl;
+                img.alt = '';
+                div.appendChild(img);
+                if (newIdx === 0) {
+                  var badge = document.createElement('span');
+                  badge.className = 'photo-preview-badge';
+                  badge.textContent = 'Главная';
+                  div.appendChild(badge);
+                }
+                var editBtn = document.createElement('button');
+                editBtn.type = 'button';
+                editBtn.className = 'photo-preview-edit portfolio-edit-photo-replace';
+                editBtn.setAttribute('data-portfolio-id', pid);
+                editBtn.setAttribute('data-photo-index', String(newIdx));
+                editBtn.setAttribute('aria-label', 'Изменить');
+                editBtn.innerHTML = '<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\"/><path d=\"M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\"/></svg>';
+                div.appendChild(editBtn);
+                list.appendChild(div);
+                editBtn.addEventListener('click', function (ev) {
+                  ev.preventDefault();
+                  ev.stopPropagation();
+                  replacePortfolioEditIndex = parseInt(this.getAttribute('data-photo-index'), 10);
+                  replacePortfolioEditId = this.getAttribute('data-portfolio-id');
+                  input.click();
+                });
+              }
+            }
+            editPortfolioImages[pid] = imgs;
+          });
+          this.value = '';
+        });
+      });
+
+      listEl.querySelectorAll('.portfolio-edit-photo-replace').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var pid = this.getAttribute('data-portfolio-id');
+          replacePortfolioEditIndex = parseInt(this.getAttribute('data-photo-index'), 10);
+          replacePortfolioEditId = pid;
+          var inp = document.getElementById('portfolio-edit-image-' + pid);
+          if (inp) inp.click();
+        });
+      });
+
+      listEl.querySelectorAll('.portfolio-save-btn').forEach(function (btn) {
+        btn.addEventListener('click', async function (e) {
+          e.stopPropagation();
+          if (!tg || !currentUser) return;
+          var id = btn.getAttribute('data-portfolio-id');
+          var card = listEl.querySelector('.preset-edit-card[data-portfolio-id=\"' + id + '\"]');
+          if (!card) return;
+          var titleEl = card.querySelector('.portfolio-edit-title');
+          var descEl = card.querySelector('.portfolio-edit-desc');
+          var title = (titleEl && titleEl.value || '').trim();
+          var description = (descEl && descEl.value || '').trim();
+          if (!title) {
+            tg.showPopup({ title: 'Ошибка', message: 'Заполните название.', buttons: [{ type: 'ok' }] });
+            return;
+          }
+          var imgs = editPortfolioImages[id] || [];
+          var payload = { userId: currentUser.id, id: id, title: title, description: description, images: imgs };
+          btn.disabled = true;
+          btn.textContent = 'Сохранение...';
+          try {
+            var res = await fetch('/api/portfolio/update', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            var data = await res.json();
+            if (data && data.ok) {
+              await loadOwnerEditPortfolio();
+              tg.showPopup({ title: 'Готово', message: 'Изменения сохранены.', buttons: [{ type: 'ok' }] });
+            } else {
+              tg.showPopup({ title: 'Ошибка', message: 'Не удалось сохранить.', buttons: [{ type: 'ok' }] });
+            }
+          } catch (_) {
+            tg.showPopup({ title: 'Ошибка', message: 'Не удалось сохранить.', buttons: [{ type: 'ok' }] });
+          } finally {
+            btn.disabled = false;
+            btn.textContent = 'Сохранить изменения';
+          }
+        });
+      });
+
+      listEl.querySelectorAll('.portfolio-delete-btn').forEach(function (btn) {
+        btn.addEventListener('click', async function (e) {
+          e.stopPropagation();
+          if (!tg || !currentUser) return;
+          if (!confirm('Вы точно хотите удалить работу?')) return;
+          var id = btn.getAttribute('data-portfolio-id');
+          try {
+            var res = await fetch('/api/portfolio/delete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userId: currentUser.id, id: id })
+            });
+            var data = await res.json();
+            if (data && data.ok) {
+              await loadOwnerEditPortfolio();
+            } else {
+              tg.showPopup({ title: 'Ошибка', message: 'Не удалось удалить работу.', buttons: [{ type: 'ok' }] });
+            }
+          } catch (_) {
+            tg.showPopup({ title: 'Ошибка', message: 'Не удалось удалить работу.', buttons: [{ type: 'ok' }] });
           }
         });
       });
@@ -1482,7 +2044,7 @@
               tg.showPopup({ title: 'Ошибка', message: msg, buttons: [{ type: 'ok' }] });
             } else {
               createDraft = { title: '', description: '', price: '', image: '', images: [] };
-              showView('view-owner-presets');
+              showView('view-owner-presets-ready');
               tg.showPopup({ title: 'Готово', message: 'Объявление опубликовано.', buttons: [{ type: 'ok' }] });
             }
           } catch (e) {
@@ -1490,6 +2052,157 @@
           } finally {
             publishBtn.disabled = false;
             publishBtn.textContent = 'Опубликовать';
+          }
+        });
+      }
+
+      // ----- Портфолио: создание -----
+      var portfolioReplaceIndex = null;
+
+      function renderPortfolioStep3Gallery() {
+        var listEl = document.getElementById('portfolio-step-preview-list');
+        var wrap = document.getElementById('portfolio-step-image-wrap');
+        if (!listEl || !wrap) return;
+        var imgs = portfolioDraft.images || [];
+        var html = '';
+        for (var idx = 0; idx < imgs.length; idx++) {
+          html += '<div class=\"photo-preview-card\" data-photo-index=\"' + idx + '\">';
+          html += '<img src=\"' + escapeAttr(imgs[idx]) + '\" alt=\"\" />';
+          if (idx === 0) html += '<span class=\"photo-preview-badge\">Главная</span>';
+          html += '<button type=\"button\" class=\"photo-preview-edit\" data-photo-index=\"' + idx + '\" aria-label=\"Изменить фото\">';
+          html += '<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\"/><path d=\"M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\"/></svg>';
+          html += '</button></div>';
+        }
+        listEl.innerHTML = html;
+        listEl.querySelectorAll('.photo-preview-edit').forEach(function (btn) {
+          btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            portfolioReplaceIndex = parseInt(btn.getAttribute('data-photo-index'), 10);
+            document.getElementById('portfolio-step-image').click();
+          });
+        });
+        wrap.classList.toggle('photo-add-inline', imgs.length > 0);
+      }
+
+      function portfolioStep1Next() {
+        var titleEl = document.getElementById('portfolio-step-title');
+        var errEl = document.getElementById('portfolio-step-title-error');
+        var v = (titleEl && titleEl.value || '').trim();
+        if (!v) {
+          if (titleEl) titleEl.classList.add('form-input-error');
+          if (errEl) errEl.textContent = 'Заполните поле.';
+          return;
+        }
+        if (titleEl) titleEl.classList.remove('form-input-error');
+        if (errEl) errEl.textContent = '';
+        portfolioDraft.title = v;
+        showView('view-portfolio-create-2', 'right');
+        var d = document.getElementById('portfolio-step-desc');
+        if (d) d.value = portfolioDraft.description || '';
+      }
+
+      function portfolioStep2Next() {
+        var descEl = document.getElementById('portfolio-step-desc');
+        var errEl = document.getElementById('portfolio-step-desc-error');
+        var v = (descEl && descEl.value || '').trim();
+        if (!v) {
+          if (descEl) descEl.classList.add('form-textarea-error');
+          if (errEl) errEl.textContent = 'Заполните поле.';
+          return;
+        }
+        if (descEl) descEl.classList.remove('form-textarea-error');
+        if (errEl) errEl.textContent = '';
+        portfolioDraft.description = v;
+        showView('view-portfolio-create-3', 'right');
+        renderPortfolioStep3Gallery();
+      }
+
+      function portfolioStep3Next() {
+        var wrap = document.getElementById('portfolio-step-image-wrap');
+        var errEl = document.getElementById('portfolio-step-image-error');
+        if (errEl) errEl.textContent = '';
+        if (wrap) wrap.classList.remove('form-input-error');
+        var imgs = portfolioDraft.images || [];
+        if (!imgs.length) {
+          if (wrap) wrap.classList.add('form-input-error');
+          if (errEl) errEl.textContent = 'Добавьте хотя бы одно фото.';
+          return;
+        }
+        var titleEl = document.getElementById('portfolio-review-title');
+        var descEl = document.getElementById('portfolio-review-desc');
+        var photoEl = document.getElementById('portfolio-review-photo');
+        if (titleEl) titleEl.textContent = portfolioDraft.title || '—';
+        if (descEl) descEl.textContent = (portfolioDraft.description || '—').slice(0, 200) + (portfolioDraft.description && portfolioDraft.description.length > 200 ? '…' : '');
+        if (photoEl) photoEl.textContent = imgs.length ? ('Добавлено ' + imgs.length + ' фото') : 'Нет';
+        showView('view-portfolio-create-4', 'right');
+      }
+
+      var portfolioImageInput = document.getElementById('portfolio-step-image');
+      if (portfolioImageInput) {
+        portfolioImageInput.addEventListener('change', function () {
+          var wrap = document.getElementById('portfolio-step-image-wrap');
+          var errEl = document.getElementById('portfolio-step-image-error');
+          if (!this.files || !this.files[0]) return;
+          var file = this.files[0];
+          compressImageFile(file, 1280, 0.8).then(function (dataUrl) {
+            if (errEl) errEl.textContent = '';
+            if (wrap) wrap.classList.remove('form-input-error');
+            var idx = portfolioReplaceIndex;
+            portfolioReplaceIndex = null;
+            if (!portfolioDraft.images) portfolioDraft.images = [];
+            if (typeof idx === 'number' && idx >= 0 && portfolioDraft.images[idx] !== undefined) portfolioDraft.images[idx] = dataUrl;
+            else portfolioDraft.images.push(dataUrl);
+            renderPortfolioStep3Gallery();
+          }).catch(function () {
+            if (wrap) wrap.classList.add('form-input-error');
+            if (errEl) errEl.textContent = 'Не удалось прочитать файл.';
+          });
+          this.value = '';
+        });
+      }
+
+      document.getElementById('portfolio-step-1-next')?.addEventListener('click', portfolioStep1Next);
+      document.getElementById('portfolio-step-2-next')?.addEventListener('click', portfolioStep2Next);
+      document.getElementById('portfolio-step-3-next')?.addEventListener('click', portfolioStep3Next);
+
+      var portfolioPublishBtn = document.getElementById('portfolio-step-4-publish');
+      if (portfolioPublishBtn) {
+        portfolioPublishBtn.addEventListener('click', async function () {
+          if (!tg || !currentUser) return;
+          portfolioPublishBtn.disabled = true;
+          portfolioPublishBtn.textContent = 'Публикация...';
+          try {
+            var imgs = portfolioDraft.images || [];
+            var res = await fetch('/api/portfolio', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                userId: currentUser.id,
+                title: portfolioDraft.title,
+                description: portfolioDraft.description,
+                images: imgs
+              })
+            });
+            var data = null;
+            try { data = await res.json(); } catch (_) { data = { ok: false }; }
+            if (res.status === 413) {
+              tg.showPopup({ title: 'Ошибка', message: 'Фото слишком большое. Выберите изображение до 2–3 МБ.', buttons: [{ type: 'ok' }] });
+            } else if (!data || !data.ok) {
+              var msg = 'Не удалось сохранить работу.';
+              if (res.status === 403) msg = 'Нет доступа. Войдите как владелец.';
+              else if (res.status === 400) msg = 'Заполните название.';
+              tg.showPopup({ title: 'Ошибка', message: msg, buttons: [{ type: 'ok' }] });
+            } else {
+              portfolioDraft = { title: '', description: '', images: [] };
+              showView('view-owner-portfolio');
+              tg.showPopup({ title: 'Готово', message: 'Работа опубликована.', buttons: [{ type: 'ok' }] });
+            }
+          } catch (_) {
+            tg.showPopup({ title: 'Ошибка', message: 'Нет связи или сервер недоступен. Проверьте интернет.', buttons: [{ type: 'ok' }] });
+          } finally {
+            portfolioPublishBtn.disabled = false;
+            portfolioPublishBtn.textContent = 'Опубликовать';
           }
         });
       }

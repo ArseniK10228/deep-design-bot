@@ -394,7 +394,20 @@ a:active {
   padding: 0;
 }
 
+#portfolio-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 8px;
+  row-gap: 4px;
+  padding: 0;
+}
+
 #view-presets .page-content {
+  padding: 6px 4px 12px;
+  margin: 0 -8px 0 -8px;
+}
+
+#view-portfolio .page-content {
   padding: 6px 4px 12px;
   margin: 0 -8px 0 -8px;
 }
@@ -407,6 +420,17 @@ a:active {
 }
 
 #presets-list.preset-list-loading .list-loading {
+  padding: 0;
+}
+
+#portfolio-list.preset-list-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 220px);
+}
+
+#portfolio-list.preset-list-loading .list-loading {
   padding: 0;
 }
 
@@ -512,6 +536,10 @@ a:active {
 }
 
 #presets-list.preset-list-empty .consult-text {
+  grid-column: 1 / -1;
+}
+
+#portfolio-list.preset-list-empty .consult-text {
   grid-column: 1 / -1;
 }
 
