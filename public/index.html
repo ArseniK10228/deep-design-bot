@@ -840,7 +840,10 @@
     if (tabPortfolio) {
       tabPortfolio.addEventListener('click', () => {
         const current = document.querySelector('.view-active');
-        const dir = current && current.id === 'view-profile' ? 'left' : (current && current.id === 'view-main' ? 'right' : undefined);
+        const dir =
+          current && (current.id === 'view-owner-presets' || current.id === 'view-owner-presets-ready' || current.id === 'view-owner-portfolio') ? 'left'
+          : current && current.id === 'view-profile' ? 'left'
+          : (current && current.id === 'view-main' ? 'right' : undefined);
         setActiveTab(tabPortfolio);
         showView('view-portfolio', dir);
         loadPublicPortfolio();
@@ -850,7 +853,9 @@
     if (tabProfile) {
       tabProfile.addEventListener('click', () => {
         const current = document.querySelector('.view-active');
-        const dir = current && (current.id === 'view-main' || current.id === 'view-portfolio') ? 'right' : undefined;
+        const dir =
+          current && (current.id === 'view-owner-presets' || current.id === 'view-owner-presets-ready' || current.id === 'view-owner-portfolio') ? 'left'
+          : (current && (current.id === 'view-main' || current.id === 'view-portfolio') ? 'right' : undefined);
         setActiveTab(tabProfile);
         showView('view-profile', dir);
         updateProfileView();
