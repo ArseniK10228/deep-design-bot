@@ -626,11 +626,18 @@
       tg.MainButton.hide();
     }
 
-    // Прогреваем аватар/имя сразу при входе (чтобы в "Мои заказы" появлялось мгновенно)
+    // Прогреваем профиль: имя сразу, аватар — фоном, чтобы не блокировать запуск
     (function preloadProfile() {
       try {
         updateProfileView();
-        preloadProfileAvatar();
+        var runAvatar = function () {
+          try { preloadProfileAvatar(); } catch (_) {}
+        };
+        if (window.requestIdleCallback) {
+          window.requestIdleCallback(runAvatar, { timeout: 3000 });
+        } else {
+          setTimeout(runAvatar, 800);
+        }
       } catch (_) {}
     })();
 
