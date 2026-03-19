@@ -1270,14 +1270,6 @@
       });
     }
 
-    const presetsCard = document.querySelector('[data-action=\"presets\"]');
-    if (presetsCard) {
-      presetsCard.addEventListener('click', () => {
-        showView('view-presets');
-        loadPublicPresets();
-      });
-    }
-
     function readFileAsDataUrl(file) {
       return new Promise(function (resolve, reject) {
         var reader = new FileReader();
