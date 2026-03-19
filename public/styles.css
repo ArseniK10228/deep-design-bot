@@ -417,9 +417,24 @@ a:active {
   cursor: pointer;
   display: flex;
   flex-direction: column;
+  animation: page-enter 0.35s ease-out backwards;
   transition: transform 0.1s ease, opacity 0.1s ease;
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Плавное появление карточек после загрузки */
+#presets-list .preset-announcement-card:nth-child(1) { animation-delay: 0.05s; }
+#presets-list .preset-announcement-card:nth-child(2) { animation-delay: 0.10s; }
+#presets-list .preset-announcement-card:nth-child(3) { animation-delay: 0.15s; }
+#presets-list .preset-announcement-card:nth-child(4) { animation-delay: 0.20s; }
+#presets-list .preset-announcement-card:nth-child(5) { animation-delay: 0.25s; }
+#presets-list .preset-announcement-card:nth-child(6) { animation-delay: 0.30s; }
+#presets-list .preset-announcement-card:nth-child(7) { animation-delay: 0.35s; }
+#presets-list .preset-announcement-card:nth-child(8) { animation-delay: 0.40s; }
+#presets-list .preset-announcement-card:nth-child(9) { animation-delay: 0.45s; }
+#presets-list .preset-announcement-card:nth-child(10) { animation-delay: 0.50s; }
+#presets-list .preset-announcement-card:nth-child(11) { animation-delay: 0.55s; }
+#presets-list .preset-announcement-card:nth-child(12) { animation-delay: 0.60s; }
 
 .preset-announcement-card:active {
   transform: scale(0.98);
