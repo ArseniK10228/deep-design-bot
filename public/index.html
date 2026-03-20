@@ -579,6 +579,32 @@
       </main>
     </div>
 
+    <div class="view" id="view-owner-chat">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-main">‹</button>
+        <div class="page-header-center">
+          <h1 class="page-title">Чат</h1>
+          <p class="page-subtitle" id="owner-chat-subtitle">С владельцем</p>
+        </div>
+      </header>
+
+      <main class="page-content chat-view">
+        <section class="chat-owner-threads" id="owner-chat-thread-list" aria-label="Список диалогов"></section>
+
+        <div class="chat-messages" id="owner-chat-messages" aria-live="polite" aria-relevant="additions"></div>
+
+        <div class="chat-composer">
+          <input
+            class="form-input chat-input"
+            id="owner-chat-input"
+            placeholder="Сообщение..."
+            maxlength="1000"
+          />
+          <button type="button" class="chat-send-btn" id="owner-chat-send-btn" aria-label="Отправить">➤</button>
+        </div>
+      </main>
+    </div>
+
     <div class="view" id="view-profile">
       <header class="page-header">
         <div class="page-header-center">
@@ -610,6 +636,10 @@
     <button class="tabbar-item" type="button" id="tab-profile">
       <span class="tabbar-icon tabbar-icon-profile"></span>
       <span class="tabbar-label">Мои заказы</span>
+    </button>
+    <button class="tabbar-item" type="button" id="tab-chat">
+      <span class="tabbar-icon">💬</span>
+      <span class="tabbar-label">Чат</span>
     </button>
     <button class="tabbar-item tabbar-item-owner" type="button" id="tab-owner">
       <span class="tabbar-icon">✎</span>
@@ -691,7 +721,7 @@
       if (!target || !current || target === current) return;
 
       const tabbar = document.querySelector('.app-tabbar');
-      const tabbarViews = ['view-main', 'view-owner-presets', 'view-presets', 'view-portfolio', 'view-profile'];
+      const tabbarViews = ['view-main', 'view-owner-presets', 'view-presets', 'view-portfolio', 'view-profile', 'view-owner-chat'];
       if (tabbar) {
         const shouldShow = tabbarViews.indexOf(viewId) !== -1;
         tabbar.classList.toggle('app-tabbar-hidden', !shouldShow);
@@ -712,6 +742,11 @@
         current.removeEventListener('animationend', handler);
         current.classList.remove('view-active', 'view-leaving', 'view-leave-left', 'view-leave-right');
         target.classList.add('view-active', enterClass);
+          if (viewId === 'view-owner-chat') {
+            try { initOwnerChat(); } catch (_) {}
+          } else {
+            try { stopOwnerChatPolling(); } catch (_) {}
+          }
         target.addEventListener('animationend', function h() {
           target.removeEventListener('animationend', h);
           target.classList.remove('view-enter', 'view-enter-right', 'view-enter-left');
@@ -854,7 +889,7 @@
         }
         showView(target);
         const tabbar = document.querySelector('.app-tabbar');
-        if (tabbar && (target === 'view-main' || target === 'view-presets' || target === 'view-portfolio' || target === 'view-profile' || target === 'view-owner-presets')) {
+        if (tabbar && (target === 'view-main' || target === 'view-presets' || target === 'view-portfolio' || target === 'view-profile' || target === 'view-owner-presets' || target === 'view-owner-chat')) {
           tabbar.classList.remove('app-tabbar-hidden');
         }
       });
@@ -864,8 +899,9 @@
     const tabOrder = document.getElementById('tab-order');
     const tabPortfolio = document.getElementById('tab-portfolio');
     const tabProfile = document.getElementById('tab-profile');
+    const tabChat = document.getElementById('tab-chat');
     const tabOwner = document.getElementById('tab-owner');
-    const allTabs = [tabOrder, tabPortfolio, tabProfile, tabOwner];
+    const allTabs = [tabOrder, tabPortfolio, tabProfile, tabChat, tabOwner];
 
     function setActiveTab(tab) {
       allTabs.forEach(function (t) {
@@ -909,6 +945,15 @@
       });
     }
 
+    if (tabChat) {
+      tabChat.addEventListener('click', () => {
+        const current = document.querySelector('.view-active');
+        const dir = current && current.id === 'view-main' ? 'right' : undefined;
+        setActiveTab(tabChat);
+        showView('view-owner-chat', dir);
+      });
+    }
+
     if (tabOwner) {
       if (isOwnerApp) {
         tabOwner.style.display = 'flex';
@@ -921,9 +966,288 @@
       }
     }
 
+    // ----- Owner chat (in-app messenger) -----
+    const ownerChatThreadsEl = document.getElementById('owner-chat-thread-list');
+    const ownerChatMessagesEl = document.getElementById('owner-chat-messages');
+    const ownerChatInputEl = document.getElementById('owner-chat-input');
+    const ownerChatSendBtn = document.getElementById('owner-chat-send-btn');
+    const ownerChatSubtitleEl = document.getElementById('owner-chat-subtitle');
+
+    const viewerId = currentUser && currentUser.id != null ? String(currentUser.id) : null;
+    const viewerUsername = currentUser && currentUser.username ? String(currentUser.username) : '';
+
+    let ownerChatActiveConversationUserId = null; // which user we are chatting with (for owner) or current user (for user)
+    let ownerChatLastSeenId = 0;
+    let ownerChatPollTimer = null;
+    let ownerChatIsSending = false;
+
+    function formatOwnerChatTime(ts) {
+      try {
+        const d = new Date(ts);
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      } catch (_) {
+        return '';
+      }
+    }
+
+    function scrollOwnerChatToBottom() {
+      if (!ownerChatMessagesEl) return;
+      ownerChatMessagesEl.scrollTop = ownerChatMessagesEl.scrollHeight;
+    }
+
+    function clearOwnerChatMessages() {
+      if (!ownerChatMessagesEl) return;
+      ownerChatMessagesEl.innerHTML = '';
+    }
+
+    function appendOwnerChatMessages(messages) {
+      if (!ownerChatMessagesEl) return;
+      const meId = viewerId ? String(viewerId) : '';
+
+      messages.forEach((m) => {
+        const msgId = m && m.id != null ? Number(m.id) : null;
+        if (msgId == null) return;
+
+        const isMe = meId && String(m.fromUserId) === meId;
+        const fromName =
+          m.fromRole === 'owner'
+            ? 'Владелец'
+            : (m.fromUsername && String(m.fromUsername).trim() ? String(m.fromUsername).trim() : 'Пользователь');
+
+        const bubble = document.createElement('div');
+        bubble.className = isMe ? 'chat-bubble chat-bubble-me' : 'chat-bubble chat-bubble-them';
+        bubble.setAttribute('data-msg-id', String(msgId));
+
+        const text = document.createElement('div');
+        text.className = 'chat-bubble-text';
+        text.textContent = String(m.text || '');
+
+        const meta = document.createElement('div');
+        meta.className = 'chat-bubble-meta';
+        meta.textContent = `${fromName}${m.createdAt ? ' • ' + formatOwnerChatTime(m.createdAt) : ''}`;
+
+        bubble.appendChild(text);
+        bubble.appendChild(meta);
+        ownerChatMessagesEl.appendChild(bubble);
+      });
+
+      scrollOwnerChatToBottom();
+    }
+
+    function renderOwnerChatThreads(threads) {
+      if (!ownerChatThreadsEl) return;
+      ownerChatThreadsEl.innerHTML = '';
+
+      if (!Array.isArray(threads) || threads.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'chat-thread-empty';
+        empty.textContent = 'Пока нет сообщений от пользователей.';
+        ownerChatThreadsEl.appendChild(empty);
+        return;
+      }
+
+      threads.forEach((t) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chat-thread-item';
+        btn.setAttribute('data-conversation-user-id', String(t.conversationUserId));
+
+        const isActive = ownerChatActiveConversationUserId && String(t.conversationUserId) === String(ownerChatActiveConversationUserId);
+        if (isActive) btn.classList.add('chat-thread-item-active');
+
+        const title = document.createElement('div');
+        title.className = 'chat-thread-title';
+        title.textContent = t.username && String(t.username).trim() ? String(t.username).trim() : 'Пользователь';
+
+        const preview = document.createElement('div');
+        preview.className = 'chat-thread-preview';
+        preview.textContent = t.lastText && String(t.lastText).trim() ? String(t.lastText).trim() : '';
+
+        const time = document.createElement('div');
+        time.className = 'chat-thread-time';
+        time.textContent = t.lastAt ? formatOwnerChatTime(t.lastAt) : '';
+
+        btn.appendChild(title);
+        btn.appendChild(preview);
+        btn.appendChild(time);
+
+        btn.addEventListener('click', () => {
+          ownerChatActiveConversationUserId = String(t.conversationUserId);
+          ownerChatLastSeenId = 0;
+          if (ownerChatSubtitleEl) ownerChatSubtitleEl.textContent = `Диалог с ${title.textContent}`;
+          clearOwnerChatMessages();
+          renderOwnerChatThreads(threads);
+          loadOwnerChatMessages({ reset: true }).catch(() => {});
+        });
+
+        ownerChatThreadsEl.appendChild(btn);
+      });
+    }
+
+    function stopOwnerChatPolling() {
+      if (ownerChatPollTimer) {
+        clearInterval(ownerChatPollTimer);
+        ownerChatPollTimer = null;
+      }
+    }
+
+    async function apiFetchJSON(url, options) {
+      const r = await fetch(url, options);
+      return r.json();
+    }
+
+    async function loadOwnerChatThreads() {
+      if (!isOwnerApp || !viewerId) return [];
+      const data = await apiFetchJSON(
+        `/api/owner-chat/threads?viewerId=${encodeURIComponent(viewerId)}`,
+        { method: 'GET' }
+      ).catch(() => null);
+
+      if (!data || !data.ok) return [];
+      return Array.isArray(data.threads) ? data.threads : [];
+    }
+
+    async function loadOwnerChatMessages({ reset } = { reset: false }) {
+      if (!viewerId || !ownerChatActiveConversationUserId) return;
+      if (!ownerChatMessagesEl) return;
+
+      if (reset) {
+        ownerChatLastSeenId = 0;
+        clearOwnerChatMessages();
+      }
+
+      const sinceId = ownerChatLastSeenId ? Number(ownerChatLastSeenId) : 0;
+      const data = await apiFetchJSON(
+        `/api/owner-chat/messages?viewerId=${encodeURIComponent(viewerId)}&conversationUserId=${encodeURIComponent(ownerChatActiveConversationUserId)}&sinceId=${encodeURIComponent(String(sinceId))}`,
+        { method: 'GET' }
+      ).catch(() => null);
+
+      if (!data || !data.ok || !Array.isArray(data.messages)) return;
+
+      if (data.messages.length === 0) return;
+
+      ownerChatLastSeenId = Number(data.messages[data.messages.length - 1].id || sinceId);
+      appendOwnerChatMessages(data.messages);
+    }
+
+    async function initOwnerChat() {
+      if (!tg) return;
+      if (!viewerId) return;
+
+      if (ownerChatInputEl) {
+        ownerChatInputEl.placeholder = isOwnerApp ? 'Ответ владельца...' : 'Сообщение владельцу...';
+      }
+      if (!ownerChatSubtitleEl) return;
+
+      stopOwnerChatPolling();
+      ownerChatLastSeenId = 0;
+      clearOwnerChatMessages();
+
+      if (isOwnerApp) {
+        if (ownerChatThreadsEl) ownerChatThreadsEl.style.display = '';
+        const threads = await loadOwnerChatThreads();
+
+        if (!threads.length) {
+          ownerChatActiveConversationUserId = null;
+          ownerChatSubtitleEl.textContent = 'Чат';
+          renderOwnerChatThreads([]);
+          return;
+        }
+
+        const first = threads[0];
+        ownerChatActiveConversationUserId = String(first.conversationUserId);
+        ownerChatSubtitleEl.textContent = `Диалог с ${first.username && String(first.username).trim() ? String(first.username).trim() : 'Пользователь'}`;
+        await loadOwnerChatMessages({ reset: true });
+        renderOwnerChatThreads(threads);
+      } else {
+        if (ownerChatThreadsEl) ownerChatThreadsEl.style.display = 'none';
+        ownerChatActiveConversationUserId = viewerId;
+        ownerChatSubtitleEl.textContent = 'Диалог с владельцем';
+        await loadOwnerChatMessages({ reset: true });
+      }
+
+      ownerChatPollTimer = setInterval(() => {
+        loadOwnerChatMessages({ reset: false }).catch(() => {});
+      }, 2500);
+    }
+
+    async function sendOwnerChatMessage() {
+      if (!tg) return;
+      if (!viewerId) return;
+      if (ownerChatIsSending) return;
+      if (!ownerChatActiveConversationUserId) return;
+
+      const text = ownerChatInputEl ? ownerChatInputEl.value.trim() : '';
+      if (!text) return;
+
+      ownerChatIsSending = true;
+      if (ownerChatSendBtn) ownerChatSendBtn.disabled = true;
+
+      try {
+        const payload = isOwnerApp
+          ? {
+              viewerId,
+              toUserId: ownerChatActiveConversationUserId,
+              text,
+              username: viewerUsername
+            }
+          : {
+              viewerId,
+              toUserId: viewerId,
+              text,
+              username: viewerUsername
+            };
+
+        const data = await apiFetchJSON(
+          '/api/owner-chat/send',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          }
+        ).catch(() => null);
+
+        if (!data || !data.ok || !data.message) return;
+
+        const message = data.message;
+        ownerChatLastSeenId = Number(message.id || ownerChatLastSeenId);
+        appendOwnerChatMessages([message]);
+        if (ownerChatInputEl) ownerChatInputEl.value = '';
+
+        if (isOwnerApp) {
+          // Обновим список диалогов, чтобы превью/время стали актуальными
+          const threads = await loadOwnerChatThreads();
+          renderOwnerChatThreads(threads);
+        }
+      } finally {
+        ownerChatIsSending = false;
+        if (ownerChatSendBtn) ownerChatSendBtn.disabled = false;
+      }
+    }
+
+    if (ownerChatSendBtn) {
+      ownerChatSendBtn.addEventListener('click', () => {
+        sendOwnerChatMessage().catch(() => {});
+      });
+    }
+
+    if (ownerChatInputEl) {
+      ownerChatInputEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          sendOwnerChatMessage().catch(() => {});
+        }
+      });
+    }
+
     document.getElementById('consult-link-btn').addEventListener('click', () => {
-      if (tg) tg.openTelegramLink('https://t.me/kluph');
-      else window.open('https://t.me/kluph', '_blank');
+      if (!tg) {
+        window.open('https://t.me/kluph', '_blank');
+        return;
+      }
+
+      if (typeof setActiveTab === 'function' && tabChat) setActiveTab(tabChat);
+      showView('view-owner-chat', 'right');
     });
 
     document.getElementById('build-tasks').addEventListener('input', () => {

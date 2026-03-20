@@ -142,6 +142,248 @@ app.post('/api/build-request', async (req, res) => {
   }
 });
 
+// ----- Встроенный чат владельца -----
+// Идея: храним отдельную переписку для каждого пользователя (thread),
+// где владельцу показываются все диалоги, а пользователю — только свой.
+
+const ownerChatDataDir = path.join(maintenanceDir, 'owner-chat');
+const OWNER_CHAT_INDEX_FILE = path.join(ownerChatDataDir, 'threadsIndex.json');
+
+function ownerChatThreadKey(conversationUserId) {
+  return `ownerChat:thread:${conversationUserId}`;
+}
+
+function safeTruncate(str, maxLen) {
+  const s = String(str || '');
+  if (s.length <= maxLen) return s;
+  return s.slice(0, maxLen);
+}
+
+async function getOwnerChatThreadsIndex() {
+  if (redisClient) {
+    try {
+      const raw = await redisClient.get('ownerChat:threadsIndex');
+      if (!raw) return {};
+      if (typeof raw === 'object') return raw;
+      return JSON.parse(raw);
+    } catch (e) {
+      console.error('Owner chat threadsIndex get error:', e?.message || e);
+      return {};
+    }
+  }
+
+  try {
+    if (!fs.existsSync(ownerChatDataDir)) return {};
+    const raw = fs.readFileSync(OWNER_CHAT_INDEX_FILE, 'utf8');
+    if (!raw) return {};
+    return JSON.parse(raw);
+  } catch (_) {
+    return {};
+  }
+}
+
+async function saveOwnerChatThreadsIndex(indexObj) {
+  const safeIndex = indexObj && typeof indexObj === 'object' ? indexObj : {};
+  if (redisClient) {
+    try {
+      await redisClient.set('ownerChat:threadsIndex', JSON.stringify(safeIndex));
+    } catch (e) {
+      console.error('Owner chat threadsIndex save error:', e?.message || e);
+    }
+    return;
+  }
+
+  try {
+    fs.mkdirSync(ownerChatDataDir, { recursive: true });
+    fs.writeFileSync(OWNER_CHAT_INDEX_FILE, JSON.stringify(safeIndex), 'utf8');
+  } catch (e) {
+    console.error('Owner chat threadsIndex file save error:', e?.message || e);
+  }
+}
+
+async function getOwnerChatThread(conversationUserId) {
+  const key = ownerChatThreadKey(conversationUserId);
+  if (redisClient) {
+    try {
+      const raw = await redisClient.get(key);
+      if (!raw) return [];
+      if (Array.isArray(raw)) return raw;
+      return JSON.parse(raw);
+    } catch (e) {
+      console.error('Owner chat thread get error:', e?.message || e);
+      return [];
+    }
+  }
+
+  try {
+    if (!fs.existsSync(ownerChatDataDir)) return [];
+    const file = path.join(ownerChatDataDir, `thread_${conversationUserId}.json`);
+    if (!fs.existsSync(file)) return [];
+    const raw = fs.readFileSync(file, 'utf8');
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+async function saveOwnerChatThread(conversationUserId, messages) {
+  const key = ownerChatThreadKey(conversationUserId);
+  const list = Array.isArray(messages) ? messages : [];
+  if (redisClient) {
+    try {
+      await redisClient.set(key, JSON.stringify(list));
+    } catch (e) {
+      console.error('Owner chat thread save error:', e?.message || e);
+    }
+    return;
+  }
+
+  try {
+    fs.mkdirSync(ownerChatDataDir, { recursive: true });
+    const file = path.join(ownerChatDataDir, `thread_${conversationUserId}.json`);
+    fs.writeFileSync(file, JSON.stringify(list), 'utf8');
+  } catch (e) {
+    console.error('Owner chat thread file save error:', e?.message || e);
+  }
+}
+
+app.get('/api/owner-chat/threads', async (req, res) => {
+  try {
+    const ownerId = process.env.OWNER_CHAT_ID;
+    const viewerId = req.query.viewerId != null ? String(req.query.viewerId) : '';
+
+    if (!ownerId || !viewerId || String(ownerId) !== String(viewerId)) {
+      return res.status(403).json({ ok: false, threads: [] });
+    }
+
+    const indexObj = await getOwnerChatThreadsIndex();
+    const threads = Object.values(indexObj || {});
+    threads.sort((a, b) => (b.lastAt || 0) - (a.lastAt || 0));
+    res.json({ ok: true, threads });
+  } catch (e) {
+    console.error('Owner chat threads error:', e?.message || e);
+    res.status(500).json({ ok: false });
+  }
+});
+
+app.get('/api/owner-chat/messages', async (req, res) => {
+  try {
+    const ownerId = process.env.OWNER_CHAT_ID;
+    const viewerId = req.query.viewerId != null ? String(req.query.viewerId) : '';
+    const conversationUserId = req.query.conversationUserId != null ? String(req.query.conversationUserId) : '';
+    const sinceId = req.query.sinceId != null ? Number(req.query.sinceId) : 0;
+
+    if (!viewerId || !conversationUserId) {
+      return res.status(400).json({ ok: false, messages: [] });
+    }
+
+    const isOwnerViewer = ownerId && String(ownerId) === String(viewerId);
+    if (!isOwnerViewer && String(conversationUserId) !== String(viewerId)) {
+      return res.status(403).json({ ok: false, messages: [] });
+    }
+
+    const thread = await getOwnerChatThread(conversationUserId);
+    const messages = Array.isArray(thread)
+      ? thread.filter((m) => m && m.id != null && Number(m.id) > sinceId)
+      : [];
+
+    res.json({ ok: true, messages });
+  } catch (e) {
+    console.error('Owner chat messages error:', e?.message || e);
+    res.status(500).json({ ok: false, messages: [] });
+  }
+});
+
+app.post('/api/owner-chat/send', async (req, res) => {
+  try {
+    const ownerId = process.env.OWNER_CHAT_ID;
+    const maintenanceOn = getMaintenanceFlag();
+
+    const viewerId = req.body && req.body.viewerId != null ? String(req.body.viewerId) : '';
+    const toUserId = req.body && req.body.toUserId != null ? String(req.body.toUserId) : '';
+    const username = req.body && req.body.username != null ? String(req.body.username) : '';
+    const textRaw = req.body && req.body.text != null ? String(req.body.text) : '';
+    const text = textRaw.trim();
+
+    if (!ownerId || !viewerId) {
+      return res.status(400).json({ ok: false });
+    }
+    if (maintenanceOn && String(viewerId) !== String(ownerId)) {
+      return res.status(423).json({ ok: false });
+    }
+
+    if (!text || text.length < 1 || text.length > 1000) {
+      return res.status(400).json({ ok: false });
+    }
+
+    const isOwnerSender = String(viewerId) === String(ownerId);
+    let fromRole = isOwnerSender ? 'owner' : 'user';
+    let conversationUserId = isOwnerSender ? toUserId : viewerId;
+
+    if (!conversationUserId || !String(conversationUserId)) {
+      return res.status(400).json({ ok: false });
+    }
+    if (String(conversationUserId) === String(ownerId)) {
+      // диалог владельца с самим собой не нужен
+      return res.status(400).json({ ok: false });
+    }
+
+    if (!isOwnerSender && String(toUserId) && String(toUserId) !== String(viewerId)) {
+      // пользователь не может отправлять сообщение "в чужой" диалог
+      return res.status(403).json({ ok: false });
+    }
+
+    const now = Date.now();
+    const id = now * 1000 + Math.floor(Math.random() * 1000);
+    const usernameClean = username ? username.replace(/^@/, '') : '';
+    const fromUsername = usernameClean ? '@' + usernameClean : '';
+    const message = {
+      id,
+      conversationUserId,
+      fromUserId: viewerId,
+      fromRole,
+      text,
+      createdAt: now,
+      fromUsername
+    };
+
+    const thread = await getOwnerChatThread(conversationUserId);
+    thread.push(message);
+    const trimmed = thread.slice(-200);
+    await saveOwnerChatThread(conversationUserId, trimmed);
+
+    // Обновляем список диалогов владельца (последнее сообщение)
+    const indexObj = await getOwnerChatThreadsIndex();
+    const prev = indexObj[conversationUserId] || {};
+    const threadUsername = fromRole === 'user' ? fromUsername : (prev.username || '');
+    indexObj[conversationUserId] = {
+      conversationUserId,
+      username: threadUsername,
+      lastText: safeTruncate(text, 120),
+      lastAt: now,
+      lastFromRole: fromRole,
+      lastFromUserId: viewerId,
+      lastFromUsername: usernameClean ? usernameClean : ''
+    };
+    await saveOwnerChatThreadsIndex(indexObj);
+
+    // Сигнал в Telegram (чтобы владелец видел сообщения и вне WebApp)
+    const safeSender = usernameClean ? '@' + usernameClean : 'Пользователь';
+    if (fromRole === 'user') {
+      await bot.sendMessage(ownerId, `💬 Новое сообщение от ${safeSender}:\n${text}`);
+    } else {
+      await bot.sendMessage(conversationUserId, `🖥 Ответ владельца:\n${text}`);
+    }
+
+    res.json({ ok: true, message });
+  } catch (e) {
+    console.error('Owner chat send error:', e?.message || e);
+    res.status(500).json({ ok: false });
+  }
+});
+
 // ----- Готовые сборки (presets) -----
 // Храним массив предложений в Redis под ключом "presets".
 // Каждый элемент: { id, title, price, image, description, createdAt }
