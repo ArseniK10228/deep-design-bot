@@ -1083,26 +1083,59 @@
         const isActive = ownerChatActiveConversationUserId && String(t.conversationUserId) === String(ownerChatActiveConversationUserId);
         if (isActive) btn.classList.add('chat-thread-item-active');
 
-        const title = document.createElement('div');
-        title.className = 'chat-thread-title';
-        title.textContent = t.username && String(t.username).trim() ? String(t.username).trim() : 'Пользователь';
+        const usernameClean = t.username && String(t.username).trim() ? String(t.username).trim().replace(/^@/, '') : '';
+        const displayName = usernameClean || 'Пользователь';
 
-        const preview = document.createElement('div');
-        preview.className = 'chat-thread-preview';
-        preview.textContent = t.lastText && String(t.lastText).trim() ? String(t.lastText).trim() : '';
+        const initials = (function () {
+          const s = String(usernameClean || displayName).trim();
+          if (!s) return '?';
+          const parts = s.split(/\s+/);
+          const first = (parts[0] && parts[0][0]) ? parts[0][0] : s[0];
+          const last = (parts.length > 1 && parts[parts.length - 1][0]) ? parts[parts.length - 1][0] : (s.length > 1 ? s[1] : '');
+          return (first + last).toUpperCase();
+        })();
 
-        const time = document.createElement('div');
-        time.className = 'chat-thread-time';
-        time.textContent = t.lastAt ? formatOwnerChatTime(t.lastAt) : '';
+        const avatar = document.createElement('div');
+        avatar.className = 'chat-thread-avatar';
+        avatar.textContent = initials;
 
-        btn.appendChild(title);
-        btn.appendChild(preview);
-        btn.appendChild(time);
+        const contentCol = document.createElement('div');
+        contentCol.className = 'chat-thread-content';
+
+        const meta = document.createElement('div');
+        meta.className = 'chat-thread-meta';
+
+        const nameEl = document.createElement('div');
+        nameEl.className = 'chat-thread-name';
+        nameEl.textContent = displayName;
+
+        const timeEl = document.createElement('div');
+        timeEl.className = 'chat-thread-time';
+        timeEl.textContent = t.lastAt ? formatOwnerChatTime(t.lastAt) : '';
+
+        meta.appendChild(nameEl);
+        meta.appendChild(timeEl);
+
+        const bubble = document.createElement('div');
+        bubble.className = 'chat-thread-bubble';
+        const previewText = t.lastText && String(t.lastText).trim() ? String(t.lastText).trim() : '';
+        bubble.textContent = previewText;
+
+        // В цвете ориентируемся по тому, кто отправил последнее сообщение
+        // (если последнее сообщение от владельца — выделяем “как своё”).
+        if (String(t.lastFromRole || '') === 'owner') bubble.classList.add('chat-thread-bubble-me');
+        else bubble.classList.add('chat-thread-bubble-them');
+
+        contentCol.appendChild(meta);
+        contentCol.appendChild(bubble);
+
+        btn.appendChild(avatar);
+        btn.appendChild(contentCol);
 
         btn.addEventListener('click', () => {
           ownerChatActiveConversationUserId = String(t.conversationUserId);
           ownerChatLastSeenId = 0;
-          if (ownerChatSubtitleEl) ownerChatSubtitleEl.textContent = `Диалог с ${title.textContent}`;
+          if (ownerChatSubtitleEl) ownerChatSubtitleEl.textContent = `Диалог с ${displayName}`;
           clearOwnerChatMessages();
           if (ownerChatMessagesEl) ownerChatMessagesEl.style.display = '';
           if (ownerChatComposerEl) ownerChatComposerEl.style.display = '';
