@@ -10,7 +10,7 @@
 </head>
 <body>
   <div id="top-loading-bar" class="top-loading-bar top-loading-bar-hidden" aria-hidden="true"></div>
-  <div id="maintenance-overlay" class="maintenance-overlay">
+  <div id="maintenance-overlay" class="maintenance-overlay maintenance-overlay-hidden">
     <p class="maintenance-text">Технические работы</p>
     <div class="maintenance-spinner"></div>
     <button type="button" class="maintenance-retry-btn" id="maintenance-retry-btn">Попробовать ещё раз</button>
@@ -758,8 +758,27 @@
 
     function sendActionToBot(action, label) {
       if (!tg) {
-        alert('Это мини-приложение предназначено для запуска внутри Telegram.');
-        return;
+        // Не блокируем взаимодействие модальным alert: просто показываем баннер.
+        try {
+          var el = document.getElementById('telegram-required-banner');
+          if (!el) {
+            el = document.createElement('div');
+            el.id = 'telegram-required-banner';
+            el.className = 'alert-banner';
+            el.setAttribute('role', 'status');
+            el.setAttribute('aria-live', 'polite');
+            el.style.position = 'fixed';
+            el.style.top = '12px';
+            el.style.left = '0';
+            el.style.right = '0';
+            el.style.zIndex = '10000';
+            el.style.margin = '0 16px';
+            document.body.appendChild(el);
+          }
+          el.textContent = 'Откройте мини‑приложение внутри Telegram — без Telegram часть функций недоступна.';
+          el.classList.add('alert-banner-visible');
+        } catch (_) {}
+        // Дальше продолжаем навигацию по локальным экранам.
       }
 
       if (action === 'consult') {
@@ -884,7 +903,7 @@
       }
 
       const payload = { action, label };
-      tg.sendData(JSON.stringify(payload));
+      if (tg && typeof tg.sendData === 'function') tg.sendData(JSON.stringify(payload));
     }
 
     document.querySelectorAll('.back-btn').forEach((btn) => {
