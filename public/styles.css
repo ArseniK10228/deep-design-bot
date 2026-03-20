@@ -1787,8 +1787,8 @@ a:active {
 
 .chat-owner-threads {
   display: none; /* будет показываться владельцу через JS */
-  margin: 0 0 10px 0;
-  max-height: 130px;
+  margin: 0;
+  max-height: none;
   overflow-y: auto;
   padding-right: 2px;
 }

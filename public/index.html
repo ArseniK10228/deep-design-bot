@@ -576,12 +576,10 @@
         <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-main">‹</button>
         <div class="page-header-center">
           <h1 class="page-title">Чат</h1>
-          <p class="page-subtitle" id="owner-chat-subtitle">С владельцем</p>
+          <p class="page-subtitle" id="owner-chat-thread-subtitle">С владельцем</p>
         </div>
       </header>
       <main class="page-content chat-view">
-        <section class="chat-owner-threads" id="owner-chat-thread-list" aria-label="Список диалогов"></section>
-
         <div class="chat-messages" id="owner-chat-messages" aria-live="polite" aria-relevant="additions"></div>
 
         <div class="chat-composer" id="owner-chat-composer">
@@ -593,6 +591,19 @@
           />
           <button type="button" class="chat-send-btn" id="owner-chat-send-btn" aria-label="Отправить">➤</button>
         </div>
+      </main>
+    </div>
+
+    <div class="view" id="view-owner-chat-list">
+      <header class="page-header">
+        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-owner-presets">‹</button>
+        <div class="page-header-center">
+          <h1 class="page-title">Чаты</h1>
+          <p class="page-subtitle" id="owner-chat-list-subtitle">Выберите пользователя</p>
+        </div>
+      </header>
+      <main class="page-content">
+        <section class="chat-owner-threads" id="owner-chat-thread-list" aria-label="Список диалогов"></section>
       </main>
     </div>
 
@@ -730,7 +741,9 @@
         current.classList.remove('view-active', 'view-leaving', 'view-leave-left', 'view-leave-right');
         target.classList.add('view-active', enterClass);
         if (viewId === 'view-consult') {
-          try { initOwnerChat(); } catch (_) {}
+          try { initOwnerChatThread(); } catch (_) {}
+        } else if (viewId === 'view-owner-chat-list') {
+          try { initOwnerChatList(); } catch (_) {}
         } else {
           try { stopOwnerChatPolling(); } catch (_) {}
         }
@@ -804,10 +817,7 @@
       }
 
       if (action === 'owner_chat_menu') {
-        // Для владельца "Назад" ведёт на страницу предложений
-        const backBtn = document.querySelector('#view-consult .back-btn');
-        if (backBtn) backBtn.dataset.backTo = 'view-owner-presets';
-        showView('view-consult', 'right');
+        showView('view-owner-chat-list', 'right');
         return;
       }
 
@@ -960,7 +970,8 @@
     const ownerChatComposerEl = document.getElementById('owner-chat-composer');
     const ownerChatInputEl = document.getElementById('owner-chat-input');
     const ownerChatSendBtn = document.getElementById('owner-chat-send-btn');
-    const ownerChatSubtitleEl = document.getElementById('owner-chat-subtitle');
+    const ownerChatSubtitleEl = document.getElementById('owner-chat-thread-subtitle');
+    const ownerChatListSubtitleEl = document.getElementById('owner-chat-list-subtitle');
 
     const viewerId = currentUser && currentUser.id != null ? String(currentUser.id) : null;
     const viewerUsername = currentUser && currentUser.username ? String(currentUser.username) : '';
@@ -1134,13 +1145,12 @@
 
         btn.addEventListener('click', () => {
           ownerChatActiveConversationUserId = String(t.conversationUserId);
+          ownerChatSelectedDisplayName = displayName;
           ownerChatLastSeenId = 0;
           if (ownerChatSubtitleEl) ownerChatSubtitleEl.textContent = `Диалог с ${displayName}`;
           clearOwnerChatMessages();
-          if (ownerChatMessagesEl) ownerChatMessagesEl.style.display = '';
-          if (ownerChatComposerEl) ownerChatComposerEl.style.display = '';
           renderOwnerChatThreads(threads);
-          loadOwnerChatMessages({ reset: true }).catch(() => {});
+          showView('view-consult', 'right');
         });
 
         ownerChatThreadsEl.appendChild(btn);
@@ -1193,59 +1203,78 @@
       appendOwnerChatMessages(data.messages);
     }
 
-    async function initOwnerChat() {
+    let ownerChatSelectedDisplayName = '';
+
+    async function initOwnerChatList() {
+      if (!tg) return;
+      if (!isOwnerApp) return;
+      if (!viewerId) return;
+
+      stopOwnerChatPolling();
+      ownerChatLastSeenId = 0;
+      ownerChatActiveConversationUserId = null;
+      ownerChatSelectedDisplayName = '';
+      clearOwnerChatMessages();
+
+      if (ownerChatMessagesEl) ownerChatMessagesEl.style.display = 'none';
+      if (ownerChatComposerEl) ownerChatComposerEl.style.display = 'none';
+      if (ownerChatListSubtitleEl) ownerChatListSubtitleEl.textContent = 'Выберите пользователя';
+
+      if (ownerChatThreadsEl) ownerChatThreadsEl.style.display = 'block';
+
+      const threads = await loadOwnerChatThreads();
+      renderOwnerChatThreads(threads);
+
+      ownerChatPollTimer = setInterval(() => {
+        loadOwnerChatThreads().then((threads) => {
+          renderOwnerChatThreads(threads);
+        }).catch(() => {});
+      }, 2500);
+    }
+
+    async function initOwnerChatThread() {
       if (!tg) return;
       if (!viewerId) return;
 
       if (ownerChatInputEl) {
         ownerChatInputEl.placeholder = isOwnerApp ? 'Ответ владельца...' : 'Сообщение владельцу...';
       }
+
       if (!ownerChatSubtitleEl) return;
+
+      // Кнопка "Назад" должна вести:
+      // - у владельца: в список чатов
+      // - у пользователей: на главную
+      const backBtn = document.querySelector('#view-consult .back-btn');
+      if (backBtn) backBtn.dataset.backTo = isOwnerApp ? 'view-owner-chat-list' : 'view-main';
 
       stopOwnerChatPolling();
       ownerChatLastSeenId = 0;
       clearOwnerChatMessages();
 
-      if (isOwnerApp) {
-        // В CSS список скрыт через `display: none`, поэтому владельцу нужно явно показать
-        if (ownerChatThreadsEl) ownerChatThreadsEl.style.display = 'block';
-        // По телеграм-логике: сначала список чатов, снизу сообщений быть не должно.
-        if (ownerChatMessagesEl) ownerChatMessagesEl.style.display = 'none';
-        if (ownerChatComposerEl) ownerChatComposerEl.style.display = 'none';
-        const threads = await loadOwnerChatThreads();
+      if (ownerChatMessagesEl) ownerChatMessagesEl.style.display = '';
+      if (ownerChatComposerEl) ownerChatComposerEl.style.display = '';
 
-        if (!threads.length) {
-          ownerChatActiveConversationUserId = null;
-          ownerChatSubtitleEl.textContent = 'Чат';
-          renderOwnerChatThreads([]);
+      if (isOwnerApp) {
+        if (!ownerChatActiveConversationUserId) {
+          if (ownerChatMessagesEl) ownerChatMessagesEl.style.display = 'none';
+          if (ownerChatComposerEl) ownerChatComposerEl.style.display = 'none';
+          ownerChatSubtitleEl.textContent = 'Выберите пользователя';
           return;
         }
 
-        // Сначала показываем список пользователей — область сообщений скрыта.
-        ownerChatActiveConversationUserId = null;
-        ownerChatSubtitleEl.textContent = 'Выберите пользователя';
-        renderOwnerChatThreads(threads);
-        if (ownerChatMessagesEl) ownerChatMessagesEl.style.display = 'none';
-        if (ownerChatComposerEl) ownerChatComposerEl.style.display = 'none';
+        if (ownerChatSelectedDisplayName) {
+          ownerChatSubtitleEl.textContent = `Диалог с ${ownerChatSelectedDisplayName}`;
+        }
       } else {
-        if (ownerChatThreadsEl) ownerChatThreadsEl.style.display = 'none';
         ownerChatActiveConversationUserId = viewerId;
+        ownerChatSelectedDisplayName = 'Владелец';
         ownerChatSubtitleEl.textContent = 'Диалог с владельцем';
-        await loadOwnerChatMessages({ reset: true });
-        if (ownerChatComposerEl) ownerChatComposerEl.style.display = '';
       }
 
-      ownerChatPollTimer = setInterval(() => {
-        if (isOwnerApp) {
-          // Если диалог ещё не выбран — обновляем только список.
-          if (!ownerChatActiveConversationUserId) {
-            loadOwnerChatThreads().then((threads) => {
-              renderOwnerChatThreads(threads);
-            }).catch(() => {});
-            return;
-          }
-        }
+      await loadOwnerChatMessages({ reset: true });
 
+      ownerChatPollTimer = setInterval(() => {
         loadOwnerChatMessages({ reset: false }).catch(() => {});
       }, 2500);
     }
