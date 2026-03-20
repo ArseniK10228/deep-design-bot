@@ -543,6 +543,12 @@ a:active {
   grid-column: 1 / -1;
 }
 
+#portfolio-list.preset-list-empty .profile-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  margin-top: 12px;
+}
+
 .page-title-sm {
   font-size: 14px;
   font-weight: 500;
