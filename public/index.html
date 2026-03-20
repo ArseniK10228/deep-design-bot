@@ -1143,11 +1143,17 @@
           return;
         }
 
-        const first = threads[0];
-        ownerChatActiveConversationUserId = String(first.conversationUserId);
-        ownerChatSubtitleEl.textContent = `Диалог с ${first.username && String(first.username).trim() ? String(first.username).trim() : 'Пользователь'}`;
-        await loadOwnerChatMessages({ reset: true });
+        // Сначала показываем список пользователей — сообщения загружаются только после выбора.
+        ownerChatActiveConversationUserId = null;
+        ownerChatSubtitleEl.textContent = 'Выберите пользователя';
         renderOwnerChatThreads(threads);
+        if (ownerChatMessagesEl) {
+          const hint = document.createElement('div');
+          hint.className = 'chat-thread-empty';
+          hint.textContent = 'Выберите пользователя слева, чтобы открыть чат.';
+          ownerChatMessagesEl.innerHTML = '';
+          ownerChatMessagesEl.appendChild(hint);
+        }
       } else {
         if (ownerChatThreadsEl) ownerChatThreadsEl.style.display = 'none';
         ownerChatActiveConversationUserId = viewerId;
@@ -1156,6 +1162,16 @@
       }
 
       ownerChatPollTimer = setInterval(() => {
+        if (isOwnerApp) {
+          // Если диалог ещё не выбран — обновляем только список.
+          if (!ownerChatActiveConversationUserId) {
+            loadOwnerChatThreads().then((threads) => {
+              renderOwnerChatThreads(threads);
+            }).catch(() => {});
+            return;
+          }
+        }
+
         loadOwnerChatMessages({ reset: false }).catch(() => {});
       }, 2500);
     }
