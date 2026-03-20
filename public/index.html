@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#121212" />
   <title>Deep Design PC</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="styles.css?v=20260320-3" />
 </head>
 <body>
@@ -645,14 +644,36 @@
     </button>
   </nav>
 
+  <script src="https://telegram.org/js/telegram-web-app.js" async></script>
   <script>
-    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-    const currentUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
+    // На некоторых устройствах Telegram внедряет WebApp с задержкой — читаем актуально при каждом обращении.
+    function getTg() {
+      try {
+        return (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+      } catch (_) { return null; }
+    }
+    let tg = getTg();
+    let currentUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
     const isOwnerApp = !!currentUser && currentUser.username === 'ShadowwOneLove';
     if (tg) {
-      tg.expand();
-      tg.MainButton.hide();
+      try { tg.expand(); tg.MainButton.hide(); tg.ready(); } catch (_) {}
     }
+    // Ждём появления Telegram до 3 сек (на части устройств API внедряется с задержкой)
+    (function waitForTelegram() {
+      if (tg) return;
+      var attempts = 0;
+      var id = setInterval(function() {
+        tg = getTg();
+        if (tg) {
+          clearInterval(id);
+          currentUser = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
+          try { tg.expand(); tg.MainButton.hide(); tg.ready(); } catch (_) {}
+          return;
+        }
+        attempts++;
+        if (attempts >= 30) clearInterval(id);
+      }, 100);
+    })();
 
     // Прогреваем профиль: имя сразу, аватар — фоном, чтобы не блокировать запуск
     (function preloadProfile() {
@@ -757,7 +778,8 @@
     let isUpgradeMode = false;
 
     function sendActionToBot(action, label) {
-      if (!tg) {
+      var t = getTg();
+      if (!t) {
         // Не блокируем взаимодействие модальным alert: просто показываем баннер.
         try {
           var el = document.getElementById('telegram-required-banner');
@@ -903,7 +925,7 @@
       }
 
       const payload = { action, label };
-      if (tg && typeof tg.sendData === 'function') tg.sendData(JSON.stringify(payload));
+      if (t && typeof t.sendData === 'function') t.sendData(JSON.stringify(payload));
     }
 
     document.querySelectorAll('.back-btn').forEach((btn) => {
@@ -1225,7 +1247,7 @@
     let ownerChatSelectedDisplayName = '';
 
     async function initOwnerChatList() {
-      if (!tg) return;
+      if (!getTg()) return;
       if (!isOwnerApp) return;
       if (!viewerId) return;
 
@@ -1252,7 +1274,7 @@
     }
 
     async function initOwnerChatThread() {
-      if (!tg) return;
+      if (!getTg()) return;
       if (!viewerId) return;
 
       if (ownerChatInputEl) {
@@ -1299,7 +1321,7 @@
     }
 
     async function sendOwnerChatMessage() {
-      if (!tg) return;
+      if (!getTg()) return;
       if (!viewerId) return;
       if (ownerChatIsSending) return;
       if (!ownerChatActiveConversationUserId) return;
@@ -1408,11 +1430,12 @@
     });
 
     document.getElementById('build-submit-btn').addEventListener('click', async () => {
-      if (!tg) return;
+      var t = getTg();
+      if (!t) return;
       const RATE_LIMIT_MS = 5 * 60 * 1000;
       const alertEl = document.getElementById('build-rate-limit-alert');
 
-      const currentUser = tg.initDataUnsafe?.user || {};
+      const currentUser = t.initDataUnsafe?.user || {};
       const isOwner = currentUser && currentUser.username === 'ShadowwOneLove';
 
       if (!isOwner) {
@@ -1483,7 +1506,7 @@
       const btn = document.getElementById('build-submit-btn');
       btn.disabled = true;
       btn.textContent = 'Отправка...';
-      const user = tg.initDataUnsafe?.user || {};
+      const user = t.initDataUnsafe?.user || {};
       try {
         const res = await fetch('/api/build-request', {
           method: 'POST',
@@ -1501,21 +1524,22 @@
           localStorage.setItem('buildRequestLastAt', String(Date.now()));
           showView('view-build-success');
         } else {
-          tg.showPopup({ title: 'Ошибка', message: 'Не удалось отправить заявку. Попробуйте позже.', buttons: [{ type: 'ok' }] });
+          t.showPopup({ title: 'Ошибка', message: 'Не удалось отправить заявку. Попробуйте позже.', buttons: [{ type: 'ok' }] });
         }
       } catch (e) {
-        tg.showPopup({ title: 'Ошибка', message: 'Не удалось отправить заявку. Проверьте интернет.', buttons: [{ type: 'ok' }] });
+        t.showPopup({ title: 'Ошибка', message: 'Не удалось отправить заявку. Проверьте интернет.', buttons: [{ type: 'ok' }] });
       }
       btn.disabled = false;
       btn.textContent = 'Отправить на оценку';
     });
 
     document.getElementById('components-submit-btn').addEventListener('click', async () => {
-      if (!tg) return;
+      var t = getTg();
+      if (!t) return;
       const RATE_LIMIT_MS = 5 * 60 * 1000;
       const alertEl = document.getElementById('components-rate-limit-alert');
 
-      const currentUser = tg.initDataUnsafe?.user || {};
+      const currentUser = t.initDataUnsafe?.user || {};
       const isOwner = currentUser && currentUser.username === 'ShadowwOneLove';
 
       if (!isOwner) {
@@ -1588,7 +1612,7 @@
       const btn = document.getElementById('components-submit-btn');
       btn.disabled = true;
       btn.textContent = 'Отправка...';
-      const user = tg.initDataUnsafe?.user || {};
+      const user = t.initDataUnsafe?.user || {};
       try {
         const res = await fetch('/api/build-request', {
           method: 'POST',
@@ -1606,10 +1630,10 @@
           localStorage.setItem('buildRequestLastAt', String(Date.now()));
           showView('view-build-success');
         } else {
-          tg.showPopup({ title: 'Ошибка', message: 'Не удалось отправить заявку. Попробуйте позже.', buttons: [{ type: 'ok' }] });
+          t.showPopup({ title: 'Ошибка', message: 'Не удалось отправить заявку. Попробуйте позже.', buttons: [{ type: 'ok' }] });
         }
       } catch (e) {
-        tg.showPopup({ title: 'Ошибка', message: 'Не удалось отправить заявку. Проверьте интернет.', buttons: [{ type: 'ok' }] });
+        t.showPopup({ title: 'Ошибка', message: 'Не удалось отправить заявку. Проверьте интернет.', buttons: [{ type: 'ok' }] });
       }
       btn.disabled = false;
       btn.textContent = 'Отправить на оценку';
