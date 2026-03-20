@@ -214,6 +214,14 @@
             </div>
             <div class="service-arrow">›</div>
           </article>
+          <article class="service-card" data-action="owner_chat_menu">
+            <div class="service-icon service-icon-consult"></div>
+            <div class="service-content">
+              <h2 class="service-title">Чат с пользователями</h2>
+              <p class="service-desc">Ответьте выбранному пользователю</p>
+            </div>
+            <div class="service-arrow">›</div>
+          </article>
         </section>
       </main>
     </div>
@@ -742,6 +750,9 @@
       }
 
       if (action === 'consult') {
+        // Для пользователей возвращаемся на главный экран
+        const backBtn = document.querySelector('#view-consult .back-btn');
+        if (backBtn) backBtn.dataset.backTo = 'view-main';
         showView('view-consult');
         return;
       }
@@ -789,6 +800,14 @@
 
       if (action === 'owner_portfolio_menu') {
         showView('view-owner-portfolio', 'right');
+        return;
+      }
+
+      if (action === 'owner_chat_menu') {
+        // Для владельца "Назад" ведёт на страницу предложений
+        const backBtn = document.querySelector('#view-consult .back-btn');
+        if (backBtn) backBtn.dataset.backTo = 'view-owner-presets';
+        showView('view-consult', 'right');
         return;
       }
 
