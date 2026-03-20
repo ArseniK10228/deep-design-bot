@@ -1064,6 +1064,7 @@
           ownerChatLastSeenId = 0;
           if (ownerChatSubtitleEl) ownerChatSubtitleEl.textContent = `Диалог с ${title.textContent}`;
           clearOwnerChatMessages();
+          if (ownerChatMessagesEl) ownerChatMessagesEl.style.display = '';
           renderOwnerChatThreads(threads);
           loadOwnerChatMessages({ reset: true }).catch(() => {});
         });
@@ -1134,6 +1135,8 @@
       if (isOwnerApp) {
         // В CSS список скрыт через `display: none`, поэтому владельцу нужно явно показать
         if (ownerChatThreadsEl) ownerChatThreadsEl.style.display = 'block';
+        // По телеграм-логике: сначала список чатов, снизу сообщений быть не должно.
+        if (ownerChatMessagesEl) ownerChatMessagesEl.style.display = 'none';
         const threads = await loadOwnerChatThreads();
 
         if (!threads.length) {
@@ -1143,17 +1146,11 @@
           return;
         }
 
-        // Сначала показываем список пользователей — сообщения загружаются только после выбора.
+        // Сначала показываем список пользователей — область сообщений скрыта.
         ownerChatActiveConversationUserId = null;
         ownerChatSubtitleEl.textContent = 'Выберите пользователя';
         renderOwnerChatThreads(threads);
-        if (ownerChatMessagesEl) {
-          const hint = document.createElement('div');
-          hint.className = 'chat-thread-empty';
-          hint.textContent = 'Выберите пользователя слева, чтобы открыть чат.';
-          ownerChatMessagesEl.innerHTML = '';
-          ownerChatMessagesEl.appendChild(hint);
-        }
+        if (ownerChatMessagesEl) ownerChatMessagesEl.style.display = 'none';
       } else {
         if (ownerChatThreadsEl) ownerChatThreadsEl.style.display = 'none';
         ownerChatActiveConversationUserId = viewerId;
