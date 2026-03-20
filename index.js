@@ -71,7 +71,17 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json({ limit: '10mb' }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(
+  express.static(path.join(__dirname, 'public'), {
+    etag: false,
+    maxAge: 0,
+    setHeaders: (res) => {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+  })
+);
 
 app.get('/health', (req, res) => {
   const maintenanceOn = getMaintenanceFlag();
@@ -630,7 +640,9 @@ function buildStartKeyboard(chatId, fullWebAppUrl) {
 async function handleStart(chatId) {
   const baseUrl = process.env.WEBAPP_URL || process.env.RENDER_EXTERNAL_URL || 'https://example.com';
   const webAppUrl = baseUrl.replace(/\/$/, '');
-  const cacheBust = process.env.WEBAPP_CACHE_BUST || Date.now().toString();
+  // Всегда делаем URL уникальным при каждом открытии, иначе Telegram/браузер кэширует старую версию.
+  const bustPrefix = process.env.WEBAPP_CACHE_BUST ? String(process.env.WEBAPP_CACHE_BUST) + '-' : '';
+  const cacheBust = bustPrefix + Date.now().toString();
   const fullWebAppUrl = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}v=${cacheBust}`;
 
   try {
