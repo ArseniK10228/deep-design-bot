@@ -998,26 +998,65 @@
         if (msgId == null) return;
 
         const isMe = meId && String(m.fromUserId) === meId;
-        const fromName =
-          m.fromRole === 'owner'
-            ? 'Владелец'
-            : (m.fromUsername && String(m.fromUsername).trim() ? String(m.fromUsername).trim() : 'Пользователь');
+
+        const fromUsernameClean = m.fromUsername && String(m.fromUsername).trim()
+          ? String(m.fromUsername).trim().replace(/^@/, '')
+          : '';
+
+        const displayName = isMe
+          ? (m.fromRole === 'owner' ? 'Вы' : (fromUsernameClean || 'Вы'))
+          : (fromUsernameClean || (m.fromRole === 'owner' ? 'Владелец' : 'Пользователь'));
+
+        const initials = (function () {
+          const s = String(fromUsernameClean || displayName || '').trim();
+          if (!s) return '?';
+          const parts = s.split(/\s+/);
+          const first = (parts[0] && parts[0][0]) ? parts[0][0] : s[0];
+          const last = (parts.length > 1 && parts[parts.length - 1][0]) ? parts[parts.length - 1][0] : (s.length > 1 ? s[1] : '');
+          return (first + last).toUpperCase();
+        })();
+
+        const row = document.createElement('div');
+        row.className = isMe ? 'chat-msg-row chat-msg-row-me' : 'chat-msg-row chat-msg-row-them';
+        row.setAttribute('data-msg-id', String(msgId));
+
+        if (!isMe) {
+          const avatar = document.createElement('div');
+          avatar.className = 'chat-avatar';
+          avatar.textContent = initials;
+          row.appendChild(avatar);
+        }
+
+        const contentCol = document.createElement('div');
+        contentCol.className = 'chat-msg-col';
+
+        const meta = document.createElement('div');
+        meta.className = 'chat-msg-meta';
+
+        const nameEl = document.createElement('div');
+        nameEl.className = 'chat-msg-name';
+        nameEl.textContent = displayName;
+
+        const timeEl = document.createElement('div');
+        timeEl.className = 'chat-msg-time';
+        timeEl.textContent = m.createdAt ? formatOwnerChatTime(m.createdAt) : '';
+
+        meta.appendChild(nameEl);
+        meta.appendChild(timeEl);
 
         const bubble = document.createElement('div');
         bubble.className = isMe ? 'chat-bubble chat-bubble-me' : 'chat-bubble chat-bubble-them';
-        bubble.setAttribute('data-msg-id', String(msgId));
 
         const text = document.createElement('div');
         text.className = 'chat-bubble-text';
         text.textContent = String(m.text || '');
 
-        const meta = document.createElement('div');
-        meta.className = 'chat-bubble-meta';
-        meta.textContent = `${fromName}${m.createdAt ? ' • ' + formatOwnerChatTime(m.createdAt) : ''}`;
-
         bubble.appendChild(text);
-        bubble.appendChild(meta);
-        ownerChatMessagesEl.appendChild(bubble);
+        contentCol.appendChild(meta);
+        contentCol.appendChild(bubble);
+        row.appendChild(contentCol);
+
+        ownerChatMessagesEl.appendChild(row);
       });
 
       scrollOwnerChatToBottom();
