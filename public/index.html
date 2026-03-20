@@ -584,7 +584,7 @@
 
         <div class="chat-messages" id="owner-chat-messages" aria-live="polite" aria-relevant="additions"></div>
 
-        <div class="chat-composer">
+        <div class="chat-composer" id="owner-chat-composer">
           <input
             class="form-input chat-input"
             id="owner-chat-input"
@@ -957,6 +957,7 @@
     // ----- Owner chat (in-app messenger) -----
     const ownerChatThreadsEl = document.getElementById('owner-chat-thread-list');
     const ownerChatMessagesEl = document.getElementById('owner-chat-messages');
+    const ownerChatComposerEl = document.getElementById('owner-chat-composer');
     const ownerChatInputEl = document.getElementById('owner-chat-input');
     const ownerChatSendBtn = document.getElementById('owner-chat-send-btn');
     const ownerChatSubtitleEl = document.getElementById('owner-chat-subtitle');
@@ -1065,6 +1066,7 @@
           if (ownerChatSubtitleEl) ownerChatSubtitleEl.textContent = `Диалог с ${title.textContent}`;
           clearOwnerChatMessages();
           if (ownerChatMessagesEl) ownerChatMessagesEl.style.display = '';
+          if (ownerChatComposerEl) ownerChatComposerEl.style.display = '';
           renderOwnerChatThreads(threads);
           loadOwnerChatMessages({ reset: true }).catch(() => {});
         });
@@ -1137,6 +1139,7 @@
         if (ownerChatThreadsEl) ownerChatThreadsEl.style.display = 'block';
         // По телеграм-логике: сначала список чатов, снизу сообщений быть не должно.
         if (ownerChatMessagesEl) ownerChatMessagesEl.style.display = 'none';
+        if (ownerChatComposerEl) ownerChatComposerEl.style.display = 'none';
         const threads = await loadOwnerChatThreads();
 
         if (!threads.length) {
@@ -1151,11 +1154,13 @@
         ownerChatSubtitleEl.textContent = 'Выберите пользователя';
         renderOwnerChatThreads(threads);
         if (ownerChatMessagesEl) ownerChatMessagesEl.style.display = 'none';
+        if (ownerChatComposerEl) ownerChatComposerEl.style.display = 'none';
       } else {
         if (ownerChatThreadsEl) ownerChatThreadsEl.style.display = 'none';
         ownerChatActiveConversationUserId = viewerId;
         ownerChatSubtitleEl.textContent = 'Диалог с владельцем';
         await loadOwnerChatMessages({ reset: true });
+        if (ownerChatComposerEl) ownerChatComposerEl.style.display = '';
       }
 
       ownerChatPollTimer = setInterval(() => {
