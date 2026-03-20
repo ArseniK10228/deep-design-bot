@@ -83,6 +83,18 @@ app.use(
   })
 );
 
+app.all('/api/load-report', (req, res) => {
+  const q = req.query || {};
+  const total = q.t || q.total;
+  const toScript = q.s || q.toScript;
+  const toReady = q.r || q.toReady;
+  const toInit = q.i || q.toInit;
+  if (total != null) {
+    console.log('[LOAD-REPORT] total:', total, 'ms | toScript:', toScript, 'ms | toReady:', toReady, 'ms | toInit:', toInit, 'ms');
+  }
+  res.status(204).end();
+});
+
 app.get('/health', (req, res) => {
   const maintenanceOn = getMaintenanceFlag();
   const ownerId = process.env.OWNER_CHAT_ID;

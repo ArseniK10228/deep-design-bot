@@ -1,4 +1,8 @@
-(function(){var t=window.Telegram&&window.Telegram.WebApp;if(t)try{t.ready();}catch(e){}})();
+(function(){
+  var t0=(typeof performance!=='undefined'&&performance.timing)?performance.timing.navigationStart:window.__loadStart||Date.now();
+  window.__diag={t0:t0,t1:Date.now(),t2:null,t3:null};
+  var t=window.Telegram&&window.Telegram.WebApp;if(t)try{t.ready();window.__diag.t2=Date.now();}catch(e){}
+})();
 // На некоторых устройствах Telegram внедряет WebApp с задержкой — читаем актуально при каждом обращении.
 function getTg() {
   try {
@@ -2211,3 +2215,21 @@ document.querySelectorAll('.service-card').forEach((card) => {
     sendActionToBot(action, fullLabel);
   });
 });
+
+(function reportLoad(){
+  if(!window.__diag)return;
+  window.__diag.t3=Date.now();
+  var d=window.__diag, total=d.t3-d.t0, toScript=d.t1-d.t0, toReady=(d.t2?d.t2-d.t0:0), toInit=d.t3-d.t1;
+  if(total>2000){
+    var msg='Диагностика: всего '+Math.round(total/1000*10)/10+'с (до скрипта: '+Math.round(toScript)+'мс, до ready: '+(d.t2?Math.round(toReady)+'мс':'?')+', инициализация: '+Math.round(toInit)+'мс)';
+    try{
+      var div=document.createElement('div');
+      div.style.cssText='position:fixed;bottom:12px;left:12px;right:12px;padding:12px;background:#333;color:#fff;font-size:12px;border-radius:8px;z-index:99999;';
+      div.textContent=msg;
+      div.id='load-diag-banner';
+      document.body.appendChild(div);
+      setTimeout(function(){var el=document.getElementById('load-diag-banner');if(el)el.remove();},8000);
+    }catch(_){}
+    try{navigator.sendBeacon && navigator.sendBeacon('/api/load-report?t='+total+'&s='+toScript+'&r='+toReady+'&i='+toInit);}catch(_){}
+  }
+})();
