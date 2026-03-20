@@ -566,28 +566,11 @@
     <div class="view" id="view-consult">
       <header class="page-header">
         <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-main">‹</button>
-        <h1 class="page-title">Консультация</h1>
-      </header>
-      <main class="page-content">
-        <p class="consult-text">
-          Бесплатная консультация по подбору комплектующих и оценке сборки.
-        </p>
-        <p class="consult-text">
-          Свяжитесь с нашим менеджером <strong>@kluph</strong> — ответим на все ваши вопросы.
-        </p>
-        <button type="button" class="consult-link" id="consult-link-btn">Написать менеджеру</button>
-      </main>
-    </div>
-
-    <div class="view" id="view-owner-chat">
-      <header class="page-header">
-        <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-main">‹</button>
         <div class="page-header-center">
           <h1 class="page-title">Чат</h1>
           <p class="page-subtitle" id="owner-chat-subtitle">С владельцем</p>
         </div>
       </header>
-
       <main class="page-content chat-view">
         <section class="chat-owner-threads" id="owner-chat-thread-list" aria-label="Список диалогов"></section>
 
@@ -636,10 +619,6 @@
     <button class="tabbar-item" type="button" id="tab-profile">
       <span class="tabbar-icon tabbar-icon-profile"></span>
       <span class="tabbar-label">Мои заказы</span>
-    </button>
-    <button class="tabbar-item" type="button" id="tab-chat">
-      <span class="tabbar-icon">💬</span>
-      <span class="tabbar-label">Чат</span>
     </button>
     <button class="tabbar-item tabbar-item-owner" type="button" id="tab-owner">
       <span class="tabbar-icon">✎</span>
@@ -721,7 +700,7 @@
       if (!target || !current || target === current) return;
 
       const tabbar = document.querySelector('.app-tabbar');
-      const tabbarViews = ['view-main', 'view-owner-presets', 'view-presets', 'view-portfolio', 'view-profile', 'view-owner-chat'];
+      const tabbarViews = ['view-main', 'view-owner-presets', 'view-presets', 'view-portfolio', 'view-profile'];
       if (tabbar) {
         const shouldShow = tabbarViews.indexOf(viewId) !== -1;
         tabbar.classList.toggle('app-tabbar-hidden', !shouldShow);
@@ -742,11 +721,11 @@
         current.removeEventListener('animationend', handler);
         current.classList.remove('view-active', 'view-leaving', 'view-leave-left', 'view-leave-right');
         target.classList.add('view-active', enterClass);
-          if (viewId === 'view-owner-chat') {
-            try { initOwnerChat(); } catch (_) {}
-          } else {
-            try { stopOwnerChatPolling(); } catch (_) {}
-          }
+        if (viewId === 'view-consult') {
+          try { initOwnerChat(); } catch (_) {}
+        } else {
+          try { stopOwnerChatPolling(); } catch (_) {}
+        }
         target.addEventListener('animationend', function h() {
           target.removeEventListener('animationend', h);
           target.classList.remove('view-enter', 'view-enter-right', 'view-enter-left');
@@ -889,7 +868,7 @@
         }
         showView(target);
         const tabbar = document.querySelector('.app-tabbar');
-        if (tabbar && (target === 'view-main' || target === 'view-presets' || target === 'view-portfolio' || target === 'view-profile' || target === 'view-owner-presets' || target === 'view-owner-chat')) {
+        if (tabbar && (target === 'view-main' || target === 'view-presets' || target === 'view-portfolio' || target === 'view-profile' || target === 'view-owner-presets')) {
           tabbar.classList.remove('app-tabbar-hidden');
         }
       });
@@ -899,9 +878,8 @@
     const tabOrder = document.getElementById('tab-order');
     const tabPortfolio = document.getElementById('tab-portfolio');
     const tabProfile = document.getElementById('tab-profile');
-    const tabChat = document.getElementById('tab-chat');
     const tabOwner = document.getElementById('tab-owner');
-    const allTabs = [tabOrder, tabPortfolio, tabProfile, tabChat, tabOwner];
+    const allTabs = [tabOrder, tabPortfolio, tabProfile, tabOwner];
 
     function setActiveTab(tab) {
       allTabs.forEach(function (t) {
@@ -942,15 +920,6 @@
         setActiveTab(tabProfile);
         showView('view-profile', dir);
         updateProfileView();
-      });
-    }
-
-    if (tabChat) {
-      tabChat.addEventListener('click', () => {
-        const current = document.querySelector('.view-active');
-        const dir = current && current.id === 'view-main' ? 'right' : undefined;
-        setActiveTab(tabChat);
-        showView('view-owner-chat', dir);
       });
     }
 
@@ -1144,7 +1113,8 @@
       clearOwnerChatMessages();
 
       if (isOwnerApp) {
-        if (ownerChatThreadsEl) ownerChatThreadsEl.style.display = '';
+        // В CSS список скрыт через `display: none`, поэтому владельцу нужно явно показать
+        if (ownerChatThreadsEl) ownerChatThreadsEl.style.display = 'block';
         const threads = await loadOwnerChatThreads();
 
         if (!threads.length) {
@@ -1239,16 +1209,6 @@
         }
       });
     }
-
-    document.getElementById('consult-link-btn').addEventListener('click', () => {
-      if (!tg) {
-        window.open('https://t.me/kluph', '_blank');
-        return;
-      }
-
-      if (typeof setActiveTab === 'function' && tabChat) setActiveTab(tabChat);
-      showView('view-owner-chat', 'right');
-    });
 
     document.getElementById('build-tasks').addEventListener('input', () => {
       const el = document.getElementById('build-tasks');
