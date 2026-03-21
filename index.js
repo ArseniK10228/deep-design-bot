@@ -5,6 +5,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const TelegramBot = require('node-telegram-bot-api');
+const { SocksProxyAgent } = require('socks-proxy-agent');
 const { WebSocketServer } = require('ws');
 const { Redis } = require('@upstash/redis');
 
@@ -15,8 +16,23 @@ if (!token) {
   process.exit(1);
 }
 
+function buildTelegramBotOptions() {
+  const options = { polling: false };
+  const proxyUrl = String(process.env.SOCKS5_PROXY_URL || '').trim();
+  if (!proxyUrl) return options;
+
+  try {
+    options.request = { agent: new SocksProxyAgent(proxyUrl) };
+    console.log('SOCKS5 proxy enabled for Telegram API');
+  } catch (e) {
+    console.error('Invalid SOCKS5_PROXY_URL:', e?.message || e);
+  }
+
+  return options;
+}
+
 // Инициализируем бота до любого использования
-const bot = new TelegramBot(token, { polling: false });
+const bot = new TelegramBot(token, buildTelegramBotOptions());
 
 // Хранение флага техработ: при наличии UPSTASH_REDIS_* — в Redis (сохраняется после деплоя),
 // иначе в файл (сбрасывается при деплое).
