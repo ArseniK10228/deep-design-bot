@@ -5,7 +5,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const TelegramBot = require('node-telegram-bot-api');
-const { SocksProxyAgent } = require('socks-proxy-agent');
+const SocksAgent = require('socks5-https-client/lib/Agent');
 const { WebSocketServer } = require('ws');
 const { Redis } = require('@upstash/redis');
 
@@ -22,7 +22,20 @@ function buildTelegramBotOptions() {
   if (!proxyUrl) return options;
 
   try {
-    options.request = { agent: new SocksProxyAgent(proxyUrl) };
+    const parsed = new URL(proxyUrl);
+    if (!/^socks5h?:$/i.test(parsed.protocol)) {
+      throw new Error('SOCKS5_PROXY_URL must start with socks5:// or socks5h://');
+    }
+    const hasAuth = parsed.username || parsed.password;
+    const agentOptions = {
+      socksHost: parsed.hostname,
+      socksPort: Number(parsed.port || 1080)
+    };
+    if (hasAuth) {
+      agentOptions.socksUsername = decodeURIComponent(parsed.username || '');
+      agentOptions.socksPassword = decodeURIComponent(parsed.password || '');
+    }
+    options.request = { agentClass: SocksAgent, agentOptions };
     console.log('SOCKS5 proxy enabled for Telegram API');
   } catch (e) {
     console.error('Invalid SOCKS5_PROXY_URL:', e?.message || e);
