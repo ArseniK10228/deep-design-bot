@@ -379,6 +379,113 @@ let ownerChatLastSeenId = 0;
 let ownerChatPollTimer = null;
 let ownerChatIsSending = false;
 
+// ----- WebSocket для чата (без polling) -----
+let ownerChatWs = null;
+let ownerChatWsActive = false;
+let ownerChatWsSubscribedThreads = false;
+let ownerChatWsSubscribedConversationUserId = null;
+let ownerChatWsReconnectTimer = null;
+let ownerChatWsRetry = 0;
+
+function ownerChatWsUrl() {
+  const wsProto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  return wsProto + '//' + location.host + '/ws/owner-chat?viewerId=' + encodeURIComponent(viewerId || '');
+}
+
+function ownerChatWsSend(payload) {
+  if (!ownerChatWs || ownerChatWs.readyState !== 1) return;
+  try { ownerChatWs.send(JSON.stringify(payload)); } catch (_) {}
+}
+
+function ownerChatWsApplySubscriptions() {
+  if (ownerChatWsSubscribedThreads) {
+    ownerChatWsSend({ type: 'subscribeThreads', viewerId });
+  }
+  if (ownerChatWsSubscribedConversationUserId) {
+    ownerChatWsSend({
+      type: 'subscribeMessages',
+      viewerId,
+      conversationUserId: ownerChatWsSubscribedConversationUserId
+    });
+  }
+}
+
+function ownerChatWsEnsure() {
+  if (!ownerChatWsActive) return;
+  if (ownerChatWs && ownerChatWs.readyState === 1) return;
+
+  if (ownerChatWsReconnectTimer) clearTimeout(ownerChatWsReconnectTimer);
+  ownerChatWsReconnectTimer = null;
+
+  try {
+    ownerChatWs = new WebSocket(ownerChatWsUrl());
+  } catch (_) {
+    ownerChatWs = null;
+    return;
+  }
+
+  ownerChatWs.onopen = function () {
+    ownerChatWsRetry = 0;
+    ownerChatWsApplySubscriptions();
+  };
+
+  ownerChatWs.onmessage = function (ev) {
+    let data = null;
+    try { data = JSON.parse(ev.data); } catch (_) { data = null; }
+    if (!data || !data.type) return;
+
+    if (data.type === 'threads') {
+      if (!isOwnerApp) return;
+      if (!ownerChatWsSubscribedThreads) return;
+      if (Array.isArray(data.threads)) renderOwnerChatThreads(data.threads);
+      return;
+    }
+
+    if (data.type === 'messages') {
+      if (!ownerChatWsSubscribedConversationUserId) return;
+      const convId = data.conversationUserId != null ? String(data.conversationUserId) : '';
+      if (String(convId) !== String(ownerChatWsSubscribedConversationUserId)) return;
+      if (!Array.isArray(data.messages) || data.messages.length === 0) return;
+
+      const last = data.messages[data.messages.length - 1];
+      if (last && last.id != null) ownerChatLastSeenId = Number(last.id || ownerChatLastSeenId);
+      appendOwnerChatMessages(data.messages);
+    }
+  };
+
+  ownerChatWs.onclose = function () {
+    ownerChatWs = null;
+    if (!ownerChatWsActive) return;
+    ownerChatWsRetry++;
+    var delay = Math.min(5000, 500 * ownerChatWsRetry);
+    ownerChatWsReconnectTimer = setTimeout(ownerChatWsEnsure, delay);
+  };
+
+  ownerChatWs.onerror = function () {
+    try { ownerChatWs.close(); } catch (_) {}
+  };
+}
+
+function stopOwnerChatPolling() {
+  if (ownerChatPollTimer) {
+    clearInterval(ownerChatPollTimer);
+    ownerChatPollTimer = null;
+  }
+
+  ownerChatWsActive = false;
+  ownerChatWsSubscribedThreads = false;
+  ownerChatWsSubscribedConversationUserId = null;
+  ownerChatPollTimer = null;
+
+  if (ownerChatWsReconnectTimer) clearTimeout(ownerChatWsReconnectTimer);
+  ownerChatWsReconnectTimer = null;
+
+  if (ownerChatWs) {
+    try { ownerChatWs.close(); } catch (_) {}
+    ownerChatWs = null;
+  }
+}
+
 function formatOwnerChatTime(ts) {
   try {
     const d = new Date(ts);
@@ -405,6 +512,9 @@ function appendOwnerChatMessages(messages) {
   messages.forEach((m) => {
     const msgId = m && m.id != null ? Number(m.id) : null;
     if (msgId == null) return;
+
+    // Защита от дублей: если это сообщение уже отрисовано — пропускаем.
+    if (ownerChatMessagesEl.querySelector('.chat-msg-row[data-msg-id="' + msgId + '"]')) return;
 
     const isMe = meId && String(m.fromUserId) === meId;
 
@@ -555,13 +665,6 @@ function renderOwnerChatThreads(threads) {
   });
 }
 
-function stopOwnerChatPolling() {
-  if (ownerChatPollTimer) {
-    clearInterval(ownerChatPollTimer);
-    ownerChatPollTimer = null;
-  }
-}
-
 async function apiFetchJSON(url, options) {
   const r = await fetch(url, options);
   return r.json();
@@ -623,11 +726,11 @@ async function initOwnerChatList() {
   const threads = await loadOwnerChatThreads();
   renderOwnerChatThreads(threads);
 
-  ownerChatPollTimer = setInterval(() => {
-    loadOwnerChatThreads().then((threads) => {
-      renderOwnerChatThreads(threads);
-    }).catch(() => {});
-  }, 2500);
+  // Подписываемся на обновления списка диалогов (только владелец).
+  ownerChatWsActive = true;
+  ownerChatWsSubscribedThreads = true;
+  ownerChatWsSubscribedConversationUserId = null;
+  ownerChatWsEnsure();
 }
 
 async function initOwnerChatThread() {
@@ -672,9 +775,11 @@ async function initOwnerChatThread() {
 
   await loadOwnerChatMessages({ reset: true });
 
-  ownerChatPollTimer = setInterval(() => {
-    loadOwnerChatMessages({ reset: false }).catch(() => {});
-  }, 2500);
+  // Подписываемся на новые сообщения этого диалога.
+  ownerChatWsActive = true;
+  ownerChatWsSubscribedThreads = false;
+  ownerChatWsSubscribedConversationUserId = ownerChatActiveConversationUserId ? String(ownerChatActiveConversationUserId) : null;
+  ownerChatWsEnsure();
 }
 
 async function sendOwnerChatMessage() {
@@ -719,12 +824,6 @@ async function sendOwnerChatMessage() {
     ownerChatLastSeenId = Number(message.id || ownerChatLastSeenId);
     appendOwnerChatMessages([message]);
     if (ownerChatInputEl) ownerChatInputEl.value = '';
-
-    if (isOwnerApp) {
-      // Обновим список диалогов, чтобы превью/время стали актуальными
-      const threads = await loadOwnerChatThreads();
-      renderOwnerChatThreads(threads);
-    }
   } finally {
     ownerChatIsSending = false;
     if (ownerChatSendBtn) ownerChatSendBtn.disabled = false;

@@ -1,9 +1,11 @@
 process.env.NTBA_FIX_350 = 'true';
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const TelegramBot = require('node-telegram-bot-api');
+const { WebSocketServer } = require('ws');
 const { Redis } = require('@upstash/redis');
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -82,6 +84,139 @@ app.use(
     }
   })
 );
+
+// ----- WebSocket для чата владельца -----
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server, path: '/ws/owner-chat' });
+
+// ws подписчики на список диалогов (владелец)
+const ownerChatThreadSubscribers = new Set();
+
+// ws подписчики на сообщения конкретного диалога (conversationUserId = id пользователя)
+const ownerChatMessageSubscribersByConversationUserId = new Map(); // conversationUserId -> Set<ws>
+
+function getOwnerId() {
+  return process.env.OWNER_CHAT_ID ? String(process.env.OWNER_CHAT_ID) : '';
+}
+
+function getOrCreateMessageSubSet(conversationUserId) {
+  const key = String(conversationUserId);
+  let set = ownerChatMessageSubscribersByConversationUserId.get(key);
+  if (!set) {
+    set = new Set();
+    ownerChatMessageSubscribersByConversationUserId.set(key, set);
+  }
+  return set;
+}
+
+function removeWsFromAllSubscriptions(ws) {
+  ownerChatThreadSubscribers.delete(ws);
+
+  for (const [convId, set] of ownerChatMessageSubscribersByConversationUserId.entries()) {
+    if (set.has(ws)) {
+      set.delete(ws);
+      if (set.size === 0) ownerChatMessageSubscribersByConversationUserId.delete(convId);
+    }
+  }
+}
+
+function wsBroadcastThreads(threads) {
+  const payload = JSON.stringify({ type: 'threads', threads: Array.isArray(threads) ? threads : [] });
+  for (const ws of ownerChatThreadSubscribers) {
+    if (ws.readyState !== ws.OPEN) continue;
+    try { ws.send(payload); } catch (_) {}
+  }
+}
+
+function wsBroadcastMessages(conversationUserId, messages) {
+  const convId = String(conversationUserId);
+  const set = ownerChatMessageSubscribersByConversationUserId.get(convId);
+  if (!set || set.size === 0) return;
+  const payload = JSON.stringify({ type: 'messages', conversationUserId: convId, messages: Array.isArray(messages) ? messages : [] });
+  for (const ws of set) {
+    if (ws.readyState !== ws.OPEN) continue;
+    try { ws.send(payload); } catch (_) {}
+  }
+}
+
+wss.on('connection', (ws, req) => {
+  // viewerId приходит из мини-приложения (из tg.initDataUnsafe.user.id)
+  const url = new URL(req.url, 'http://localhost');
+  const viewerIdFromQuery = url.searchParams.get('viewerId') != null ? String(url.searchParams.get('viewerId')) : '';
+  const ownerId = getOwnerId();
+
+  ws._ownerChat = {
+    viewerId: viewerIdFromQuery,
+    subscribedThreads: false,
+    subscribedConversationUserId: null
+  };
+
+  ws.on('message', (raw) => {
+    let msg = null;
+    try { msg = JSON.parse(raw.toString()); } catch (_) {}
+    if (!msg || !msg.type) return;
+
+    const ownerChat = ws._ownerChat;
+    if (!ownerChat) return;
+
+    // Для простоты доверяем viewerId из query и игнорируем “подстановки” в payload.
+    // (HTTP-эндпойнты в проекте тоже опираются на viewerId от фронта.)
+    const viewerId = ownerChat.viewerId;
+    const payloadViewerId = msg.viewerId != null ? String(msg.viewerId) : '';
+    if (payloadViewerId && payloadViewerId !== viewerId) return;
+
+    if (msg.type === 'subscribeThreads') {
+      if (!ownerId || !viewerId || viewerId !== ownerId) return;
+      ownerChat.subscribedThreads = true;
+      ownerChatThreadSubscribers.add(ws);
+      return;
+    }
+
+    if (msg.type === 'unsubscribeThreads') {
+      ownerChat.subscribedThreads = false;
+      ownerChatThreadSubscribers.delete(ws);
+      return;
+    }
+
+    if (msg.type === 'subscribeMessages') {
+      const conversationUserId = msg.conversationUserId != null ? String(msg.conversationUserId) : '';
+      if (!conversationUserId) return;
+
+      const isOwnerViewer = ownerId && viewerId && viewerId === ownerId;
+      if (!isOwnerViewer && conversationUserId !== viewerId) return;
+
+      // перезаписываем подписку (один диалог на сокет)
+      if (ownerChat.subscribedConversationUserId) {
+        const prevSet = ownerChatMessageSubscribersByConversationUserId.get(String(ownerChat.subscribedConversationUserId));
+        if (prevSet) {
+          prevSet.delete(ws);
+          if (prevSet.size === 0) ownerChatMessageSubscribersByConversationUserId.delete(String(ownerChat.subscribedConversationUserId));
+        }
+      }
+
+      ownerChat.subscribedConversationUserId = conversationUserId;
+      getOrCreateMessageSubSet(conversationUserId).add(ws);
+      return;
+    }
+
+    if (msg.type === 'unsubscribeMessages') {
+      if (ownerChat.subscribedConversationUserId) {
+        const prevConvId = String(ownerChat.subscribedConversationUserId);
+        const prevSet = ownerChatMessageSubscribersByConversationUserId.get(prevConvId);
+        if (prevSet) {
+          prevSet.delete(ws);
+          if (prevSet.size === 0) ownerChatMessageSubscribersByConversationUserId.delete(prevConvId);
+        }
+      }
+      ownerChat.subscribedConversationUserId = null;
+      return;
+    }
+  });
+
+  ws.on('close', () => {
+    removeWsFromAllSubscriptions(ws);
+  });
+});
 
 app.all('/api/load-report', (req, res) => {
   const q = req.query || {};
@@ -390,6 +525,16 @@ app.post('/api/owner-chat/send', async (req, res) => {
       lastFromUsername: usernameClean ? usernameClean : ''
     };
     await saveOwnerChatThreadsIndex(indexObj);
+
+    // WebSocket push: мгновенно обновляем активный диалог и превью диалогов владельца.
+    try {
+      wsBroadcastMessages(conversationUserId, [message]);
+      const threads = Object.values(indexObj || {});
+      threads.sort((a, b) => (b.lastAt || 0) - (a.lastAt || 0));
+      wsBroadcastThreads(threads);
+    } catch (e) {
+      console.error('Owner chat WS broadcast error:', e?.message || e);
+    }
 
     // Сигнал в Telegram (чтобы владелец видел сообщения и вне WebApp)
     const safeSender = usernameClean ? '@' + usernameClean : 'Пользователь';
@@ -779,7 +924,7 @@ async function start() {
       bot.processUpdate(req.body);
       res.sendStatus(200);
     });
-    app.listen(PORT, async () => {
+    server.listen(PORT, async () => {
       const webhookUrl = `${baseUrl.replace(/\/$/, '')}${webhookPath}`;
       await bot.setWebHook(webhookUrl);
       console.log('Webhook:', webhookUrl);
@@ -787,7 +932,7 @@ async function start() {
     });
   } else {
     bot.startPolling();
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log('Polling. Порт:', PORT);
     });
   }
