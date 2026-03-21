@@ -18,6 +18,12 @@ if (!token) {
 
 function buildTelegramBotOptions() {
   const options = { polling: false };
+  const baseApiUrl = String(process.env.TELEGRAM_API_BASE_URL || '').trim();
+  if (baseApiUrl) {
+    options.baseApiUrl = baseApiUrl.replace(/\/$/, '');
+    console.log('Telegram API base URL:', options.baseApiUrl);
+    return options;
+  }
   const proxyUrl = String(process.env.SOCKS5_PROXY_URL || '').trim();
   if (!proxyUrl) return options;
 
