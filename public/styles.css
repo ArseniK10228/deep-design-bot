@@ -167,16 +167,16 @@
 
 @keyframes maintenance-hammer-strike {
   0%, 30% {
-    transform: rotate(42deg);
+    transform: rotate(-42deg);
   }
   38% {
-    transform: rotate(-12deg);
+    transform: rotate(12deg);
   }
   45% {
-    transform: rotate(-5deg);
+    transform: rotate(5deg);
   }
   100% {
-    transform: rotate(42deg);
+    transform: rotate(-42deg);
   }
 }
 
