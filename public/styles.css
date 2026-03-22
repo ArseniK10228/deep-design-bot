@@ -171,8 +171,9 @@
   22% {
     transform: rotate(var(--hammer-orient)) rotate(-32deg);
   }
+  /* Удар: угол как раньше (12°), «ниже» — сдвиг вниз по экрану, не сильнее наклон */
   38% {
-    transform: rotate(var(--hammer-orient)) rotate(17deg);
+    transform: rotate(var(--hammer-orient)) rotate(12deg) translateY(5px);
   }
   100% {
     transform: rotate(var(--hammer-orient)) rotate(-32deg);
