@@ -48,8 +48,6 @@ setTimeout(function preloadProfile() {
 }, 0);
 
 setTimeout(function checkMaintenance() {
-  /** Временно: true — вместо молотка показывается спиннер (даже при техработах), чтобы посмотреть вид загрузки. Поставь false — вернётся молоток. */
-  var TEMP_PREVIEW_LOADING_SPINNER = true;
   var overlay = document.getElementById('maintenance-overlay');
   var cardEl = document.getElementById('maintenance-card');
   var titleEl = document.getElementById('maintenance-title');
@@ -59,10 +57,7 @@ setTimeout(function checkMaintenance() {
     if (!overlay) return;
     if (show) {
       overlay.classList.remove('maintenance-overlay-hidden');
-      if (cardEl) {
-        if (TEMP_PREVIEW_LOADING_SPINNER) cardEl.classList.remove('maintenance-mode-active');
-        else cardEl.classList.add('maintenance-mode-active');
-      }
+      if (cardEl) cardEl.classList.add('maintenance-mode-active');
       if (titleEl) titleEl.textContent = 'Технические работы';
       if (subtitleEl) subtitleEl.textContent = 'Улучшаем сервис. Скоро вернёмся.';
     } else {
