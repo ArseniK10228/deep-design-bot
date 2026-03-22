@@ -172,27 +172,43 @@
 }
 
 .maintenance-icon {
-  font-size: 72px;
+  display: inline-block;
+  font-size: 56px;
   line-height: 1;
-  margin-bottom: 20px;
-  margin-left: 10px;
+  margin-bottom: 16px;
+  margin-top: -12px;
+  filter: drop-shadow(0 0 12px rgba(157, 92, 255, 0.3));
+  /* Ось вращения — нижний центр глифа (рукоятка) */
   transform-origin: center bottom;
-  animation: maintenance-hammer-strike 1s ease-in-out infinite alternate;
-  animation-direction: reverse;
+  animation: maintenance-hammer-strike 1.05s cubic-bezier(0.33, 0, 0.2, 1) infinite;
+}
+
+/* Долго: плавный подъём в замах (12° → -42°). Коротко: удар, отскок, возврат в 12°. 0% = 100% — цикл без рывка */
+@keyframes maintenance-hammer-strike {
+  0%,
+  100% {
+    transform: rotate(12deg);
+  }
+  46% {
+    transform: rotate(-42deg);
+  }
+  50% {
+    transform: rotate(-42deg);
+  }
+  54% {
+    transform: rotate(12deg);
+  }
+  57% {
+    transform: rotate(5deg);
+  }
+  62% {
+    transform: rotate(12deg);
+  }
 }
 
 @keyframes maintenance-loader-spin {
   to {
     transform: rotate(360deg);
-  }
-}
-
-@keyframes maintenance-hammer-strike {
-  from {
-    transform: rotate(-44deg);
-  }
-  to {
-    transform: rotate(12deg);
   }
 }
 
