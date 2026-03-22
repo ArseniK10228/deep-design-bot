@@ -154,16 +154,16 @@
 }
 
 .maintenance-icon {
-  font-size: 48px;
+  font-size: 52px;
   line-height: 1;
   margin-bottom: 16px;
   filter: drop-shadow(0 0 12px rgba(157, 92, 255, 0.4));
-  animation: maintenance-icon-pulse 2s ease-in-out infinite;
+  animation: maintenance-hammer-tap 0.6s ease-in-out infinite;
 }
 
-@keyframes maintenance-icon-pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.9; }
+@keyframes maintenance-hammer-tap {
+  0%, 100% { transform: rotate(-25deg) translateY(0); }
+  50% { transform: rotate(5deg) translateY(8px); }
 }
 
 .maintenance-title {
@@ -184,7 +184,7 @@
 .maintenance-dots {
   display: flex;
   gap: 8px;
-  margin-bottom: 28px;
+  margin-bottom: 0;
 }
 
 .maintenance-dots span {
@@ -223,24 +223,10 @@
   animation: maintenance-spin 0.7s linear infinite;
 }
 
-.maintenance-retry-btn {
-  margin-top: 0;
-  padding: 14px 28px;
-  font-size: 15px;
-  font-weight: 600;
-  color: #ffffff;
-  background: linear-gradient(135deg, rgba(157, 92, 255, 0.4) 0%, rgba(157, 92, 255, 0.25) 100%);
-  border: 1px solid rgba(157, 92, 255, 0.5);
-  border-radius: 14px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
-}
-
-.maintenance-retry-btn:hover,
-.maintenance-retry-btn:active {
-  background: linear-gradient(135deg, rgba(157, 92, 255, 0.55) 0%, rgba(157, 92, 255, 0.4) 100%);
-  box-shadow: 0 4px 16px rgba(157, 92, 255, 0.25);
+.app-hidden-until-ready {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
 }
 
 *,

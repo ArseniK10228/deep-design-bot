@@ -49,10 +49,19 @@ setTimeout(function preloadProfile() {
 
 setTimeout(function checkMaintenance() {
   var overlay = document.getElementById('maintenance-overlay');
-  function setOverlay(show) {
+  var titleEl = document.getElementById('maintenance-title');
+  var subtitleEl = document.getElementById('maintenance-subtitle');
+  var appEl = document.querySelector('.app');
+  function setMaintenance(show) {
     if (!overlay) return;
-    if (show) overlay.classList.remove('maintenance-overlay-hidden');
-    else overlay.classList.add('maintenance-overlay-hidden');
+    if (show) {
+      overlay.classList.remove('maintenance-overlay-hidden');
+      if (titleEl) titleEl.textContent = 'Технические работы';
+      if (subtitleEl) subtitleEl.textContent = 'Улучшаем сервис. Скоро вернёмся.';
+    } else {
+      overlay.classList.add('maintenance-overlay-hidden');
+      if (appEl) appEl.classList.remove('app-hidden-until-ready');
+    }
   }
   function getUserId() {
     var tg = window.Telegram && window.Telegram.WebApp;
@@ -63,25 +72,13 @@ setTimeout(function checkMaintenance() {
     var uid = getUserId();
     var url = '/health' + (uid ? '?user_id=' + encodeURIComponent(uid) : '');
     fetch(url).then(function(r) { return r.json(); }).then(function(data) {
-      setOverlay(!!data.maintenance);
+      setMaintenance(!!data.maintenance);
       setTimeout(poll, pollInterval);
-    }).catch(function() { setTimeout(poll, pollInterval); });
+    }).catch(function() {
+      setMaintenance(false);
+      setTimeout(poll, pollInterval);
+    });
   }
-  var retryBtn = document.getElementById('maintenance-retry-btn');
-  var loadingBar = document.getElementById('top-loading-bar');
-  if (retryBtn) retryBtn.addEventListener('click', function() {
-    if (loadingBar) {
-      loadingBar.classList.remove('top-loading-bar-hidden');
-      loadingBar.setAttribute('aria-hidden', 'false');
-    }
-    setTimeout(function() {
-      if (loadingBar) {
-        loadingBar.classList.add('top-loading-bar-hidden');
-        loadingBar.setAttribute('aria-hidden', 'true');
-      }
-      setTimeout(function() { location.reload(); }, 380);
-    }, 480);
-  });
   if (window.location.protocol !== 'file:') poll();
 }, 0);
 

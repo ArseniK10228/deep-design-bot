@@ -7,22 +7,21 @@
   <meta name="theme-color" content="#121212" />
   <title>Deep Design PC</title>
   <link rel="preconnect" href="https://telegram.org" crossorigin />
-  <link rel="stylesheet" href="styles.css?v=20260322-1" />
+  <link rel="stylesheet" href="styles.css?v=20260322-2" />
 </head>
 <body>
   <div id="top-loading-bar" class="top-loading-bar top-loading-bar-hidden" aria-hidden="true"></div>
-  <div id="maintenance-overlay" class="maintenance-overlay maintenance-overlay-hidden">
+  <div id="maintenance-overlay" class="maintenance-overlay">
     <div class="maintenance-card">
-      <div class="maintenance-icon" aria-hidden="true">🔧</div>
-      <h2 class="maintenance-title">Технические работы</h2>
-      <p class="maintenance-subtitle">Улучшаем сервис. Скоро вернёмся.</p>
+      <div class="maintenance-icon" aria-hidden="true">🔨</div>
+      <h2 class="maintenance-title" id="maintenance-title">Загрузка...</h2>
+      <p class="maintenance-subtitle" id="maintenance-subtitle">Проверяем доступность</p>
       <div class="maintenance-dots">
         <span></span><span></span><span></span>
       </div>
-      <button type="button" class="maintenance-retry-btn" id="maintenance-retry-btn">Попробовать снова</button>
     </div>
   </div>
-  <div class="app">
+  <div class="app app-hidden-until-ready">
     <div class="view view-active view-enter" id="view-main">
       <header class="app-header">
         <h1 class="app-title">
@@ -653,7 +652,7 @@
   </nav>
 
   <script src="/telegram-web-app.js" defer></script>
-  <script src="app.js?v=20260321-1" defer></script>
+  <script src="app.js?v=20260322-2" defer></script>
 
 </body>
 </html>

@@ -60,8 +60,11 @@ systemctl restart deepdesign-bot
 
 ## Полезные команды
 
-| Действие              | Команда                                      |
-|-----------------------|----------------------------------------------|
-| Логи бота             | `journalctl -u deepdesign-bot -f`            |
-| Статус сервиса        | `systemctl status deepdesign-bot`            |
-| Проверить webhook     | `curl -s -o /dev/null -w "%{http_code}" -X POST https://app.deepdesignpc.ru/webhook -H "Content-Type: application/json" -d '{}'` |
+
+| Действие          | Команда                                                                                                                          |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Логи бота         | `journalctl -u deepdesign-bot -f`                                                                                                |
+| Статус сервиса    | `systemctl status deepdesign-bot`                                                                                                |
+| Проверить webhook | `curl -s -o /dev/null -w "%{http_code}" -X POST https://app.deepdesignpc.ru/webhook -H "Content-Type: application/json" -d '{}'` |
+
+
