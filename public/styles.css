@@ -154,12 +154,14 @@
 }
 
 .maintenance-icon {
+  display: inline-block;
   font-size: 56px;
   line-height: 1;
   margin-bottom: 16px;
   margin-top: -12px;
   filter: drop-shadow(0 0 12px rgba(157, 92, 255, 0.3));
-  transform-origin: 50% 92%;
+  /* Ось вращения — через нижнюю границу глифа (где рукоятка), рукоятка остаётся в одной точке */
+  transform-origin: center bottom;
   animation: maintenance-hammer-strike 1.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 
@@ -168,7 +170,7 @@
     transform: rotate(-26deg);
   }
   50% {
-    transform: rotate(10deg) translateY(6px);
+    transform: rotate(10deg);
   }
   75% {
     transform: rotate(-22deg);
