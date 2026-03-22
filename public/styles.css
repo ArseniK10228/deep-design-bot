@@ -169,14 +169,14 @@
 @keyframes maintenance-hammer-strike {
   0%,
   22% {
-    transform: rotate(var(--hammer-orient)) rotate(-32deg);
+    /* Левая часть дуги — ниже (сильнее замах влево) */
+    transform: rotate(var(--hammer-orient)) rotate(-44deg);
   }
-  /* Удар: угол как раньше (12°), «ниже» — сдвиг вниз по экрану, не сильнее наклон */
   38% {
-    transform: rotate(var(--hammer-orient)) rotate(12deg) translateY(5px);
+    transform: rotate(var(--hammer-orient)) rotate(12deg);
   }
   100% {
-    transform: rotate(var(--hammer-orient)) rotate(-32deg);
+    transform: rotate(var(--hammer-orient)) rotate(-44deg);
   }
 }
 
