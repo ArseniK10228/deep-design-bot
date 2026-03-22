@@ -154,30 +154,27 @@
 }
 
 .maintenance-icon {
+  font-size: 56px;
+  line-height: 1;
   margin-bottom: 16px;
   margin-top: -12px;
   filter: drop-shadow(0 0 12px rgba(157, 92, 255, 0.3));
-  transform-origin: center bottom;
-}
-
-.maintenance-icon svg {
-  display: block;
+  transform-origin: 50% 92%;
   animation: maintenance-hammer-strike 1.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-  transform-origin: 50% 95%;
 }
 
 @keyframes maintenance-hammer-strike {
   0%, 25% {
-    transform: rotate(-42deg);
+    transform: rotate(-26deg);
   }
   50% {
-    transform: rotate(18deg);
+    transform: rotate(10deg) translateY(6px);
   }
   75% {
-    transform: rotate(-35deg);
+    transform: rotate(-22deg);
   }
   100% {
-    transform: rotate(-42deg);
+    transform: rotate(-26deg);
   }
 }
 
