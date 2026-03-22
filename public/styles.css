@@ -2050,10 +2050,10 @@ a:active {
   justify-content: flex-end;
 }
 
-/* Появление новых сообщений: быстро в начале → медленно в середине → быстро в конце */
+/* Появление новых сообщений (как в Telegram): лёгкий сдвиг + fade + scale */
 #view-consult .chat-msg-row.chat-msg-row--animate-in {
   opacity: 0;
-  animation: chat-msg-enter-me 0.52s forwards;
+  animation: chat-msg-enter-me 0.36s cubic-bezier(0.2, 0.82, 0.22, 1) forwards;
   transform-origin: bottom right;
 }
 
@@ -2063,47 +2063,22 @@ a:active {
 }
 
 @keyframes chat-msg-enter-me {
-  0% {
+  from {
     opacity: 0;
     transform: translate3d(12px, 12px, 0) scale(0.97);
-    animation-timing-function: ease-out;
   }
-  /* быстрый старт: большая часть пути */
-  28% {
-    opacity: 0.88;
-    transform: translate3d(3px, 3px, 0) scale(0.99);
-    animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
-  }
-  /* медленная середина: мало изменений за долю времени */
-  62% {
-    opacity: 0.94;
-    transform: translate3d(1px, 1px, 0) scale(0.996);
-    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  /* быстрый финиш */
-  100% {
+  to {
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
 @keyframes chat-msg-enter-them {
-  0% {
+  from {
     opacity: 0;
     transform: translate3d(-12px, 12px, 0) scale(0.97);
-    animation-timing-function: ease-out;
   }
-  28% {
-    opacity: 0.88;
-    transform: translate3d(-3px, 3px, 0) scale(0.99);
-    animation-timing-function: cubic-bezier(0.42, 0, 0.58, 1);
-  }
-  62% {
-    opacity: 0.94;
-    transform: translate3d(-1px, 1px, 0) scale(0.996);
-    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  100% {
+  to {
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
   }
