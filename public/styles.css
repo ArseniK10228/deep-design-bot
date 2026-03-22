@@ -2050,6 +2050,48 @@ a:active {
   justify-content: flex-end;
 }
 
+/* Появление новых сообщений (как в Telegram): лёгкий сдвиг + fade + scale */
+#view-consult .chat-msg-row.chat-msg-row--animate-in {
+  opacity: 0;
+  animation: chat-msg-enter-me 0.36s cubic-bezier(0.2, 0.82, 0.22, 1) forwards;
+  transform-origin: bottom right;
+}
+
+#view-consult .chat-msg-row.chat-msg-row--animate-in.chat-msg-row-them {
+  animation-name: chat-msg-enter-them;
+  transform-origin: bottom left;
+}
+
+@keyframes chat-msg-enter-me {
+  from {
+    opacity: 0;
+    transform: translate3d(12px, 12px, 0) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes chat-msg-enter-them {
+  from {
+    opacity: 0;
+    transform: translate3d(-12px, 12px, 0) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #view-consult .chat-msg-row.chat-msg-row--animate-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
 .chat-avatar {
   width: 34px;
   height: 34px;
@@ -2164,6 +2206,8 @@ html.html--chat-open body {
   flex: 1;
   min-height: 0;
   padding: 12px 4px 8px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 #view-consult .chat-composer {

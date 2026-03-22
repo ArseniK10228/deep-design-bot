@@ -568,18 +568,34 @@ function scrollOwnerChatToBottom() {
   ownerChatMessagesEl.scrollTop = ownerChatMessagesEl.scrollHeight;
 }
 
+/** Плавная прокрутка (rAF + ease-out): в Telegram WebView часто не работает scrollTo({ behavior: 'smooth' }). */
+let chatSmoothScrollRaf = null;
 function scrollOwnerChatToBottomSmooth() {
-  if (!ownerChatMessagesEl) return;
   const el = ownerChatMessagesEl;
-  try {
-    if (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      el.scrollTop = el.scrollHeight;
-      return;
-    }
-    el.scrollTo({ top: el.scrollHeight, left: 0, behavior: 'smooth' });
-  } catch (_) {
+  if (!el) return;
+  if (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     el.scrollTop = el.scrollHeight;
+    return;
   }
+  if (chatSmoothScrollRaf) cancelAnimationFrame(chatSmoothScrollRaf);
+  const start = el.scrollTop;
+  const t0 = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
+  const dur = 420;
+  const ease = function (t) {
+    return 1 - Math.pow(1 - t, 3);
+  };
+  function frame(now) {
+    const target = Math.max(0, el.scrollHeight - el.clientHeight);
+    const u = Math.min(1, (now - t0) / dur);
+    el.scrollTop = start + (target - start) * ease(u);
+    if (u < 1) {
+      chatSmoothScrollRaf = requestAnimationFrame(frame);
+    } else {
+      chatSmoothScrollRaf = null;
+      el.scrollTop = Math.max(0, el.scrollHeight - el.clientHeight);
+    }
+  }
+  chatSmoothScrollRaf = requestAnimationFrame(frame);
 }
 
 function clearOwnerChatMessages() {
@@ -587,11 +603,12 @@ function clearOwnerChatMessages() {
   ownerChatMessagesEl.innerHTML = '';
 }
 
-function appendOwnerChatMessages(messages) {
+function appendOwnerChatMessages(messages, options) {
   if (!ownerChatMessagesEl) return;
+  const animateIn = !options || options.animate !== false;
   const meId = viewerId ? String(viewerId) : '';
 
-  messages.forEach((m) => {
+  messages.forEach((m, idx) => {
     const msgId = m && m.id != null ? Number(m.id) : null;
     if (msgId == null) return;
 
@@ -657,10 +674,20 @@ function appendOwnerChatMessages(messages) {
     contentCol.appendChild(bubble);
     row.appendChild(contentCol);
 
+    if (animateIn) {
+      row.classList.add('chat-msg-row--animate-in');
+      row.style.animationDelay = Math.min(idx, 8) * 0.035 + 's';
+    }
+
     ownerChatMessagesEl.appendChild(row);
   });
 
-  scrollOwnerChatToBottom();
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      if (animateIn) scrollOwnerChatToBottomSmooth();
+      else scrollOwnerChatToBottom();
+    });
+  });
 }
 
 function renderOwnerChatThreads(threads) {
@@ -783,7 +810,8 @@ async function loadOwnerChatMessages({ reset } = { reset: false }) {
   if (data.messages.length === 0) return;
 
   ownerChatLastSeenId = Number(data.messages[data.messages.length - 1].id || sinceId);
-  appendOwnerChatMessages(data.messages);
+  /* Первая подгрузка истории — без анимации; догрузка новых (reset: false) — с анимацией. */
+  appendOwnerChatMessages(data.messages, { animate: !reset });
 }
 
 let ownerChatSelectedDisplayName = '';
