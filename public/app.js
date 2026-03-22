@@ -96,6 +96,9 @@ function showView(viewId, direction) {
   const current = document.querySelector('.view-active');
   if (!target || !current || target === current) return;
 
+  const appRoot = document.querySelector('.app');
+  if (appRoot) appRoot.classList.toggle('app--chat-open', viewId === 'view-consult');
+
   const tabbar = document.querySelector('.app-tabbar');
   const tabbarViews = ['view-main', 'view-owner-presets', 'view-presets', 'view-portfolio', 'view-profile'];
   if (tabbar) {
