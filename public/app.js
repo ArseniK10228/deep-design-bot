@@ -56,14 +56,10 @@ setTimeout(function checkMaintenance() {
     if (!overlay) return;
     if (show) {
       overlay.classList.remove('maintenance-overlay-hidden');
-      overlay.classList.remove('maintenance-overlay--loading');
-      overlay.classList.add('maintenance-overlay--techworks');
       if (titleEl) titleEl.textContent = 'Технические работы';
       if (subtitleEl) subtitleEl.textContent = 'Улучшаем сервис. Скоро вернёмся.';
     } else {
       overlay.classList.add('maintenance-overlay-hidden');
-      overlay.classList.remove('maintenance-overlay--techworks');
-      overlay.classList.add('maintenance-overlay--loading');
       if (appEl) appEl.classList.remove('app-hidden-until-ready');
     }
   }
