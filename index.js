@@ -126,9 +126,21 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json({ limit: '10mb' }));
 
-// Прокси Telegram Web App SDK (файла в репо нет — грузим с telegram.org)
-app.get('/telegram-web-app.js', (_req, res) => {
-  res.redirect(302, 'https://telegram.org/js/telegram-web-app.js');
+// Прокси Telegram Web App SDK — отдаём со своего сервера (важно для РФ: telegram.org может быть недоступен)
+app.get('/telegram-web-app.js', (req, res) => {
+  const url = 'https://telegram.org/js/telegram-web-app.js';
+  fetch(url)
+    .then((r) => {
+      if (!r.ok) throw new Error(r.status);
+      res.setHeader('Content-Type', r.headers.get('content-type') || 'application/javascript');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      return r.arrayBuffer();
+    })
+    .then((buf) => res.send(Buffer.from(buf)))
+    .catch((e) => {
+      console.error('telegram-web-app.js proxy:', e?.message || e);
+      res.status(502).send('/* Proxy error */');
+    });
 });
 
 app.use(
