@@ -172,7 +172,7 @@
     transform: rotate(var(--hammer-orient)) rotate(-32deg);
   }
   38% {
-    transform: rotate(var(--hammer-orient)) rotate(12deg);
+    transform: rotate(var(--hammer-orient)) rotate(17deg);
   }
   100% {
     transform: rotate(var(--hammer-orient)) rotate(-32deg);
