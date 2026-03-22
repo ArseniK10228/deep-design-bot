@@ -163,7 +163,7 @@
   filter: drop-shadow(0 0 12px rgba(157, 92, 255, 0.3));
   transform-origin: center bottom;
   --hammer-orient: 0deg;
-  animation: maintenance-hammer-strike 1.05s ease-in-out infinite;
+  animation: maintenance-hammer-strike 1.05s ease-in-out infinite reverse;
 }
 
 @keyframes maintenance-hammer-strike {
