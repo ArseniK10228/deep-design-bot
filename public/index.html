@@ -13,7 +13,18 @@
   <div id="top-loading-bar" class="top-loading-bar top-loading-bar-hidden" aria-hidden="true"></div>
   <div id="maintenance-overlay" class="maintenance-overlay">
     <div class="maintenance-card">
-      <div class="maintenance-icon" aria-hidden="true">🔨</div>
+      <div class="maintenance-icon" aria-hidden="true">
+        <svg viewBox="0 0 32 48" width="48" height="72">
+          <defs>
+            <linearGradient id="hammer-metal" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#8a8a8a"/>
+              <stop offset="100%" stop-color="#3a3a3a"/>
+            </linearGradient>
+          </defs>
+          <rect x="12" y="22" width="8" height="24" rx="2" fill="#a67c2e"/>
+          <rect x="5" y="2" width="22" height="16" rx="3" fill="url(#hammer-metal)"/>
+        </svg>
+      </div>
       <h2 class="maintenance-title" id="maintenance-title">Загрузка...</h2>
       <p class="maintenance-subtitle" id="maintenance-subtitle">Проверяем доступность</p>
       <div class="maintenance-dots">

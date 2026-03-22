@@ -154,30 +154,30 @@
 }
 
 .maintenance-icon {
-  font-size: 56px;
-  line-height: 1;
   margin-bottom: 16px;
-  margin-top: -16px;
-  filter: drop-shadow(0 0 12px rgba(157, 92, 255, 0.4));
-  transform-origin: center 85%;
-  animation: maintenance-hammer-strike 0.9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  margin-top: -12px;
+  filter: drop-shadow(0 0 12px rgba(157, 92, 255, 0.3));
+  transform-origin: center bottom;
+}
+
+.maintenance-icon svg {
+  display: block;
+  animation: maintenance-hammer-strike 1.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  transform-origin: 50% 95%;
 }
 
 @keyframes maintenance-hammer-strike {
-  0%, 15% {
-    transform: rotate(-45deg) translateY(-8px);
+  0%, 25% {
+    transform: rotate(-42deg);
   }
-  35% {
-    transform: rotate(25deg) translateY(16px);
+  50% {
+    transform: rotate(18deg);
   }
-  45% {
-    transform: rotate(10deg) translateY(12px);
-  }
-  65% {
-    transform: rotate(-25deg) translateY(0);
+  75% {
+    transform: rotate(-35deg);
   }
   100% {
-    transform: rotate(-45deg) translateY(-8px);
+    transform: rotate(-42deg);
   }
 }
 
