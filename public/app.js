@@ -110,10 +110,9 @@ function syncChatKeyboardInset() {
   const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
   root.style.setProperty('--keyboard-inset', inset + 'px');
 
-  if (inset > 0 && keyboardInsetPrev === 0) {
+  /* Прокрутка к последнему сообщению при открытии клавиатуры и пока она «выезжает» (inset растёт). */
+  if (inset > 0 && (keyboardInsetPrev === 0 || inset > keyboardInsetPrev)) {
     scrollOwnerChatToBottom();
-  } else if (inset > 0) {
-    scrollOwnerChatToBottomIfNear();
   }
   keyboardInsetPrev = inset;
 }
@@ -565,16 +564,6 @@ function scrollOwnerChatToBottom() {
   ownerChatMessagesEl.scrollTop = ownerChatMessagesEl.scrollHeight;
 }
 
-/** Прокрутка вниз, если пользователь уже у нижнего края (не трогаем тех, кто листает историю вверх). */
-function scrollOwnerChatToBottomIfNear() {
-  if (!ownerChatMessagesEl) return;
-  const el = ownerChatMessagesEl;
-  const nearBottomThreshold = 160;
-  if (el.scrollHeight - el.scrollTop - el.clientHeight <= nearBottomThreshold) {
-    el.scrollTop = el.scrollHeight;
-  }
-}
-
 function clearOwnerChatMessages() {
   if (!ownerChatMessagesEl) return;
   ownerChatMessagesEl.innerHTML = '';
@@ -921,12 +910,13 @@ if (ownerChatInputEl) {
   });
   const kbDelays = [0, 50, 120, 250, 400, 600];
   ownerChatInputEl.addEventListener('focus', function () {
+    scrollOwnerChatToBottom();
     kbDelays.forEach(function (ms) {
-      setTimeout(scheduleChatKeyboardInset, ms);
+      setTimeout(function () {
+        scheduleChatKeyboardInset();
+        scrollOwnerChatToBottom();
+      }, ms);
     });
-    setTimeout(function () {
-      if (ownerChatMessagesEl) ownerChatMessagesEl.scrollTop = ownerChatMessagesEl.scrollHeight;
-    }, 100);
   });
   ownerChatInputEl.addEventListener('blur', function () {
     setTimeout(scheduleChatKeyboardInset, 50);
