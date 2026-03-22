@@ -165,18 +165,26 @@
   animation: maintenance-hammer-strike 1.05s cubic-bezier(0.33, 0, 0.2, 1) infinite;
 }
 
+/* Долго: плавный подъём в замах (12° → -42°). Коротко: удар, отскок, возврат в 12°. 0% = 100% — цикл без рывка */
 @keyframes maintenance-hammer-strike {
-  0%, 30% {
-    transform: rotate(-42deg);
-  }
-  38% {
+  0%,
+  100% {
     transform: rotate(12deg);
   }
-  45% {
+  46% {
+    transform: rotate(-42deg);
+  }
+  50% {
+    transform: rotate(-42deg);
+  }
+  54% {
+    transform: rotate(12deg);
+  }
+  57% {
     transform: rotate(5deg);
   }
-  100% {
-    transform: rotate(-42deg);
+  62% {
+    transform: rotate(12deg);
   }
 }
 
