@@ -71,15 +71,17 @@ systemctl restart deepdesign-bot
 
 ## Очистить всю историю чатов
 
-**Через API** (владелец, `viewerId` = ваш Telegram id из `OWNER_CHAT_ID`):
+Сначала задеплойте актуальный код (`git pull` + `systemctl restart …`), иначе будет ответ `Cannot POST /api/owner-chat/clear-all` — на сервере старая версия без этого маршрута.
+
+**Через API** (в `viewerId` должен быть тот же id, что и `OWNER_CHAT_ID` на сервере):
 
 ```bash
-curl -s -X POST https://ВАШ_ДОМЕН/api/owner-chat/clear-all \
+curl -s -X POST https://app.deepdesignpc.ru/api/owner-chat/clear-all \
   -H "Content-Type: application/json" \
-  -d "{\"viewerId\":\"ВАШ_OWNER_CHAT_ID\"}"
+  -d "{\"viewerId\":\"5105869781\"}"
 ```
 
-Если в `.env` задан `OWNER_CHAT_CLEAR_SECRET`, добавьте в JSON: `"secret":"тот_же_секрет"`.
+Ожидаемый ответ: `{"ok":true}`. Если в `.env` задан `OWNER_CHAT_CLEAR_SECRET`, добавьте в JSON: `"secret":"тот_же_секрет"`.
 
 **Только файлы** (без Redis, на сервере под пользователем бота):
 
