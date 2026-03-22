@@ -67,4 +67,25 @@ systemctl restart deepdesign-bot
 | Статус сервиса    | `systemctl status deepdesign-bot`                                                                                                |
 | Проверить webhook | `curl -s -o /dev/null -w "%{http_code}" -X POST https://app.deepdesignpc.ru/webhook -H "Content-Type: application/json" -d '{}'` |
 
+---
+
+## Очистить всю историю чатов
+
+**Через API** (владелец, `viewerId` = ваш Telegram id из `OWNER_CHAT_ID`):
+
+```bash
+curl -s -X POST https://ВАШ_ДОМЕН/api/owner-chat/clear-all \
+  -H "Content-Type: application/json" \
+  -d "{\"viewerId\":\"ВАШ_OWNER_CHAT_ID\"}"
+```
+
+Если в `.env` задан `OWNER_CHAT_CLEAR_SECRET`, добавьте в JSON: `"secret":"тот_же_секрет"`.
+
+**Только файлы** (без Redis, на сервере под пользователем бота):
+
+```bash
+cd /opt/deepdesign-bot && node scripts/clear-owner-chat.js
+```
+
+**Redis** вручную (если нет доступа к API): удалить ключи `ownerChat:threadsIndex` и `ownerChat:thread:*`.
 

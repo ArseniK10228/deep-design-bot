@@ -476,6 +476,53 @@ async function saveOwnerChatThread(conversationUserId, messages) {
   }
 }
 
+/** Удалить все переписки: индекс диалогов и каждый thread (Redis или файлы). */
+async function clearAllOwnerChatData() {
+  const indexObj = await getOwnerChatThreadsIndex();
+  const ids = Object.keys(indexObj || {});
+
+  for (const conversationUserId of ids) {
+    if (redisClient) {
+      try {
+        await redisClient.del(ownerChatThreadKey(conversationUserId));
+      } catch (e) {
+        console.error('Owner chat clear thread redis:', e?.message || e);
+      }
+    } else {
+      try {
+        const file = path.join(ownerChatDataDir, `thread_${conversationUserId}.json`);
+        if (fs.existsSync(file)) fs.unlinkSync(file);
+      } catch (e) {
+        console.error('Owner chat clear thread file:', e?.message || e);
+      }
+    }
+  }
+
+  if (redisClient) {
+    try {
+      const keys = await redisClient.keys('ownerChat:thread:*');
+      if (keys && keys.length > 0) await redisClient.del(...keys);
+    } catch (e) {
+      console.error('Owner chat clear orphan redis threads:', e?.message || e);
+    }
+  } else if (fs.existsSync(ownerChatDataDir)) {
+    try {
+      const files = fs.readdirSync(ownerChatDataDir);
+      for (const f of files) {
+        if (f.startsWith('thread_') && f.endsWith('.json')) {
+          try {
+            fs.unlinkSync(path.join(ownerChatDataDir, f));
+          } catch (_) {}
+        }
+      }
+    } catch (e) {
+      console.error('Owner chat clear orphan files:', e?.message || e);
+    }
+  }
+
+  await saveOwnerChatThreadsIndex({});
+}
+
 app.get('/api/owner-chat/threads', async (req, res) => {
   try {
     const ownerId = process.env.OWNER_CHAT_ID;
@@ -520,6 +567,30 @@ app.get('/api/owner-chat/messages', async (req, res) => {
   } catch (e) {
     console.error('Owner chat messages error:', e?.message || e);
     res.status(500).json({ ok: false, messages: [] });
+  }
+});
+
+/** Полная очистка истории всех чатов. Только владелец (OWNER_CHAT_ID === viewerId). Опционально: body.secret === OWNER_CHAT_CLEAR_SECRET. */
+app.post('/api/owner-chat/clear-all', async (req, res) => {
+  try {
+    const ownerId = process.env.OWNER_CHAT_ID;
+    const viewerId = req.body && req.body.viewerId != null ? String(req.body.viewerId) : '';
+    const secret = req.body && req.body.secret != null ? String(req.body.secret) : '';
+    const needSecret = String(process.env.OWNER_CHAT_CLEAR_SECRET || '').trim();
+
+    if (!ownerId || !viewerId || String(ownerId) !== String(viewerId)) {
+      return res.status(403).json({ ok: false, error: 'forbidden' });
+    }
+    if (needSecret && secret !== needSecret) {
+      return res.status(403).json({ ok: false, error: 'forbidden' });
+    }
+
+    await clearAllOwnerChatData();
+    console.log('Owner chat: полная очистка истории (clear-all)');
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('Owner chat clear-all:', e?.message || e);
+    res.status(500).json({ ok: false });
   }
 });
 
