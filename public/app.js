@@ -137,6 +137,31 @@ function scheduleChatKeyboardInset() {
   } catch (_) {}
 })();
 
+/** Пока поле в фокусе — каждый кадр синхронизируем с visualViewport (важно для пустого чата и плавного движения с клавиатурой). */
+let chatKbTrackingRaf = null;
+function startChatKeyboardTracking() {
+  if (document.documentElement) document.documentElement.classList.add('chat-keyboard-active');
+  syncChatKeyboardInset();
+  if (chatKbTrackingRaf != null) cancelAnimationFrame(chatKbTrackingRaf);
+  function tick() {
+    chatKbTrackingRaf = null;
+    var inp = document.getElementById('owner-chat-input');
+    if (!inp || document.activeElement !== inp) return;
+    syncChatKeyboardInset();
+    chatKbTrackingRaf = requestAnimationFrame(tick);
+  }
+  chatKbTrackingRaf = requestAnimationFrame(tick);
+}
+
+function stopChatKeyboardTracking() {
+  if (chatKbTrackingRaf != null) {
+    cancelAnimationFrame(chatKbTrackingRaf);
+    chatKbTrackingRaf = null;
+  }
+  if (document.documentElement) document.documentElement.classList.remove('chat-keyboard-active');
+  syncChatKeyboardInset();
+}
+
 function showView(viewId, direction) {
   const views = document.querySelectorAll('.view');
   const target = document.getElementById(viewId);
@@ -145,6 +170,9 @@ function showView(viewId, direction) {
 
   const appRoot = document.querySelector('.app');
   if (appRoot) appRoot.classList.toggle('app--chat-open', viewId === 'view-consult');
+  if (document.documentElement) {
+    document.documentElement.classList.toggle('html--chat-open', viewId === 'view-consult');
+  }
   scheduleChatKeyboardInset();
 
   const tabbar = document.querySelector('.app-tabbar');
@@ -897,6 +925,7 @@ if (ownerChatInputEl) {
   });
   const kbDelays = [0, 50, 120, 250, 400, 600];
   ownerChatInputEl.addEventListener('focus', function () {
+    startChatKeyboardTracking();
     kbDelays.forEach(function (ms) {
       setTimeout(scheduleChatKeyboardInset, ms);
     });
@@ -905,6 +934,7 @@ if (ownerChatInputEl) {
     }, 100);
   });
   ownerChatInputEl.addEventListener('blur', function () {
+    stopChatKeyboardTracking();
     setTimeout(scheduleChatKeyboardInset, 50);
     setTimeout(scheduleChatKeyboardInset, 200);
     setTimeout(scheduleChatKeyboardInset, 400);

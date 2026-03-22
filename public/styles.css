@@ -1378,7 +1378,25 @@ a:active {
 
 #view-consult .page-header {
   flex-shrink: 0;
-  animation: consult-enter 0.35s ease-out backwards;
+  /* Закреплена у верха экрана — не уезжает при клавиатуре / инерционном скролле */
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(480px, calc(100vw - 24px));
+  box-sizing: border-box;
+  z-index: 100;
+  background: #121212;
+  animation: chat-header-enter 0.35s ease-out backwards;
+}
+
+@keyframes chat-header-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 #view-consult .consult-text,
@@ -2072,34 +2090,58 @@ a:active {
   padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
 }
 
+/* Не даём всему WebView «уезжать» вверх при фокусе поля — шапка остаётся на месте */
+html.html--chat-open,
+html.html--chat-open body {
+  height: 100%;
+  max-height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 #view-consult.view-active {
-  flex: 1;
+  flex: 1 1 0%;
   min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
 }
 
 #view-consult .page-content.chat-view {
-  flex: 1;
+  flex: 1 1 0%;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 0 16px calc(max(8px, env(safe-area-inset-bottom, 0px)) + var(--keyboard-inset, 0px));
+  /* Отступ под фиксированную шапку: safe-area + отступ приложения + высота блока заголовка */
+  padding: calc(env(safe-area-inset-top, 0px) + 16px + 76px) 16px
+    calc(max(8px, env(safe-area-inset-bottom, 0px)) + var(--keyboard-inset, 0px));
   transition: padding-bottom 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Пока фокус в поле: кадр-кадр — без transition, чтобы панель не отставала от клавиатуры (в т.ч. пустой чат) */
+html.chat-keyboard-active #view-consult .page-content.chat-view {
+  transition: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
   #view-consult .page-content.chat-view {
     transition-duration: 0.08s;
   }
+  html.chat-keyboard-active #view-consult .page-content.chat-view {
+    transition: none;
+  }
 }
 
 #view-consult .chat-messages {
-  flex: 1;
+  flex: 1 1 0%;
   min-height: 0;
+  min-width: 0;
   padding: 12px 4px 8px;
 }
 
 #view-consult .chat-composer {
   flex-shrink: 0;
+  flex-grow: 0;
   margin-top: auto;
   padding: 10px 0 0;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
