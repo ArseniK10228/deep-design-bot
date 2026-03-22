@@ -130,13 +130,18 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  transition: opacity 0.35s ease;
+  opacity: 1;
+  visibility: visible;
+  /* visibility без задержки при показе — сразу участвует в fade-in opacity */
+  transition: opacity 0.45s ease, visibility 0s linear 0s;
 }
 
 .maintenance-overlay-hidden {
   opacity: 0;
   pointer-events: none;
+  /* visibility скрываем после окончания затухания, иначе opacity не анимируется */
   visibility: hidden;
+  transition: opacity 0.45s ease, visibility 0s linear 0.45s;
 }
 
 .maintenance-card {
