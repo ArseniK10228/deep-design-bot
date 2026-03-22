@@ -2100,15 +2100,14 @@ html.html--chat-open body {
 }
 
 #view-consult.view-active {
-  flex: 1 1 0%;
+  flex: 1;
   min-height: 0;
-  min-width: 0;
   overflow: hidden;
   position: relative;
 }
 
 #view-consult .page-content.chat-view {
-  flex: 1 1 0%;
+  flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -2118,30 +2117,20 @@ html.html--chat-open body {
   transition: padding-bottom 0.3s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-/* Пока фокус в поле: кадр-кадр — без transition, чтобы панель не отставала от клавиатуры (в т.ч. пустой чат) */
-html.chat-keyboard-active #view-consult .page-content.chat-view {
-  transition: none;
-}
-
 @media (prefers-reduced-motion: reduce) {
   #view-consult .page-content.chat-view {
     transition-duration: 0.08s;
   }
-  html.chat-keyboard-active #view-consult .page-content.chat-view {
-    transition: none;
-  }
 }
 
 #view-consult .chat-messages {
-  flex: 1 1 0%;
+  flex: 1;
   min-height: 0;
-  min-width: 0;
   padding: 12px 4px 8px;
 }
 
 #view-consult .chat-composer {
   flex-shrink: 0;
-  flex-grow: 0;
   margin-top: auto;
   padding: 10px 0 0;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
