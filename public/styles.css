@@ -160,23 +160,23 @@
   margin-bottom: 16px;
   margin-top: -12px;
   filter: drop-shadow(0 0 12px rgba(157, 92, 255, 0.3));
-  /* Ось — нижний центр глифа; scaleX(-1) отражает эмодзи, чтобы удар шёл головой */
+  /* Ось вращения — нижний центр глифа (рукоятка) */
   transform-origin: center bottom;
   animation: maintenance-hammer-strike 1.05s cubic-bezier(0.33, 0, 0.2, 1) infinite;
 }
 
 @keyframes maintenance-hammer-strike {
   0%, 30% {
-    transform: scaleX(-1) rotate(-28deg);
+    transform: rotate(28deg);
   }
   38% {
-    transform: scaleX(-1) rotate(12deg);
+    transform: rotate(-12deg);
   }
   45% {
-    transform: scaleX(-1) rotate(5deg);
+    transform: rotate(-5deg);
   }
   100% {
-    transform: scaleX(-1) rotate(-28deg);
+    transform: rotate(28deg);
   }
 }
 
