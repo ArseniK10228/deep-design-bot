@@ -153,29 +153,46 @@
   text-align: center;
 }
 
+.maintenance-loader {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 20px;
+  border: 3px solid rgba(157, 92, 255, 0.25);
+  border-top-color: #9d5cff;
+  border-radius: 50%;
+  animation: maintenance-loader-spin 0.75s linear infinite;
+}
+
+.maintenance-overlay--loading .maintenance-icon {
+  display: none;
+}
+
+.maintenance-overlay--techworks .maintenance-loader {
+  display: none;
+}
+
 .maintenance-icon {
-  display: inline-block;
-  font-size: 56px;
+  font-size: 72px;
   line-height: 1;
-  margin-bottom: 16px;
-  margin-top: -12px;
+  margin-bottom: 20px;
   margin-left: 10px;
-  filter: drop-shadow(0 0 12px rgba(157, 92, 255, 0.3));
   transform-origin: center bottom;
-  --hammer-orient: 0deg;
-  animation: maintenance-hammer-strike 1.05s ease-in-out infinite reverse;
+  animation: maintenance-hammer-strike 1s ease-in-out infinite alternate;
+  animation-direction: reverse;
+}
+
+@keyframes maintenance-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes maintenance-hammer-strike {
-  0%,
-  22% {
-    transform: rotate(var(--hammer-orient)) rotate(-44deg);
+  from {
+    transform: rotate(-44deg);
   }
-  38% {
-    transform: rotate(var(--hammer-orient)) rotate(12deg);
-  }
-  100% {
-    transform: rotate(var(--hammer-orient)) rotate(-44deg);
+  to {
+    transform: rotate(12deg);
   }
 }
 
@@ -190,30 +207,8 @@
 .maintenance-subtitle {
   font-size: 15px;
   color: rgba(255, 255, 255, 0.6);
-  margin: 0 0 24px;
+  margin: 0;
   line-height: 1.4;
-}
-
-.maintenance-dots {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 0;
-}
-
-.maintenance-dots span {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(157, 92, 255, 0.5);
-  animation: maintenance-dots-bounce 1.4s ease-in-out infinite both;
-}
-
-.maintenance-dots span:nth-child(1) { animation-delay: -0.32s; }
-.maintenance-dots span:nth-child(2) { animation-delay: -0.16s; }
-
-@keyframes maintenance-dots-bounce {
-  0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
-  40% { transform: scale(1); opacity: 1; }
 }
 
 .list-loading {
