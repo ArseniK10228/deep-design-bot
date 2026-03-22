@@ -153,27 +153,52 @@
   text-align: center;
 }
 
-/* Шаг 1–2: иконка, ось, --hammer-orient. Шаг 3: раскачка вторым rotate() */
+/* Молот: ось, --hammer-orient, серия ударов «как гвозди» */
 .maintenance-icon {
   display: inline-block;
   font-size: 56px;
   line-height: 1;
   margin-bottom: 16px;
   margin-top: -12px;
+  margin-left: 10px;
   filter: drop-shadow(0 0 12px rgba(157, 92, 255, 0.3));
   transform-origin: center bottom;
   --hammer-orient: 0deg;
-  animation: maintenance-hammer-strike 1.05s ease-in-out infinite reverse;
+  animation: maintenance-hammer-strike 1.65s cubic-bezier(0.45, 0, 0.35, 1) infinite;
 }
 
+/* Несколько ударов подряд, пауза в замахе, цикл повторяется */
 @keyframes maintenance-hammer-strike {
   0%,
-  22% {
-    /* Левая часть дуги — ниже (сильнее замах влево) */
+  3% {
     transform: rotate(var(--hammer-orient)) rotate(-44deg);
   }
-  38% {
+  8% {
     transform: rotate(var(--hammer-orient)) rotate(12deg);
+  }
+  10% {
+    transform: rotate(var(--hammer-orient)) rotate(6deg);
+  }
+  15% {
+    transform: rotate(var(--hammer-orient)) rotate(-44deg);
+  }
+  22% {
+    transform: rotate(var(--hammer-orient)) rotate(12deg);
+  }
+  24% {
+    transform: rotate(var(--hammer-orient)) rotate(6deg);
+  }
+  29% {
+    transform: rotate(var(--hammer-orient)) rotate(-44deg);
+  }
+  36% {
+    transform: rotate(var(--hammer-orient)) rotate(12deg);
+  }
+  38% {
+    transform: rotate(var(--hammer-orient)) rotate(6deg);
+  }
+  43% {
+    transform: rotate(var(--hammer-orient)) rotate(-44deg);
   }
   100% {
     transform: rotate(var(--hammer-orient)) rotate(-44deg);
