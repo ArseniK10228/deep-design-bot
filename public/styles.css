@@ -160,24 +160,23 @@
   margin-bottom: 16px;
   margin-top: -12px;
   filter: drop-shadow(0 0 12px rgba(157, 92, 255, 0.3));
-  /* Ось вращения — через нижнюю границу глифа (где рукоятка), рукоятка остаётся в одной точке */
+  /* Ось — нижний центр глифа; scaleX(-1) отражает эмодзи, чтобы удар шёл головой */
   transform-origin: center bottom;
   animation: maintenance-hammer-strike 1.05s cubic-bezier(0.33, 0, 0.2, 1) infinite;
 }
 
-/* Долгий замах → короткий сильный удар (32→38%) → отскок головы (38→44%) → плавный возврат. Без кадра 75% — не было ложного «обратного» движения */
 @keyframes maintenance-hammer-strike {
   0%, 30% {
-    transform: rotate(-28deg);
+    transform: scaleX(-1) rotate(-28deg);
   }
   38% {
-    transform: rotate(12deg);
+    transform: scaleX(-1) rotate(12deg);
   }
   45% {
-    transform: rotate(5deg);
+    transform: scaleX(-1) rotate(5deg);
   }
   100% {
-    transform: rotate(-28deg);
+    transform: scaleX(-1) rotate(-28deg);
   }
 }
 
