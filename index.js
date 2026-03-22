@@ -125,6 +125,12 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json({ limit: '10mb' }));
+
+// Прокси Telegram Web App SDK (файла в репо нет — грузим с telegram.org)
+app.get('/telegram-web-app.js', (_req, res) => {
+  res.redirect(302, 'https://telegram.org/js/telegram-web-app.js');
+});
+
 app.use(
   express.static(path.join(__dirname, 'public'), {
     etag: false,

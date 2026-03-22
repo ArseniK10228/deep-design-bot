@@ -15,7 +15,7 @@ const isOwnerApp = !!currentUser && currentUser.username === 'ShadowwOneLove';
 if (tg) {
   try { tg.expand(); tg.MainButton.hide(); tg.ready(); } catch (_) {}
 }
-// Ждём появления Telegram до 3 сек (на части устройств API внедряется с задержкой)
+// Ждём появления Telegram до 5 сек (на части устройств API внедряется с задержкой)
 (function waitForTelegram() {
   if (tg) return;
   var attempts = 0;
@@ -28,7 +28,7 @@ if (tg) {
       return;
     }
     attempts++;
-    if (attempts >= 30) clearInterval(id);
+    if (attempts >= 50) clearInterval(id);
   }, 100);
 })();
 
