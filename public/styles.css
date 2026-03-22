@@ -153,56 +153,89 @@
   text-align: center;
 }
 
-/* Молот: ось, --hammer-orient, серия ударов «как гвозди» */
+/* Сцена: молот + доска с гвоздями (анимация только у молотка) */
+.maintenance-hammer-scene {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+  margin-top: -8px;
+}
+
 .maintenance-icon {
   display: inline-block;
   font-size: 56px;
   line-height: 1;
-  margin-bottom: 16px;
+  margin-bottom: 0;
   margin-top: -12px;
   margin-left: 10px;
   filter: drop-shadow(0 0 12px rgba(157, 92, 255, 0.3));
   transform-origin: center bottom;
   --hammer-orient: 0deg;
-  animation: maintenance-hammer-strike 1.65s cubic-bezier(0.45, 0, 0.35, 1) infinite;
+  animation: maintenance-hammer-strike 1.05s ease-in-out infinite reverse;
 }
 
-/* Несколько ударов подряд, пауза в замахе, цикл повторяется */
 @keyframes maintenance-hammer-strike {
   0%,
-  3% {
-    transform: rotate(var(--hammer-orient)) rotate(-44deg);
-  }
-  8% {
-    transform: rotate(var(--hammer-orient)) rotate(12deg);
-  }
-  10% {
-    transform: rotate(var(--hammer-orient)) rotate(6deg);
-  }
-  15% {
-    transform: rotate(var(--hammer-orient)) rotate(-44deg);
-  }
   22% {
-    transform: rotate(var(--hammer-orient)) rotate(12deg);
-  }
-  24% {
-    transform: rotate(var(--hammer-orient)) rotate(6deg);
-  }
-  29% {
     transform: rotate(var(--hammer-orient)) rotate(-44deg);
-  }
-  36% {
-    transform: rotate(var(--hammer-orient)) rotate(12deg);
   }
   38% {
-    transform: rotate(var(--hammer-orient)) rotate(6deg);
-  }
-  43% {
-    transform: rotate(var(--hammer-orient)) rotate(-44deg);
+    transform: rotate(var(--hammer-orient)) rotate(12deg);
   }
   100% {
     transform: rotate(var(--hammer-orient)) rotate(-44deg);
   }
+}
+
+.maintenance-nails-surface {
+  position: relative;
+  width: 100%;
+  max-width: 200px;
+  margin-top: -4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.maintenance-nails-row {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 22px;
+  padding: 0 8px;
+  min-height: 22px;
+}
+
+.maintenance-board {
+  width: 100%;
+  height: 6px;
+  margin-top: -1px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #5c4033 0%, #3d2a22 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+
+.maintenance-nail {
+  position: relative;
+  width: 5px;
+  height: 16px;
+  background: linear-gradient(90deg, #6d6d6d 0%, #a8a8a8 45%, #7a7a7a 100%);
+  border-radius: 0 0 2px 2px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.maintenance-nail::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 9px;
+  height: 6px;
+  background: linear-gradient(180deg, #c4c4c4 0%, #8a8a8a 100%);
+  border-radius: 50% 50% 30% 30%;
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.2);
 }
 
 .maintenance-title {
