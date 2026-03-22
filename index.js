@@ -7,7 +7,7 @@ const path = require('path');
 const TelegramBot = require('node-telegram-bot-api');
 const { SocksProxyAgent } = require('socks-proxy-agent');
 const { WebSocketServer } = require('ws');
-const { Redis } = require('@upstash/redis');
+const Redis = require('ioredis');
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 
@@ -49,18 +49,39 @@ function buildTelegramBotOptions() {
 // Инициализируем бота до любого использования
 const bot = new TelegramBot(token, buildTelegramBotOptions());
 
-// Хранение флага техработ: при наличии UPSTASH_REDIS_* — в Redis (сохраняется после деплоя),
-// иначе в файл (сбрасывается при деплое).
+// Хранение: при REDIS_URL — Redis на вашем сервере (ioredis, протокол redis://).
+// Иначе техработы и owner-chat — в файлы под PERSISTENT_DATA_PATH (presets/portfolio без Redis недоступны).
 const maintenanceDir = process.env.PERSISTENT_DATA_PATH || __dirname;
 const MAINTENANCE_FILE = path.join(maintenanceDir, '.maintenance');
 
 let redisClient = null;
-if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-  redisClient = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
-    enableTelemetry: false
-  });
+const redisUrl = String(process.env.REDIS_URL || '').trim();
+if (redisUrl) {
+  try {
+    redisClient = new Redis(redisUrl, {
+      maxRetriesPerRequest: 3,
+      retryStrategy(times) {
+        return Math.min(times * 200, 3000);
+      }
+    });
+    redisClient.on('error', (err) => {
+      console.error('Redis connection error:', err?.message || err);
+    });
+  } catch (e) {
+    console.error('Неверный REDIS_URL:', e?.message || e);
+    redisClient = null;
+  }
+}
+
+async function initRedisConnection() {
+  if (!redisClient) return;
+  try {
+    await redisClient.ping();
+    console.log('Redis: подключено (REDIS_URL)');
+  } catch (e) {
+    console.error('Не удалось подключиться к Redis. Проверьте сервис и REDIS_URL:', e?.message || e);
+    process.exit(1);
+  }
 }
 
 let maintenanceCache = false;
@@ -947,8 +968,9 @@ bot.on('polling_error', (err) => console.error('Polling error:', err.message));
 const baseUrl = process.env.RENDER_EXTERNAL_URL || process.env.WEBHOOK_URL;
 
 async function start() {
+  await initRedisConnection();
   await initMaintenanceStorage();
-  if (redisClient) console.log('Техработы: хранение в Redis (сохраняется после деплоя)');
+  if (redisClient) console.log('Данные приложения: Redis (техработы, чат, пресеты, портфолио)');
   if (baseUrl) {
     const webhookPath = '/webhook';
     app.post(webhookPath, (req, res) => {

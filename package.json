@@ -1,14 +1,14 @@
 {
   "name": "deep-design-bot",
   "version": "1.0.0",
-  "description": "Telegram bot with mini app for Deep Design PC, running on Render with Upstash Redis.",
+  "description": "Telegram bot with mini app for Deep Design PC (Redis через REDIS_URL на своём сервере).",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "@upstash/redis": "^1.34.3",
     "dotenv": "^16.4.5",
+    "ioredis": "^5.4.2",
     "express": "^4.21.2",
     "node-telegram-bot-api": "^0.66.0",
     "socks-proxy-agent": "^7.0.0",
