@@ -49,6 +49,7 @@ setTimeout(function preloadProfile() {
 
 setTimeout(function checkMaintenance() {
   var overlay = document.getElementById('maintenance-overlay');
+  var cardEl = document.getElementById('maintenance-card');
   var titleEl = document.getElementById('maintenance-title');
   var subtitleEl = document.getElementById('maintenance-subtitle');
   var appEl = document.querySelector('.app');
@@ -56,10 +57,12 @@ setTimeout(function checkMaintenance() {
     if (!overlay) return;
     if (show) {
       overlay.classList.remove('maintenance-overlay-hidden');
+      if (cardEl) cardEl.classList.add('maintenance-mode-active');
       if (titleEl) titleEl.textContent = 'Технические работы';
       if (subtitleEl) subtitleEl.textContent = 'Улучшаем сервис. Скоро вернёмся.';
     } else {
       overlay.classList.add('maintenance-overlay-hidden');
+      if (cardEl) cardEl.classList.remove('maintenance-mode-active');
       if (appEl) appEl.classList.remove('app-hidden-until-ready');
     }
   }
