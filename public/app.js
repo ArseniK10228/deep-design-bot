@@ -91,20 +91,31 @@ document.getElementById('view-main').addEventListener('animationend', function h
 }, { once: true });
 
 /** Поднятие области ввода чата вместе с клавиатурой (Visual Viewport API + Telegram viewport). */
+let keyboardInsetPrev = 0;
+
 function syncChatKeyboardInset() {
   const root = document.documentElement;
   const app = document.querySelector('.app');
   if (!app || !app.classList.contains('app--chat-open')) {
     root.style.setProperty('--keyboard-inset', '0px');
+    keyboardInsetPrev = 0;
     return;
   }
   const vv = window.visualViewport;
   if (!vv) {
     root.style.setProperty('--keyboard-inset', '0px');
+    keyboardInsetPrev = 0;
     return;
   }
   const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
   root.style.setProperty('--keyboard-inset', inset + 'px');
+
+  if (inset > 0 && keyboardInsetPrev === 0) {
+    scrollOwnerChatToBottom();
+  } else if (inset > 0) {
+    scrollOwnerChatToBottomIfNear();
+  }
+  keyboardInsetPrev = inset;
 }
 
 let chatKeyboardInsetRaf = null;
@@ -552,6 +563,16 @@ function formatOwnerChatTime(ts) {
 function scrollOwnerChatToBottom() {
   if (!ownerChatMessagesEl) return;
   ownerChatMessagesEl.scrollTop = ownerChatMessagesEl.scrollHeight;
+}
+
+/** Прокрутка вниз, если пользователь уже у нижнего края (не трогаем тех, кто листает историю вверх). */
+function scrollOwnerChatToBottomIfNear() {
+  if (!ownerChatMessagesEl) return;
+  const el = ownerChatMessagesEl;
+  const nearBottomThreshold = 160;
+  if (el.scrollHeight - el.scrollTop - el.clientHeight <= nearBottomThreshold) {
+    el.scrollTop = el.scrollHeight;
+  }
 }
 
 function clearOwnerChatMessages() {
