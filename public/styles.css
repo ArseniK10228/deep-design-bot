@@ -869,6 +869,43 @@ a:active {
   animation: page-leave-right 0.28s ease-in-out forwards;
 }
 
+/*
+ * Чат: шапка position:fixed — если у .view анимация с transform, fixed привязывается к виду,
+ * после окончания анимации шапка «прыгает» к viewport. Вход/выход чата — только opacity.
+ */
+@keyframes view-consult-enter-opacity {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes view-consult-leave-opacity {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+#view-consult.view-active.view-enter,
+#view-consult.view-active.view-enter-right,
+#view-consult.view-active.view-enter-left {
+  animation: view-consult-enter-opacity 0.28s ease-out forwards;
+}
+
+#view-consult.view-active.view-leaving {
+  animation: view-consult-leave-opacity 0.25s ease-in forwards;
+}
+
+#view-consult.view-active.view-leave-left,
+#view-consult.view-active.view-leave-right {
+  animation: view-consult-leave-opacity 0.28s ease-in forwards;
+}
+
 .app-header {
   padding: 8px 8px 4px;
   text-align: center;
