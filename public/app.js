@@ -90,6 +90,53 @@ document.getElementById('view-main').addEventListener('animationend', function h
   this.classList.remove('view-enter');
 }, { once: true });
 
+/** Поднятие области ввода чата вместе с клавиатурой (Visual Viewport API + Telegram viewport). */
+function syncChatKeyboardInset() {
+  const root = document.documentElement;
+  const app = document.querySelector('.app');
+  if (!app || !app.classList.contains('app--chat-open')) {
+    root.style.setProperty('--keyboard-inset', '0px');
+    return;
+  }
+  const vv = window.visualViewport;
+  if (!vv) {
+    root.style.setProperty('--keyboard-inset', '0px');
+    return;
+  }
+  const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+  root.style.setProperty('--keyboard-inset', inset + 'px');
+}
+
+let chatKeyboardInsetRaf = null;
+function scheduleChatKeyboardInset() {
+  if (chatKeyboardInsetRaf != null) return;
+  chatKeyboardInsetRaf = requestAnimationFrame(function () {
+    chatKeyboardInsetRaf = null;
+    syncChatKeyboardInset();
+  });
+}
+
+(function initChatKeyboardViewportListeners() {
+  function sched() {
+    scheduleChatKeyboardInset();
+  }
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', sched, { passive: true });
+    window.visualViewport.addEventListener('scroll', sched, { passive: true });
+  }
+  window.addEventListener('resize', sched, { passive: true });
+  window.addEventListener('orientationchange', function () {
+    setTimeout(sched, 120);
+    setTimeout(sched, 400);
+  });
+  try {
+    const tg = window.Telegram && window.Telegram.WebApp;
+    if (tg && typeof tg.onEvent === 'function') {
+      tg.onEvent('viewportChanged', sched);
+    }
+  } catch (_) {}
+})();
+
 function showView(viewId, direction) {
   const views = document.querySelectorAll('.view');
   const target = document.getElementById(viewId);
@@ -98,6 +145,7 @@ function showView(viewId, direction) {
 
   const appRoot = document.querySelector('.app');
   if (appRoot) appRoot.classList.toggle('app--chat-open', viewId === 'view-consult');
+  scheduleChatKeyboardInset();
 
   const tabbar = document.querySelector('.app-tabbar');
   const tabbarViews = ['view-main', 'view-owner-presets', 'view-presets', 'view-portfolio', 'view-profile'];
@@ -783,6 +831,7 @@ async function initOwnerChatThread() {
   ownerChatWsSubscribedThreads = false;
   ownerChatWsSubscribedConversationUserId = ownerChatActiveConversationUserId ? String(ownerChatActiveConversationUserId) : null;
   ownerChatWsEnsure();
+  scheduleChatKeyboardInset();
 }
 
 async function sendOwnerChatMessage() {
@@ -845,6 +894,20 @@ if (ownerChatInputEl) {
       e.preventDefault();
       sendOwnerChatMessage().catch(() => {});
     }
+  });
+  const kbDelays = [0, 50, 120, 250, 400, 600];
+  ownerChatInputEl.addEventListener('focus', function () {
+    kbDelays.forEach(function (ms) {
+      setTimeout(scheduleChatKeyboardInset, ms);
+    });
+    setTimeout(function () {
+      if (ownerChatMessagesEl) ownerChatMessagesEl.scrollTop = ownerChatMessagesEl.scrollHeight;
+    }, 100);
+  });
+  ownerChatInputEl.addEventListener('blur', function () {
+    setTimeout(scheduleChatKeyboardInset, 50);
+    setTimeout(scheduleChatKeyboardInset, 200);
+    setTimeout(scheduleChatKeyboardInset, 400);
   });
 }
 

@@ -284,6 +284,8 @@
 
 html {
   -webkit-tap-highlight-color: transparent !important;
+  /* смещение чата при клавиатуре (задаётся из app.js, visualViewport) */
+  --keyboard-inset: 0px;
 }
 
 body {
@@ -2080,7 +2082,14 @@ a:active {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 0 16px max(8px, env(safe-area-inset-bottom, 0px));
+  padding: 0 16px calc(max(8px, env(safe-area-inset-bottom, 0px)) + var(--keyboard-inset, 0px));
+  transition: padding-bottom 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #view-consult .page-content.chat-view {
+    transition-duration: 0.08s;
+  }
 }
 
 #view-consult .chat-messages {
