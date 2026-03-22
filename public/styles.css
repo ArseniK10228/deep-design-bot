@@ -153,7 +153,7 @@
   text-align: center;
 }
 
-/* Шаг 1: базовая иконка. Шаг 2: ось + статичный поворот (анимации ещё нет) */
+/* Шаг 1–2: иконка, ось, --hammer-orient. Шаг 3: раскачка вторым rotate() */
 .maintenance-icon {
   display: inline-block;
   font-size: 56px;
@@ -163,7 +163,20 @@
   filter: drop-shadow(0 0 12px rgba(157, 92, 255, 0.3));
   transform-origin: center bottom;
   --hammer-orient: 0deg;
-  transform: rotate(var(--hammer-orient));
+  animation: maintenance-hammer-strike 1.05s ease-in-out infinite;
+}
+
+@keyframes maintenance-hammer-strike {
+  0%,
+  22% {
+    transform: rotate(var(--hammer-orient)) rotate(-32deg);
+  }
+  38% {
+    transform: rotate(var(--hammer-orient)) rotate(12deg);
+  }
+  100% {
+    transform: rotate(var(--hammer-orient)) rotate(-32deg);
+  }
 }
 
 .maintenance-title {
