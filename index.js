@@ -921,6 +921,27 @@ app.post('/api/portfolio/delete', async (req, res) => {
 
 let welcomePhotoFileId = null;
 
+function getWebAppBaseUrl() {
+  const baseUrl = process.env.WEBAPP_URL || process.env.RENDER_EXTERNAL_URL || 'https://example.com';
+  return baseUrl.replace(/\/$/, '');
+}
+
+async function configureTelegramMenuButton() {
+  try {
+    const webAppUrl = getWebAppBaseUrl();
+    await bot.setChatMenuButton({
+      menu_button: {
+        type: 'web_app',
+        text: 'Открыть',
+        web_app: { url: webAppUrl }
+      }
+    });
+    console.log('Telegram menu button: web_app configured');
+  } catch (e) {
+    console.error('setChatMenuButton error:', e?.message || e);
+  }
+}
+
 function buildStartKeyboard(chatId, fullWebAppUrl) {
   const ownerId = process.env.OWNER_CHAT_ID;
   const isOwner = ownerId && String(chatId) === String(ownerId);
@@ -936,8 +957,7 @@ function buildStartKeyboard(chatId, fullWebAppUrl) {
 }
 
 async function handleStart(chatId) {
-  const baseUrl = process.env.WEBAPP_URL || process.env.RENDER_EXTERNAL_URL || 'https://example.com';
-  const webAppUrl = baseUrl.replace(/\/$/, '');
+  const webAppUrl = getWebAppBaseUrl();
   // Всегда делаем URL уникальным при каждом открытии, иначе Telegram/браузер кэширует старую версию.
   const bustPrefix = process.env.WEBAPP_CACHE_BUST ? String(process.env.WEBAPP_CACHE_BUST) + '-' : '';
   const cacheBust = bustPrefix + Date.now().toString();
@@ -1019,8 +1039,7 @@ bot.on('callback_query', async (query) => {
       await bot.answerCallbackQuery(query.id, { text: nowOn ? 'Техработы включены' : 'Техработы выключены' });
       const isPhotoMessage = query.message?.photo && query.message.photo.length > 0;
       if (isPhotoMessage) {
-        const baseUrl = process.env.WEBAPP_URL || process.env.RENDER_EXTERNAL_URL || 'https://example.com';
-        const webAppUrl = baseUrl.replace(/\/$/, '');
+        const webAppUrl = getWebAppBaseUrl();
         const fullWebAppUrl = `${webAppUrl}${webAppUrl.includes('?') ? '&' : '?'}v=${Date.now()}`;
         const newMarkup = buildStartKeyboard(chatId, fullWebAppUrl);
         await bot.editMessageReplyMarkup(newMarkup, { chat_id: chatId, message_id: messageId });
@@ -1069,11 +1088,13 @@ async function start() {
     server.listen(PORT, async () => {
       const webhookUrl = `${baseUrl.replace(/\/$/, '')}${webhookPath}`;
       await bot.setWebHook(webhookUrl);
+      await configureTelegramMenuButton();
       console.log('Webhook:', webhookUrl);
       console.log('Сервер:', PORT);
     });
   } else {
     bot.startPolling();
+    await configureTelegramMenuButton();
     server.listen(PORT, () => {
       console.log('Polling. Порт:', PORT);
     });
