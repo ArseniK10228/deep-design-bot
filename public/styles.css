@@ -618,6 +618,13 @@ a:active {
 
 #presets-list.preset-list-empty .consult-text {
   grid-column: 1 / -1;
+  text-align: center;
+  justify-self: center;
+  align-self: start;
+  margin: 12px 0 0 0;
+  color: #8e8e93;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 #portfolio-list.preset-list-empty .consult-text {
