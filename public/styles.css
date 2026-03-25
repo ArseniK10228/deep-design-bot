@@ -1614,13 +1614,6 @@ a:active {
   animation-delay: 0.20s;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  #view-preset-detail .preset-detail-bottom-bar {
-    animation: none;
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-}
 
 #view-portfolio-detail .preset-detail-image-wrap,
 #view-portfolio-detail .preset-detail-body > * {
