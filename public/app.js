@@ -1624,6 +1624,32 @@ function showPresetDetail(item) {
       }
 
       var sheetCloseTimer = null;
+      var savedScrollY = null;
+      function lockScroll() {
+        if (savedScrollY !== null) return;
+        savedScrollY = (typeof window.scrollY === 'number') ? window.scrollY : (window.pageYOffset || 0);
+        try {
+          document.body.style.position = 'fixed';
+          document.body.style.top = (-savedScrollY) + 'px';
+          document.body.style.left = '0';
+          document.body.style.right = '0';
+          document.body.style.width = '100%';
+        } catch (_) {}
+      }
+      function unlockScroll() {
+        if (savedScrollY === null) return;
+        var y = savedScrollY;
+        savedScrollY = null;
+        try {
+          document.body.style.position = '';
+          document.body.style.top = '';
+          document.body.style.left = '';
+          document.body.style.right = '';
+          document.body.style.width = '';
+        } catch (_) {}
+        try { window.scrollTo(0, y); } catch (_) {}
+      }
+
       function closeSheet() {
         if (sheetCloseTimer) {
           try { clearTimeout(sheetCloseTimer); } catch (_) {}
@@ -1635,9 +1661,7 @@ function showPresetDetail(item) {
           sheet.classList.remove('sheet-closing');
           sheet.setAttribute('aria-hidden', 'true');
         }, 230);
-        if (document && document.documentElement) {
-          document.documentElement.classList.remove('html--sheet-open');
-        }
+        unlockScroll();
       }
 
       btnAvito.disabled = !avitoUrl;
@@ -1672,9 +1696,7 @@ function showPresetDetail(item) {
       sheet.classList.remove('sheet-closing');
       sheet.classList.add('sheet-open');
       sheet.setAttribute('aria-hidden', 'false');
-      if (document && document.documentElement) {
-        document.documentElement.classList.add('html--sheet-open');
-      }
+      lockScroll();
     };
   }
   showView('view-preset-detail');

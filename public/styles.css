@@ -2379,14 +2379,6 @@ html.html--chat-open body {
   pointer-events: auto;
 }
 
-html.html--sheet-open,
-html.html--sheet-open body {
-  overflow: hidden;
-  height: 100%;
-  overscroll-behavior: none;
-  touch-action: none;
-}
-
 .sheet-backdrop {
   position: absolute;
   inset: 0;
