@@ -1419,7 +1419,8 @@ function renderOwnerPresetEditCard(item) {
     if (idx === 0) imgBlock += '<span class=\"photo-preview-badge\">Главная</span>';
     imgBlock += '<button type=\"button\" class=\"photo-preview-edit preset-edit-photo-replace\" data-preset-id=\"' + escapeAttr(item.id) + '\" data-photo-index=\"' + idx + '\" aria-label=\"Изменить\">';
     imgBlock += '<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\"/><path d=\"M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\"/></svg>';
-    imgBlock += '</button></div>';
+    imgBlock += '</button>';
+    imgBlock += '<button type=\"button\" class=\"photo-preview-delete preset-edit-photo-delete\" data-preset-id=\"' + escapeAttr(item.id) + '\" data-photo-index=\"' + idx + '\" aria-label=\"Удалить фото\">✕</button></div>';
   }
   imgBlock += '</div>';
   imgBlock += '<label class=\"photo-add-card preset-edit-photo-card photo-add-inline\" for=\"' + inputId + '\">';
@@ -1569,6 +1570,19 @@ function showPresetDetail(item) {
         } catch (_) {}
       };
     }
+  }
+
+  var pickupBtn = document.getElementById('preset-detail-pickup-cta');
+  if (pickupBtn) {
+    pickupBtn.onclick = function () {
+      try {
+        if (tg && typeof tg.showPopup === 'function') {
+          tg.showPopup({ title: 'Самовывоз', message: 'Функция самовывоза появится позже.', buttons: [{ type: 'ok' }] });
+          return;
+        }
+      } catch (_) {}
+      window.alert('Функция самовывоза появится позже.');
+    };
   }
   showView('view-preset-detail', 'right');
 }
@@ -1746,6 +1760,73 @@ async function loadOwnerEditPresets() {
   });
   listEl.innerHTML = items.map(renderOwnerPresetEditCard).join('');
 
+  function rebuildPresetEditPhotos(pid) {
+    if (!pid) return;
+    var list = listEl.querySelector('.preset-edit-preview-list[data-preset-id="' + pid.replace(/"/g, '\\"') + '"]');
+    if (!list) return;
+    var imgs = editPresetImages[pid] || [];
+    list.innerHTML = '';
+    for (var idx = 0; idx < imgs.length; idx++) {
+      var div = document.createElement('div');
+      div.className = 'photo-preview-card';
+      div.setAttribute('data-photo-index', String(idx));
+
+      var img = document.createElement('img');
+      img.src = imgs[idx];
+      img.alt = '';
+      div.appendChild(img);
+
+      if (idx === 0) {
+        var badge = document.createElement('span');
+        badge.className = 'photo-preview-badge';
+        badge.textContent = 'Главная';
+        div.appendChild(badge);
+      }
+
+      var editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.className = 'photo-preview-edit preset-edit-photo-replace';
+      editBtn.setAttribute('data-preset-id', pid);
+      editBtn.setAttribute('data-photo-index', String(idx));
+      editBtn.setAttribute('aria-label', 'Изменить');
+      editBtn.innerHTML = '<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\"/><path d=\"M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\"/></svg>';
+      editBtn.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        replaceEditIndex = parseInt(this.getAttribute('data-photo-index'), 10);
+        replaceEditPresetId = this.getAttribute('data-preset-id');
+        var inp = document.getElementById('preset-edit-image-' + pid);
+        if (inp) inp.click();
+      });
+      div.appendChild(editBtn);
+
+      var delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'photo-preview-delete preset-edit-photo-delete';
+      delBtn.setAttribute('data-preset-id', pid);
+      delBtn.setAttribute('data-photo-index', String(idx));
+      delBtn.setAttribute('aria-label', 'Удалить фото');
+      delBtn.textContent = '✕';
+      delBtn.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        var id = this.getAttribute('data-preset-id');
+        var delIdx = parseInt(this.getAttribute('data-photo-index'), 10);
+        var cur = editPresetImages[id] || [];
+        if (typeof delIdx === 'number' && delIdx >= 0 && delIdx < cur.length) {
+          cur.splice(delIdx, 1);
+          editPresetImages[id] = cur;
+        }
+        replaceEditIndex = null;
+        replaceEditPresetId = null;
+        rebuildPresetEditPhotos(id);
+      });
+      div.appendChild(delBtn);
+
+      list.appendChild(div);
+    }
+  }
+
   listEl.querySelectorAll('.preset-edit-image-input').forEach(function (input) {
     input.addEventListener('change', function () {
       var pid = this.getAttribute('data-preset-id');
@@ -1790,6 +1871,16 @@ async function loadOwnerEditPresets() {
             editBtn.setAttribute('aria-label', 'Изменить');
             editBtn.innerHTML = '<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\"/><path d=\"M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\"/></svg>';
             div.appendChild(editBtn);
+
+            var delBtn = document.createElement('button');
+            delBtn.type = 'button';
+            delBtn.className = 'photo-preview-delete preset-edit-photo-delete';
+            delBtn.setAttribute('data-preset-id', pid);
+            delBtn.setAttribute('data-photo-index', String(newIdx));
+            delBtn.setAttribute('aria-label', 'Удалить фото');
+            delBtn.textContent = '✕';
+            div.appendChild(delBtn);
+
             list.appendChild(div);
             editBtn.addEventListener('click', function (ev) {
               ev.preventDefault();
@@ -1797,6 +1888,20 @@ async function loadOwnerEditPresets() {
               replaceEditIndex = parseInt(this.getAttribute('data-photo-index'), 10);
               replaceEditPresetId = this.getAttribute('data-preset-id');
               input.click();
+            });
+            delBtn.addEventListener('click', function (ev) {
+              ev.preventDefault();
+              ev.stopPropagation();
+              var id = this.getAttribute('data-preset-id');
+              var delIdx = parseInt(this.getAttribute('data-photo-index'), 10);
+              var cur = editPresetImages[id] || [];
+              if (typeof delIdx === 'number' && delIdx >= 0 && delIdx < cur.length) {
+                cur.splice(delIdx, 1);
+                editPresetImages[id] = cur;
+              }
+              replaceEditIndex = null;
+              replaceEditPresetId = null;
+              rebuildPresetEditPhotos(id);
             });
           }
         }
@@ -1815,6 +1920,23 @@ async function loadOwnerEditPresets() {
       replaceEditPresetId = pid;
       var inp = document.getElementById('preset-edit-image-' + pid);
       if (inp) inp.click();
+    });
+  });
+
+  listEl.querySelectorAll('.preset-edit-photo-delete').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var id = this.getAttribute('data-preset-id');
+      var delIdx = parseInt(this.getAttribute('data-photo-index'), 10);
+      var cur = editPresetImages[id] || [];
+      if (typeof delIdx === 'number' && delIdx >= 0 && delIdx < cur.length) {
+        cur.splice(delIdx, 1);
+        editPresetImages[id] = cur;
+      }
+      replaceEditIndex = null;
+      replaceEditPresetId = null;
+      rebuildPresetEditPhotos(id);
     });
   });
 
