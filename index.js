@@ -694,7 +694,7 @@ app.post('/api/owner-chat/send', async (req, res) => {
 
 // ----- Готовые сборки (presets) -----
 // Храним массив предложений в Redis под ключом "presets".
-// Каждый элемент: { id, title, price, image, description, createdAt }
+// Каждый элемент: { id, title, price, image, description, avitoLink, createdAt }
 
 async function getPresets() {
   if (!redisClient) return [];
@@ -730,7 +730,7 @@ app.get('/api/presets', async (req, res) => {
 app.post('/api/presets', async (req, res) => {
   try {
     const ownerId = process.env.OWNER_CHAT_ID;
-    const { userId, title, price, image, images, description } = req.body || {};
+    const { userId, title, price, image, images, description, avitoLink } = req.body || {};
     if (!ownerId || !userId || String(ownerId) !== String(userId)) {
       return res.status(403).json({ ok: false });
     }
@@ -751,6 +751,7 @@ app.post('/api/presets', async (req, res) => {
       image: mainImage,
       images: imagesArr,
       description: String(description || '').trim(),
+      avitoLink: String(avitoLink || '').trim(),
       createdAt: now
     };
     list.unshift(item);
@@ -765,7 +766,7 @@ app.post('/api/presets', async (req, res) => {
 app.post('/api/presets/update', async (req, res) => {
   try {
     const ownerId = process.env.OWNER_CHAT_ID;
-    const { userId, id, title, price, image, images, description } = req.body || {};
+    const { userId, id, title, price, image, images, description, avitoLink } = req.body || {};
     if (!ownerId || !userId || String(ownerId) !== String(userId)) {
       return res.status(403).json({ ok: false });
     }
@@ -783,6 +784,7 @@ app.post('/api/presets/update', async (req, res) => {
       cur[idx].image = arr.length > 0 ? arr[0] : '';
     }
     if (description !== undefined) cur[idx].description = String(description || '').trim();
+    if (avitoLink !== undefined) cur[idx].avitoLink = String(avitoLink || '').trim();
     await savePresets(cur);
     res.json({ ok: true, item: cur[idx] });
   } catch (e) {

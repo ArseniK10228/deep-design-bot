@@ -306,14 +306,16 @@ function sendActionToBot(action, label) {
   }
 
   if (action === 'owner_create') {
-    createDraft = { title: '', description: '', price: '', image: '', images: [] };
+    createDraft = { title: '', description: '', price: '', avitoLink: '', image: '', images: [] };
     var t = document.getElementById('create-step-title');
     var d = document.getElementById('create-step-desc');
     var p = document.getElementById('create-step-price');
+    var a = document.getElementById('create-step-avito');
     var i = document.getElementById('create-step-image');
     if (t) t.value = '';
     if (d) d.value = '';
     if (p) p.value = '';
+    if (a) a.value = '';
     if (i) i.value = '';
     showView('view-owner-create-1');
     return;
@@ -1342,7 +1344,7 @@ async function fetchPortfolio() {
 
 var lastPresetsList = [];
 var lastPortfolioList = [];
-var createDraft = { description: '', title: '', price: '', image: '', images: [] };
+var createDraft = { description: '', title: '', price: '', avitoLink: '', image: '', images: [] };
 var portfolioDraft = { title: '', description: '', images: [] };
 
 function formatPriceWithRub(price) {
@@ -1430,6 +1432,8 @@ function renderOwnerPresetEditCard(item) {
   html += '<input class=\"form-input preset-edit-title\" value=\"' + escapeAttr(item.title) + '\" data-preset-id=\"' + escapeAttr(item.id) + '\" />';
   html += '<label class=\"form-label\">Цена</label>';
   html += '<div class=\"input-with-ruble\"><input class=\"form-input preset-edit-price\" value=\"' + escapeAttr(item.price) + '\" data-preset-id=\"' + escapeAttr(item.id) + '\" /><span class=\"input-ruble-suffix\">₽</span></div>';
+  html += '<label class=\"form-label\">Ссылка Avito</label>';
+  html += '<input class=\"form-input preset-edit-avito\" value=\"' + escapeAttr(item.avitoLink || '') + '\" data-preset-id=\"' + escapeAttr(item.id) + '\" placeholder=\"https://www.avito.ru/...\" />';
   html += '<h3 class=\"photo-section-title preset-edit-photo-title\">Фотографии</h3>';
   html += '<div class=\"preset-edit-image-wrap\">' + imgBlock + '</div>';
   html += '<label class=\"form-label\">Описание</label>';
@@ -1539,10 +1543,32 @@ function showPresetDetail(item) {
   descEl.textContent = item.description || '';
   var cta = document.getElementById('preset-detail-cta');
   if (cta) {
-    cta.onclick = function () {
-      var label = (item.title || '') + (item.price ? ' — ' + item.price : '');
-      sendActionToBot('preset_contact', label);
-    };
+    var avitoUrl = item && item.avitoLink ? String(item.avitoLink).trim() : '';
+    cta.textContent = 'Купить на Авито';
+    cta.classList.remove('avito-buy-btn');
+    cta.disabled = false;
+
+    if (avitoUrl) {
+      cta.classList.add('avito-buy-btn');
+      cta.onclick = function () {
+        try {
+          if (tg && typeof tg.openLink === 'function') tg.openLink(avitoUrl);
+          else window.open(avitoUrl, '_blank', 'noopener,noreferrer');
+        } catch (_) {
+          window.open(avitoUrl, '_blank', 'noopener,noreferrer');
+        }
+      };
+    } else {
+      cta.disabled = true;
+      cta.classList.add('avito-buy-btn--disabled');
+      cta.onclick = function () {
+        try {
+          if (tg && typeof tg.showPopup === 'function') {
+            tg.showPopup({ title: 'Авито', message: 'Продавец не указал ссылку на объявление.', buttons: [{ type: 'ok' }] });
+          }
+        } catch (_) {}
+      };
+    }
   }
   showView('view-preset-detail', 'right');
 }
@@ -1802,16 +1828,18 @@ async function loadOwnerEditPresets() {
       var titleEl = card.querySelector('.preset-edit-title');
       var priceEl = card.querySelector('.preset-edit-price');
       var descEl = card.querySelector('.preset-edit-desc');
+      var avitoEl = card.querySelector('.preset-edit-avito');
       var title = (titleEl && titleEl.value || '').trim();
       var price = (priceEl && priceEl.value || '').trim();
       var priceFormatted = formatPriceWithRub(price);
       var description = (descEl && descEl.value || '').trim();
+      var avitoLink = (avitoEl && avitoEl.value || '').trim();
       if (!title) {
         tg.showPopup({ title: 'Ошибка', message: 'Заполните название.', buttons: [{ type: 'ok' }] });
         return;
       }
       var imgs = editPresetImages[id] || [];
-      var payload = { userId: currentUser.id, id: id, title: title, price: priceFormatted, description: description, images: imgs };
+      var payload = { userId: currentUser.id, id: id, title: title, price: priceFormatted, description: description, avitoLink: avitoLink, images: imgs };
       if (imgs.length > 0) payload.image = imgs[0];
       btn.disabled = true;
       btn.textContent = 'Сохранение...';
@@ -2137,6 +2165,8 @@ if (isOwnerApp) {
     showView('view-owner-create-3', 'right');
     var p = document.getElementById('create-step-price');
     if (p) p.value = createDraft.price || '';
+    var a = document.getElementById('create-step-avito');
+    if (a) a.value = createDraft.avitoLink || '';
   }
   var replacePhotoIndex = null;
 
@@ -2170,6 +2200,9 @@ if (isOwnerApp) {
     var priceEl = document.getElementById('create-step-price');
     var v = (priceEl && priceEl.value || '').trim();
     createDraft.price = v;
+    var avitoEl = document.getElementById('create-step-avito');
+    var avitoV = (avitoEl && avitoEl.value || '').trim();
+    createDraft.avitoLink = avitoV;
     showView('view-owner-create-4', 'right');
     renderCreateStep4Gallery();
   }
@@ -2192,9 +2225,11 @@ if (isOwnerApp) {
     var descEl = document.getElementById('review-desc');
     var priceEl = document.getElementById('review-price');
     var photoEl = document.getElementById('review-photo');
+    var avitoEl = document.getElementById('review-avito');
     if (titleEl) titleEl.textContent = createDraft.title || '—';
     if (descEl) descEl.textContent = (createDraft.description || '—').slice(0, 200) + (createDraft.description && createDraft.description.length > 200 ? '…' : '');
     if (priceEl) priceEl.textContent = createDraft.price || '—';
+    if (avitoEl) avitoEl.textContent = createDraft.avitoLink ? (String(createDraft.avitoLink).slice(0, 50) + (String(createDraft.avitoLink).length > 50 ? '…' : '')) : '—';
     if (photoEl) photoEl.textContent = (createDraft.images && createDraft.images.length) ? 'Добавлено ' + createDraft.images.length + ' фото' : 'Нет';
     showView('view-owner-create-5', 'right');
   }
@@ -2249,7 +2284,8 @@ if (isOwnerApp) {
             price: priceFormatted,
             image: mainImage,
             images: imgs,
-            description: createDraft.description
+            description: createDraft.description,
+            avitoLink: createDraft.avitoLink
           })
         });
         var data = null;
@@ -2266,7 +2302,7 @@ if (isOwnerApp) {
           else if (res.status === 400) msg = 'Заполните название объявления.';
           tg.showPopup({ title: 'Ошибка', message: msg, buttons: [{ type: 'ok' }] });
         } else {
-          createDraft = { title: '', description: '', price: '', image: '', images: [] };
+          createDraft = { title: '', description: '', price: '', avitoLink: '', image: '', images: [] };
           showView('view-owner-presets-ready');
           tg.showPopup({ title: 'Готово', message: 'Объявление опубликовано.', buttons: [{ type: 'ok' }] });
         }

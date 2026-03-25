@@ -466,6 +466,28 @@ a:active {
   margin-top: 8px;
 }
 
+.preset-detail-cta.avito-buy-btn {
+  background: #2f87ff;
+  border-color: rgba(47, 135, 255, 0.6);
+}
+
+.preset-detail-cta.avito-buy-btn:active {
+  opacity: 0.9;
+}
+
+.preset-detail-cta.avito-buy-btn--disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.preset-detail-cta.avito-buy-btn {
+  background: #3399ff;
+}
+
+.preset-detail-cta.avito-buy-btn:active {
+  opacity: 0.92;
+}
+
 /* Сетка объявлений (Готовые сборки) — карточки как в маркетплейсе */
 #presets-list {
   display: grid;

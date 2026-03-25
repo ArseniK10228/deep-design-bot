@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#121212" />
   <title>Deep Design PC</title>
   <link rel="preconnect" href="https://telegram.org" crossorigin />
-  <link rel="stylesheet" href="styles.css?v=20260322-presets-empty-muted" />
+  <link rel="stylesheet" href="styles.css?v=20260322-avito-buy-btn-2" />
 </head>
 <body>
   <div id="top-loading-bar" class="top-loading-bar top-loading-bar-hidden" aria-hidden="true"></div>
@@ -444,6 +444,9 @@
           <span class="input-ruble-suffix">₽</span>
         </div>
         <p class="form-error" id="create-step-price-error"></p>
+        <label class="form-label">Ссылка Avito</label>
+        <input class="form-input" id="create-step-avito" placeholder="https://www.avito.ru/... (URL объявления)" />
+        <p class="form-error" id="create-step-avito-error"></p>
         <button type="button" class="submit-btn" id="create-step-3-next">Далее</button>
       </main>
     </div>
@@ -491,6 +494,8 @@
           <p class="create-review-value" id="review-desc"></p>
           <p class="create-review-label">Цена</p>
           <p class="create-review-value" id="review-price"></p>
+          <p class="create-review-label">Ссылка Avito</p>
+          <p class="create-review-value" id="review-avito"></p>
           <p class="create-review-label">Фото</p>
           <p class="create-review-value" id="review-photo"></p>
         </div>
@@ -655,7 +660,7 @@
   </nav>
 
   <script src="/telegram-web-app.js" defer></script>
-  <script src="app.js?v=20260322-chat-telegram-anim" defer></script>
+  <script src="app.js?v=20260322-avito-buy-btn-2" defer></script>
 
 </body>
 </html>
