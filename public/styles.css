@@ -461,30 +461,6 @@ a:active {
   white-space: pre-wrap;
   margin: 0;
   word-break: break-word;
-  /* Делаем сворачивание по max-height */
-  max-height: 2000px;
-  overflow: hidden;
-  transition: max-height 0.25s ease;
-}
-
-.preset-detail-desc.preset-detail-desc-collapsed {
-  max-height: 84px;
-}
-
-.preset-detail-desc-toggle {
-  background: transparent;
-  border: none;
-  color: #9d5cff;
-  padding: 4px 0;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  width: 100%;
-  text-align: left;
-}
-
-.preset-detail-desc-toggle:active {
-  opacity: 0.9;
 }
 
 .preset-detail-cta {
