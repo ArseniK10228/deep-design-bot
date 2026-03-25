@@ -372,6 +372,18 @@ a:active {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  will-change: transform, opacity;
+}
+
+@keyframes preset-buybar-up {
+  from {
+    transform: translateX(-50%) translateY(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
 }
 
 #view-preset-detail .preset-detail-buy-btn {
@@ -1597,7 +1609,18 @@ a:active {
 #view-preset-detail .preset-detail-title { animation-delay: 0.10s; }
 #view-preset-detail .preset-detail-price { animation-delay: 0.14s; }
 #view-preset-detail .preset-detail-desc { animation-delay: 0.18s; }
-#view-preset-detail .preset-detail-bottom-bar { animation: page-enter 0.35s ease-out backwards; animation-delay: 0.26s; }
+#view-preset-detail .preset-detail-bottom-bar {
+  animation: preset-buybar-up 0.30s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+  animation-delay: 0.20s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #view-preset-detail .preset-detail-bottom-bar {
+    animation: none;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
 
 #view-portfolio-detail .preset-detail-image-wrap,
 #view-portfolio-detail .preset-detail-body > * {
