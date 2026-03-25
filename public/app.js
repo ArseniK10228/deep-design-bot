@@ -1612,38 +1612,49 @@ function showPresetDetail(item) {
   if (buyBtn) {
     buyBtn.onclick = function () {
       var avitoUrl = item && item.avitoLink ? String(item.avitoLink).trim() : '';
-      if (tg && typeof tg.showPopup === 'function') {
-        tg.showPopup({
-          title: 'Купить',
-          message: 'Выберите способ покупки',
-          buttons: [
-            { id: 'avito', type: 'default', text: 'Купить на Авито' },
-            { id: 'pickup', type: 'default', text: 'Забрать самовывозом' },
-            { id: 'cancel', type: 'cancel' }
-          ]
-        }, function (btnId) {
-          try {
-            if (btnId === 'avito') {
-              if (!avitoUrl) {
-                tg.showPopup({ title: 'Авито', message: 'Продавец не указал ссылку на объявление.', buttons: [{ type: 'ok' }] });
-                return;
-              }
-              if (typeof tg.openLink === 'function') tg.openLink(avitoUrl);
-              else window.open(avitoUrl, '_blank', 'noopener,noreferrer');
-              return;
-            }
-            if (btnId === 'pickup') {
-              tg.showPopup({ title: 'Самовывоз', message: 'Функция самовывоза появится позже.', buttons: [{ type: 'ok' }] });
-              return;
-            }
-          } catch (_) {}
-        });
+      var sheet = document.getElementById('buy-sheet');
+      var backdrop = document.getElementById('buy-sheet-backdrop');
+      var btnAvito = document.getElementById('buy-sheet-avito');
+      var btnPickup = document.getElementById('buy-sheet-pickup');
+      var btnCancel = document.getElementById('buy-sheet-cancel');
+      if (!sheet || !backdrop || !btnAvito || !btnPickup || !btnCancel) {
+        if (avitoUrl) window.open(avitoUrl, '_blank', 'noopener,noreferrer');
+        else window.alert('Ссылка на Авито не указана.');
         return;
       }
 
-      // fallback без Telegram popup
-      if (avitoUrl) window.open(avitoUrl, '_blank', 'noopener,noreferrer');
-      else window.alert('Ссылка на Авито не указана.');
+      function closeSheet() {
+        sheet.classList.remove('sheet-open');
+        sheet.setAttribute('aria-hidden', 'true');
+      }
+
+      btnAvito.disabled = !avitoUrl;
+      btnAvito.onclick = function () {
+        if (!avitoUrl) return;
+        closeSheet();
+        try {
+          if (tg && typeof tg.openLink === 'function') tg.openLink(avitoUrl);
+          else window.open(avitoUrl, '_blank', 'noopener,noreferrer');
+        } catch (_) {
+          window.open(avitoUrl, '_blank', 'noopener,noreferrer');
+        }
+      };
+
+      btnPickup.onclick = function () {
+        closeSheet();
+        try {
+          if (tg && typeof tg.showPopup === 'function') {
+            tg.showPopup({ title: 'Самовывоз', message: 'Функция самовывоза появится позже.', buttons: [{ type: 'ok' }] });
+            return;
+          }
+        } catch (_) {}
+        window.alert('Функция самовывоза появится позже.');
+      };
+
+      btnCancel.onclick = closeSheet;
+      backdrop.onclick = closeSheet;
+      sheet.classList.add('sheet-open');
+      sheet.setAttribute('aria-hidden', 'false');
     };
   }
   showView('view-preset-detail');

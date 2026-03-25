@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#121212" />
   <title>Deep Design PC</title>
   <link rel="preconnect" href="https://telegram.org" crossorigin />
-  <link rel="stylesheet" href="styles.css?v=20260322-buy-popup" />
+  <link rel="stylesheet" href="styles.css?v=20260322-buy-sheet" />
 </head>
 <body>
   <div id="top-loading-bar" class="top-loading-bar top-loading-bar-hidden" aria-hidden="true"></div>
@@ -555,11 +555,21 @@
           <h2 class="preset-detail-title" id="preset-detail-title"></h2>
           <p class="preset-detail-price" id="preset-detail-price"></p>
           <div class="preset-detail-desc" id="preset-detail-desc"></div>
-          <button type="button" class="preset-detail-desc-toggle" id="preset-detail-desc-toggle">Развернуть</button>
         </div>
       </main>
       <div class="preset-detail-bottom-bar" id="preset-detail-bottom-bar" aria-label="Действия">
         <button type="button" class="submit-btn preset-detail-buy-btn" id="preset-detail-buy-btn">Купить</button>
+      </div>
+    </div>
+
+    <div class="sheet-overlay" id="buy-sheet" aria-hidden="true">
+      <div class="sheet-backdrop" id="buy-sheet-backdrop"></div>
+      <div class="sheet">
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <div class="sheet-title">Купить</div>
+        <button type="button" class="sheet-btn sheet-btn-primary" id="buy-sheet-avito">Купить на Авито</button>
+        <button type="button" class="sheet-btn sheet-btn-secondary" id="buy-sheet-pickup">Забрать самовывозом</button>
+        <button type="button" class="sheet-btn sheet-btn-ghost" id="buy-sheet-cancel">Отмена</button>
       </div>
     </div>
 
@@ -663,7 +673,7 @@
   </nav>
 
   <script src="/telegram-web-app.js" defer></script>
-  <script src="app.js?v=20260322-buy-popup" defer></script>
+  <script src="app.js?v=20260322-buy-sheet" defer></script>
 
 </body>
 </html>

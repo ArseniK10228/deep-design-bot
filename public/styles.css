@@ -1597,7 +1597,6 @@ a:active {
 #view-preset-detail .preset-detail-title { animation-delay: 0.10s; }
 #view-preset-detail .preset-detail-price { animation-delay: 0.14s; }
 #view-preset-detail .preset-detail-desc { animation-delay: 0.18s; }
-#view-preset-detail .preset-detail-desc-toggle { animation-delay: 0.22s; }
 #view-preset-detail .preset-detail-bottom-bar { animation: page-enter 0.35s ease-out backwards; animation-delay: 0.26s; }
 
 #view-portfolio-detail .preset-detail-image-wrap,
@@ -2355,6 +2354,97 @@ html.html--chat-open body {
 
 .chat-send-btn:active {
   opacity: 0.9;
+}
+
+/* ----- Bottom sheet (in-app) ----- */
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 11000;
+  display: none;
+}
+
+.sheet-overlay.sheet-open {
+  display: block;
+}
+
+.sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.sheet {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: min(480px, 100vw);
+  background: #1c1c1e;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  padding: 10px 14px calc(12px + max(0px, env(safe-area-inset-bottom, 0px)));
+  box-sizing: border-box;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  animation: sheet-up 0.22s ease-out both;
+}
+
+.sheet-handle {
+  width: 46px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 6px auto 10px;
+}
+
+.sheet-title {
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.sheet-btn {
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sheet-btn + .sheet-btn {
+  margin-top: 10px;
+}
+
+.sheet-btn-primary {
+  background: #2f87ff;
+  color: #ffffff;
+}
+
+.sheet-btn-secondary {
+  background: #ffffff;
+  color: #121212;
+}
+
+.sheet-btn-ghost {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.sheet-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.sheet-btn:active {
+  opacity: 0.92;
+}
+
+@keyframes sheet-up {
+  from { transform: translateX(-50%) translateY(18px); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0); opacity: 1; }
 }
 
 
