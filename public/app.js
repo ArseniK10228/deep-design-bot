@@ -1508,10 +1508,15 @@ function handlePhotoTouchMove(e) {
   if (e.touches.length === 1) {
     var x = e.touches[0].clientX;
     var y = e.touches[0].clientY;
+    var allowPanBecauseBig =
+      (photoModalImgEl && photoModalInnerEl && (
+        photoModalImgEl.offsetWidth > photoModalInnerEl.clientWidth + 2 ||
+        photoModalImgEl.offsetHeight > photoModalInnerEl.clientHeight + 2
+      ));
     if (typeof photoZoomState.lastTouchX === 'number') {
       var dx = x - photoZoomState.lastTouchX;
       var dy = y - photoZoomState.lastTouchY;
-      if (photoZoomState.scale > 1.01) {
+      if (photoZoomState.scale > 1.01 || allowPanBecauseBig) {
         photoZoomState.tx += dx;
         photoZoomState.ty += dy;
         applyPhotoModalTransform();
@@ -1519,7 +1524,7 @@ function handlePhotoTouchMove(e) {
     }
     photoZoomState.lastTouchX = x;
     photoZoomState.lastTouchY = y;
-    if (photoZoomState.scale > 1.01) e.preventDefault();
+    if (photoZoomState.scale > 1.01 || allowPanBecauseBig) e.preventDefault();
   }
 }
 
