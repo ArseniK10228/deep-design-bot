@@ -165,7 +165,8 @@ function showView(viewId, direction) {
   scheduleChatKeyboardInset();
 
   const tabbar = document.querySelector('.app-tabbar');
-  const tabbarViews = ['view-main', 'view-owner-presets', 'view-presets', 'view-portfolio', 'view-profile'];
+  // Нижняя панель не показывается на "Готовые сборки", чтобы экран выглядел как карточка-страница.
+  const tabbarViews = ['view-main', 'view-owner-presets', 'view-portfolio', 'view-profile'];
   if (tabbar) {
     const shouldShow = tabbarViews.indexOf(viewId) !== -1;
     tabbar.classList.toggle('app-tabbar-hidden', !shouldShow);
@@ -232,6 +233,17 @@ function sendActionToBot(action, label) {
     // Для пользователей возвращаемся на главный экран
     const backBtn = document.querySelector('#view-consult .back-btn');
     if (backBtn) backBtn.dataset.backTo = 'view-main';
+
+    // Для владельца при входе в "Консультация" должно быть пусто:
+    // сбрасываем выбранный диалог, чтобы initOwnerChatThread показал пустое состояние.
+    if (isOwnerApp) {
+      ownerChatActiveConversationUserId = null;
+      ownerChatSelectedDisplayName = '';
+      try { clearOwnerChatMessages(); } catch (_) {}
+      if (ownerChatMessagesEl) ownerChatMessagesEl.style.display = 'none';
+      if (ownerChatComposerEl) ownerChatComposerEl.style.display = 'none';
+      if (ownerChatSubtitleEl) ownerChatSubtitleEl.textContent = '';
+    }
     showView('view-consult');
     return;
   }
@@ -859,7 +871,15 @@ async function initOwnerChatThread() {
   // - у владельца: в список чатов
   // - у пользователей: на главную
   const backBtn = document.querySelector('#view-consult .back-btn');
-  if (backBtn) backBtn.dataset.backTo = isOwnerApp ? 'view-owner-chat-list' : 'view-main';
+  if (backBtn) {
+    // Если перед входом в consult уже выставили `view-main` (например, при нажатии "Консультация"),
+    // не перетираем — это гарантирует нужное поведение для владельца.
+    if (isOwnerApp) {
+      if (backBtn.dataset.backTo !== 'view-main') backBtn.dataset.backTo = 'view-owner-chat-list';
+    } else {
+      backBtn.dataset.backTo = 'view-main';
+    }
+  }
 
   stopOwnerChatPolling();
   ownerChatLastSeenId = 0;
@@ -872,7 +892,7 @@ async function initOwnerChatThread() {
     if (!ownerChatActiveConversationUserId) {
       if (ownerChatMessagesEl) ownerChatMessagesEl.style.display = 'none';
       if (ownerChatComposerEl) ownerChatComposerEl.style.display = 'none';
-      ownerChatSubtitleEl.textContent = 'Выберите пользователя';
+      ownerChatSubtitleEl.textContent = '';
       return;
     }
 
