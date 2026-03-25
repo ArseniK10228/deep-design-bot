@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#121212" />
   <title>Deep Design PC</title>
   <link rel="preconnect" href="https://telegram.org" crossorigin />
-  <link rel="stylesheet" href="styles.css?v=20260322-ui-presets-consult-fix-2" />
+  <link rel="stylesheet" href="styles.css?v=20260322-photo-viewer" />
 </head>
 <body>
   <div id="top-loading-bar" class="top-loading-bar top-loading-bar-hidden" aria-hidden="true"></div>
@@ -660,8 +660,15 @@
     </button>
   </nav>
 
+  <div id="photo-modal" class="photo-modal" aria-hidden="true">
+    <button type="button" class="photo-modal-close" id="photo-modal-close" aria-label="Закрыть">✕</button>
+    <div class="photo-modal-inner" id="photo-modal-inner">
+      <img id="photo-modal-img" src="" alt="" draggable="false" />
+    </div>
+  </div>
+
   <script src="/telegram-web-app.js" defer></script>
-  <script src="app.js?v=20260322-ui-presets-consult-fix-2" defer></script>
+  <script src="app.js?v=20260322-photo-viewer-2" defer></script>
 
 </body>
 </html>
