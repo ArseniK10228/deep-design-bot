@@ -1416,7 +1416,7 @@ async function updateMainPresetsPrice() {
       priceEl.textContent = 'временно нет в наличии';
       return;
     }
-    priceEl.textContent = formatRub(min);
+    priceEl.textContent = 'от ' + formatRub(min);
   } catch (_) {}
 }
 
