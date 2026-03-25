@@ -36,6 +36,8 @@ if (tg) {
 setTimeout(function preloadProfile() {
   try {
     updateProfileView();
+    // Цена "Готовые сборки" на главном экране
+    updateMainPresetsPrice();
     var runAvatar = function () {
       try { preloadProfileAvatar(); } catch (_) {}
     };
@@ -1374,6 +1376,50 @@ function formatPriceWithRub(price) {
   return raw ? raw + ' ₽' : '';
 }
 
+function parsePriceNumber(price) {
+  // Поддержка форматов: "35 000", "35000", "35 000 ₽", "от 35 000 ₽"
+  var s = String(price || '').trim().toLowerCase();
+  if (!s) return null;
+  s = s.replace(/от\s+/g, '');
+  // убираем всё, кроме цифр
+  var digits = s.replace(/[^\d]/g, '');
+  if (!digits) return null;
+  var n = Number(digits);
+  if (!isFinite(n) || n <= 0) return null;
+  return n;
+}
+
+function formatRub(n) {
+  try {
+    return Number(n).toLocaleString('ru-RU') + ' ₽';
+  } catch (_) {
+    return String(n) + ' ₽';
+  }
+}
+
+async function updateMainPresetsPrice() {
+  try {
+    var priceEl = document.querySelector('.service-card[data-action="presets"] .service-price');
+    if (!priceEl) return;
+    var items = await fetchPresets();
+    if (!items || !items.length) {
+      priceEl.textContent = 'временно нет в наличии';
+      return;
+    }
+    var min = null;
+    items.forEach(function (it) {
+      var v = parsePriceNumber(it && it.price);
+      if (v == null) return;
+      if (min == null || v < min) min = v;
+    });
+    if (min == null) {
+      priceEl.textContent = 'временно нет в наличии';
+      return;
+    }
+    priceEl.textContent = formatRub(min);
+  } catch (_) {}
+}
+
 function renderPresetCard(item) {
   var priceText = formatPriceWithRub(item.price);
   var title = escapeAttr(item.title || '');
@@ -1714,6 +1760,8 @@ async function loadPublicPresets() {
   listEl.innerHTML = loadingPresetsHtml;
   var items = await fetchPresets();
   lastPresetsList = items || [];
+  // Обновляем цену на кнопке "Готовые сборки" на главной
+  updateMainPresetsPrice();
   if (!items.length) {
     listEl.classList.remove('preset-list-loading');
     listEl.classList.add('preset-list-empty');
