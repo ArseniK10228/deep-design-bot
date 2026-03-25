@@ -1622,8 +1622,8 @@ a:active {
 #view-preset-detail .preset-detail-price { animation-delay: 0.14s; }
 #view-preset-detail .preset-detail-desc { animation-delay: 0.18s; }
 #view-preset-detail .preset-detail-bottom-bar {
-  animation: preset-buybar-up 0.30s cubic-bezier(0.2, 0.9, 0.2, 1) both;
-  animation-delay: 0.20s;
+  animation: preset-buybar-up 0.46s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.16s;
 }
 
 
