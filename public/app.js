@@ -1420,136 +1420,6 @@ function escapeAttr(s) {
   return String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-// ----- Fullscreen photo viewer (pinch zoom) -----
-var photoModalEl = document.getElementById('photo-modal');
-var photoModalImgEl = document.getElementById('photo-modal-img');
-var photoModalCloseEl = document.getElementById('photo-modal-close');
-var photoModalInnerEl = document.getElementById('photo-modal-inner');
-var photoZoomState = { open: false, scale: 1, tx: 0, ty: 0, pinchStartDist: 0, pinchStartScale: 1 };
-
-function applyPhotoModalTransform() {
-  if (!photoModalImgEl) return;
-  var s = Math.max(1, Math.min(4, photoZoomState.scale));
-  photoZoomState.scale = s;
-  photoModalImgEl.style.transform = 'translate3d(' + photoZoomState.tx + 'px,' + photoZoomState.ty + 'px,0) scale(' + photoZoomState.scale + ')';
-}
-
-function openPhotoModal(src) {
-  if (!photoModalEl || !photoModalImgEl) return;
-  if (!src) return;
-  photoZoomState.open = true;
-  photoZoomState.scale = 1;
-  photoZoomState.tx = 0;
-  photoZoomState.ty = 0;
-  photoZoomState.pinchStartDist = 0;
-  photoZoomState.pinchStartScale = 1;
-  photoModalImgEl.onload = null;
-  photoModalImgEl.src = src;
-  photoModalEl.classList.add('photo-modal-open');
-  photoModalEl.setAttribute('aria-hidden', 'false');
-  document.documentElement.style.overflow = 'hidden';
-  applyPhotoModalTransform();
-}
-
-function closePhotoModal() {
-  if (!photoModalEl || !photoModalImgEl) return;
-  photoZoomState.open = false;
-  photoModalEl.classList.remove('photo-modal-open');
-  photoModalEl.setAttribute('aria-hidden', 'true');
-  document.documentElement.style.overflow = '';
-  // чтобы очистить трансформы и не держать старое изображение в кеше UI
-  photoModalImgEl.style.transform = 'translate3d(0,0,0) scale(1)';
-}
-
-if (photoModalCloseEl) {
-  photoModalCloseEl.addEventListener('click', function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    closePhotoModal();
-  });
-}
-
-if (photoModalEl) {
-  photoModalEl.addEventListener('click', function (e) {
-    // клик по затемнённому фону закрывает, клик по изображению — нет
-    if (e.target === photoModalEl) closePhotoModal();
-  });
-}
-
-function touchDistance(t1, t2) {
-  var dx = (t1.clientX - t2.clientX);
-  var dy = (t1.clientY - t2.clientY);
-  return Math.sqrt(dx * dx + dy * dy);
-}
-
-function handlePhotoTouchStart(e) {
-  if (!photoZoomState.open) return;
-  if (!e.touches) return;
-  if (e.touches.length === 2) {
-    photoZoomState.pinchStartDist = touchDistance(e.touches[0], e.touches[1]);
-    photoZoomState.pinchStartScale = photoZoomState.scale;
-  } else if (e.touches.length === 1) {
-    photoZoomState.lastTouchX = e.touches[0].clientX;
-    photoZoomState.lastTouchY = e.touches[0].clientY;
-  }
-}
-
-function handlePhotoTouchMove(e) {
-  if (!photoZoomState.open) return;
-  if (!e.touches) return;
-  if (e.touches.length === 2 && photoZoomState.pinchStartDist > 0) {
-    var dist = touchDistance(e.touches[0], e.touches[1]);
-    var ratio = dist / photoZoomState.pinchStartDist;
-    photoZoomState.scale = photoZoomState.pinchStartScale * ratio;
-    // на pinch не панорамим (чтобы было стабильнее)
-    applyPhotoModalTransform();
-    e.preventDefault();
-    return;
-  }
-  if (e.touches.length === 1) {
-    var x = e.touches[0].clientX;
-    var y = e.touches[0].clientY;
-    var allowPanBecauseBig = false;
-    try {
-      if (photoModalImgEl && photoModalInnerEl) {
-        var imgRect = photoModalImgEl.getBoundingClientRect();
-        var innerRect = photoModalInnerEl.getBoundingClientRect();
-        allowPanBecauseBig = (imgRect.width > innerRect.width + 2) || (imgRect.height > innerRect.height + 2);
-      }
-    } catch (_) {}
-    if (typeof photoZoomState.lastTouchX === 'number') {
-      var dx = x - photoZoomState.lastTouchX;
-      var dy = y - photoZoomState.lastTouchY;
-      if (photoZoomState.scale > 1.01 || allowPanBecauseBig) {
-        photoZoomState.tx += dx;
-        photoZoomState.ty += dy;
-        applyPhotoModalTransform();
-      }
-    }
-    photoZoomState.lastTouchX = x;
-    photoZoomState.lastTouchY = y;
-    if (photoZoomState.scale > 1.01 || allowPanBecauseBig) e.preventDefault();
-  }
-}
-
-function handlePhotoTouchEnd() {
-  if (!photoZoomState.open) return;
-  photoZoomState.pinchStartDist = 0;
-  photoZoomState.pinchStartScale = photoZoomState.scale;
-  photoZoomState.lastTouchX = null;
-  photoZoomState.lastTouchY = null;
-}
-
-if (photoModalEl) {
-  photoModalInnerEl && photoModalInnerEl.addEventListener('touchstart', handlePhotoTouchStart, { passive: false });
-  photoModalInnerEl && photoModalInnerEl.addEventListener('touchmove', handlePhotoTouchMove, { passive: false });
-  photoModalInnerEl && photoModalInnerEl.addEventListener('touchend', handlePhotoTouchEnd, { passive: true });
-}
-
-window.addEventListener('keydown', function (e) {
-  if (e && e.key === 'Escape') closePhotoModal();
-});
-
 function renderOwnerPresetCard(item) {
   var base = renderPresetCard(item);
   return base.replace('</div>', '<button type=\"button\" class=\"preset-delete-btn\" data-preset-id=\"' + escapeAttr(item.id) + '\">Удалить</button></div>');
@@ -1683,18 +1553,6 @@ function showPresetDetail(item) {
 
       setIndex(0);
     })();
-
-    // клик по фото открывает полноэкранный просмотрщик
-    try {
-      wrap.querySelectorAll('#preset-detail-carousel img').forEach(function (imgEl) {
-        imgEl.style.cursor = 'zoom-in';
-        imgEl.addEventListener('click', function (ev) {
-          ev.preventDefault();
-          ev.stopPropagation();
-          openPhotoModal(imgEl.getAttribute('src') || imgEl.src);
-        });
-      });
-    } catch (_) {}
   } else {
     wrap.innerHTML = '';
     wrap.classList.add('hidden');
@@ -1835,18 +1693,6 @@ function showPortfolioDetail(item) {
 
       setIndex(0);
     })();
-
-    // клик по фото открывает полноэкранный просмотрщик
-    try {
-      wrap.querySelectorAll('#portfolio-detail-carousel img').forEach(function (imgEl) {
-        imgEl.style.cursor = 'zoom-in';
-        imgEl.addEventListener('click', function (ev) {
-          ev.preventDefault();
-          ev.stopPropagation();
-          openPhotoModal(imgEl.getAttribute('src') || imgEl.src);
-        });
-      });
-    } catch (_) {}
   } else {
     wrap.innerHTML = '';
     wrap.classList.add('hidden');
