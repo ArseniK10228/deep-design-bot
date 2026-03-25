@@ -1623,9 +1623,18 @@ function showPresetDetail(item) {
         return;
       }
 
+      var sheetCloseTimer = null;
       function closeSheet() {
+        if (sheetCloseTimer) {
+          try { clearTimeout(sheetCloseTimer); } catch (_) {}
+          sheetCloseTimer = null;
+        }
         sheet.classList.remove('sheet-open');
-        sheet.setAttribute('aria-hidden', 'true');
+        sheet.classList.add('sheet-closing');
+        sheetCloseTimer = setTimeout(function () {
+          sheet.classList.remove('sheet-closing');
+          sheet.setAttribute('aria-hidden', 'true');
+        }, 230);
         if (document && document.documentElement) {
           document.documentElement.classList.remove('html--sheet-open');
         }
@@ -1656,6 +1665,11 @@ function showPresetDetail(item) {
 
       btnCancel.onclick = closeSheet;
       backdrop.onclick = closeSheet;
+      if (sheetCloseTimer) {
+        try { clearTimeout(sheetCloseTimer); } catch (_) {}
+        sheetCloseTimer = null;
+      }
+      sheet.classList.remove('sheet-closing');
       sheet.classList.add('sheet-open');
       sheet.setAttribute('aria-hidden', 'false');
       if (document && document.documentElement) {
