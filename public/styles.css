@@ -374,6 +374,14 @@ a:active {
   gap: 10px;
 }
 
+#view-preset-detail .preset-detail-buy-btn {
+  background: #2f87ff;
+}
+
+#view-preset-detail .preset-detail-buy-btn:active {
+  opacity: 0.92;
+}
+
 .preset-detail-image-wrap {
   width: 100%;
   max-height: 400px;
