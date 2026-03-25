@@ -1561,6 +1561,29 @@ a:active {
 #view-build-yes .page-content > *:nth-child(33) { animation-delay: 1.02s; }
 #view-build-yes .page-content > *:nth-child(34) { animation-delay: 1.05s; }
 
+/* ----- Детальная карточка объявления: плавное появление элементов ----- */
+#view-preset-detail .preset-detail-image-wrap,
+#view-preset-detail .preset-detail-body > * {
+  animation: page-enter 0.35s ease-out backwards;
+}
+
+#view-preset-detail .preset-detail-image-wrap { animation-delay: 0.06s; }
+#view-preset-detail .preset-detail-title { animation-delay: 0.10s; }
+#view-preset-detail .preset-detail-price { animation-delay: 0.14s; }
+#view-preset-detail .preset-detail-desc { animation-delay: 0.18s; }
+#view-preset-detail .preset-detail-desc-toggle { animation-delay: 0.22s; }
+#view-preset-detail .preset-detail-cta { animation-delay: 0.26s; }
+#view-preset-detail .preset-detail-pickup-btn { animation-delay: 0.30s; }
+
+#view-portfolio-detail .preset-detail-image-wrap,
+#view-portfolio-detail .preset-detail-body > * {
+  animation: page-enter 0.35s ease-out backwards;
+}
+
+#view-portfolio-detail .preset-detail-image-wrap { animation-delay: 0.06s; }
+#view-portfolio-detail .preset-detail-title { animation-delay: 0.10s; }
+#view-portfolio-detail .preset-detail-desc { animation-delay: 0.14s; }
+
 .form-textarea.form-textarea-sm {
   min-height: 72px;
 }
