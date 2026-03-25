@@ -12,6 +12,7 @@ cd c:\Users\Arsen\Project\Test
 git add .
 git commit -m "Update"
 git push origin main
+
 ```
 
 ---
@@ -67,6 +68,7 @@ systemctl restart deepdesign-bot
 | Статус сервиса    | `systemctl status deepdesign-bot`                                                                                                |
 | Проверить webhook | `curl -s -o /dev/null -w "%{http_code}" -X POST https://app.deepdesignpc.ru/webhook -H "Content-Type: application/json" -d '{}'` |
 
+
 ---
 
 ## Очистить всю историю чатов
@@ -89,5 +91,4 @@ curl -s -X POST https://app.deepdesignpc.ru/api/owner-chat/clear-all \
 cd /opt/deepdesign-bot && node scripts/clear-owner-chat.js
 ```
 
-**Redis** вручную (если нет доступа к API): удалить ключи `ownerChat:threadsIndex` и `ownerChat:thread:*`.
-
+**Redis** вручную (если нет доступа к API): удалить ключи `ownerChat:threadsIndex` и `ownerChat:thread:`*.

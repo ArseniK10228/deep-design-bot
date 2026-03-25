@@ -353,8 +353,34 @@ a:active {
 
 /* Страница объявления (подробно) */
 .preset-detail-content {
+  /* Отступ под закреплённую верхнюю шапку */
+  padding-top: calc(env(safe-area-inset-top, 0px) + 84px);
   /* Место под закреплённую панель кнопок снизу */
   padding-bottom: calc(24px + 124px + max(0px, env(safe-area-inset-bottom, 0px)));
+}
+
+#view-preset-detail .page-header {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(480px, 100vw);
+  box-sizing: border-box;
+  z-index: 9050;
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px;
+  background: rgba(18, 18, 18, 0.94);
+  backdrop-filter: blur(12px);
+}
+
+@keyframes preset-header-down {
+  from {
+    transform: translateX(-50%) translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
 }
 
 .preset-detail-bottom-bar {
@@ -1618,6 +1644,10 @@ a:active {
 }
 
 #view-preset-detail .preset-detail-image-wrap { animation-delay: 0.06s; }
+#view-preset-detail .page-header {
+  animation: preset-header-down 0.34s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+  animation-delay: 0.04s;
+}
 #view-preset-detail .preset-detail-title { animation-delay: 0.10s; }
 #view-preset-detail .preset-detail-price { animation-delay: 0.14s; }
 #view-preset-detail .preset-detail-desc { animation-delay: 0.18s; }
