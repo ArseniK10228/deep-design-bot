@@ -1650,7 +1650,7 @@ function showPresetDetail(item) {
       window.alert('Функция самовывоза появится позже.');
     };
   }
-  showView('view-preset-detail', 'right');
+  showView('view-preset-detail');
 }
 
 function showPortfolioDetail(item) {
@@ -1746,7 +1746,7 @@ function showPortfolioDetail(item) {
 
   titleEl.textContent = item.title || '';
   descEl.textContent = item.description || '';
-  showView('view-portfolio-detail', 'right');
+  showView('view-portfolio-detail');
 }
 
 var loadingPresetsHtml = '<div class=\"list-loading\"><div class=\"list-loading-spinner\"></div><span>Загрузка сборок...</span></div>';
