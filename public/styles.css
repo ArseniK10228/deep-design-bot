@@ -1570,10 +1570,10 @@ a:active {
 #view-preset-detail .preset-detail-image-wrap { animation-delay: 0.06s; }
 #view-preset-detail .preset-detail-title { animation-delay: 0.10s; }
 #view-preset-detail .preset-detail-price { animation-delay: 0.14s; }
-#view-preset-detail .preset-detail-desc { animation-delay: 0.18s; }
-#view-preset-detail .preset-detail-desc-toggle { animation-delay: 0.22s; }
-#view-preset-detail .preset-detail-cta { animation-delay: 0.26s; }
-#view-preset-detail .preset-detail-pickup-btn { animation-delay: 0.30s; }
+#view-preset-detail .preset-detail-cta { animation-delay: 0.18s; }
+#view-preset-detail .preset-detail-pickup-btn { animation-delay: 0.22s; }
+#view-preset-detail .preset-detail-desc { animation-delay: 0.26s; }
+#view-preset-detail .preset-detail-desc-toggle { animation-delay: 0.30s; }
 
 #view-portfolio-detail .preset-detail-image-wrap,
 #view-portfolio-detail .preset-detail-body > * {
