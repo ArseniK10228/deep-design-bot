@@ -1443,24 +1443,7 @@ function openPhotoModal(src) {
   photoZoomState.ty = 0;
   photoZoomState.pinchStartDist = 0;
   photoZoomState.pinchStartScale = 1;
-  photoModalImgEl.onload = function () {
-    // Стартовый масштаб: чтобы картинка не “выезжала” за рамки.
-    // При этом мы НЕ апскейлим выше 1 — только fit для больших фото.
-    try {
-      var cw = photoModalInnerEl ? photoModalInnerEl.clientWidth : window.innerWidth;
-      var ch = photoModalInnerEl ? photoModalInnerEl.clientHeight : window.innerHeight;
-      var iw = photoModalImgEl && photoModalImgEl.naturalWidth ? photoModalImgEl.naturalWidth : 0;
-      var ih = photoModalImgEl && photoModalImgEl.naturalHeight ? photoModalImgEl.naturalHeight : 0;
-      if (cw > 0 && ch > 0 && iw > 0 && ih > 0) {
-        var s = Math.min(cw / iw, ch / ih, 1);
-        photoZoomState.scale = s;
-        photoZoomState.tx = 0;
-        photoZoomState.ty = 0;
-        photoZoomState.pinchStartScale = s;
-        applyPhotoModalTransform();
-      }
-    } catch (_) {}
-  };
+  photoModalImgEl.onload = null;
   photoModalImgEl.src = src;
   photoModalEl.classList.add('photo-modal-open');
   photoModalEl.setAttribute('aria-hidden', 'false');
@@ -1526,11 +1509,14 @@ function handlePhotoTouchMove(e) {
   if (e.touches.length === 1) {
     var x = e.touches[0].clientX;
     var y = e.touches[0].clientY;
-    var allowPanBecauseBig =
-      (photoModalImgEl && photoModalInnerEl && photoModalImgEl.naturalWidth && photoModalImgEl.naturalHeight && (
-        (photoModalImgEl.naturalWidth * photoZoomState.scale) > (photoModalInnerEl.clientWidth + 2) ||
-        (photoModalImgEl.naturalHeight * photoZoomState.scale) > (photoModalInnerEl.clientHeight + 2)
-      ));
+    var allowPanBecauseBig = false;
+    try {
+      if (photoModalImgEl && photoModalInnerEl) {
+        var imgRect = photoModalImgEl.getBoundingClientRect();
+        var innerRect = photoModalInnerEl.getBoundingClientRect();
+        allowPanBecauseBig = (imgRect.width > innerRect.width + 2) || (imgRect.height > innerRect.height + 2);
+      }
+    } catch (_) {}
     if (typeof photoZoomState.lastTouchX === 'number') {
       var dx = x - photoZoomState.lastTouchX;
       var dy = y - photoZoomState.lastTouchY;

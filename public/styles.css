@@ -2337,12 +2337,13 @@ html.html--chat-open body {
 }
 
 .photo-modal-img {
-  /* Открываем фото в "натуральном" размере, без подгонки под экран.
-     Ограничиваем только видимой областью overflow hidden контейнера. */
-  max-width: none;
-  max-height: none;
+  /* На старте фото должно помещаться в рамки экрана. При зуме мы всё равно
+     увеличиваем через transform и тогда часть будет клиповаться overflow hidden. */
+  max-width: 100%;
+  max-height: 100%;
   width: auto;
   height: auto;
+  object-fit: contain;
   transform-origin: center center;
   transform: translate3d(0, 0, 0) scale(1);
   will-change: transform;
