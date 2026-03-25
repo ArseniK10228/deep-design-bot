@@ -1562,6 +1562,38 @@ function showPresetDetail(item) {
   priceEl.textContent = priceText || '';
   priceEl.style.display = priceText ? '' : 'none';
   descEl.textContent = item.description || '';
+
+  var descToggleBtn = document.getElementById('preset-detail-desc-toggle');
+  if (descToggleBtn) {
+    var collapsedMax = 84;
+    descEl.classList.add('preset-detail-desc-collapsed');
+    descToggleBtn.style.display = '';
+    descToggleBtn.textContent = 'Развернуть';
+    descToggleBtn.setAttribute('aria-expanded', 'false');
+
+    // Если текста и так немного — скрываем кнопку
+    try {
+      var isShort = descEl.scrollHeight <= (collapsedMax + 6);
+      if (!item.description || isShort) {
+        descToggleBtn.style.display = 'none';
+        descEl.classList.remove('preset-detail-desc-collapsed');
+      }
+    } catch (_) {}
+
+    descToggleBtn.onclick = function () {
+      var isCollapsed = descEl.classList.contains('preset-detail-desc-collapsed');
+      if (isCollapsed) {
+        descEl.classList.remove('preset-detail-desc-collapsed');
+        descToggleBtn.textContent = 'Свернуть';
+        descToggleBtn.setAttribute('aria-expanded', 'true');
+      } else {
+        descEl.classList.add('preset-detail-desc-collapsed');
+        descToggleBtn.textContent = 'Развернуть';
+        descToggleBtn.setAttribute('aria-expanded', 'false');
+      }
+    };
+  }
+
   var cta = document.getElementById('preset-detail-cta');
   if (cta) {
     var avitoUrl = item && item.avitoLink ? String(item.avitoLink).trim() : '';
