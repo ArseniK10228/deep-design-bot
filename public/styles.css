@@ -377,11 +377,11 @@ a:active {
 
 @keyframes preset-buybar-up {
   from {
-    transform: translateX(-50%) translateY(16px);
+    transform: translate3d(-50%, 16px, 0);
     opacity: 0;
   }
   to {
-    transform: translateX(-50%) translateY(0);
+    transform: translate3d(-50%, 0, 0);
     opacity: 1;
   }
 }
@@ -974,6 +974,18 @@ a:active {
   to {
     opacity: 0;
   }
+}
+
+#view-preset-detail.view-active.view-enter,
+#view-preset-detail.view-active.view-enter-right,
+#view-preset-detail.view-active.view-enter-left {
+  animation: view-consult-enter-opacity 0.28s ease-out forwards;
+}
+
+#view-preset-detail.view-active.view-leaving,
+#view-preset-detail.view-active.view-leave-left,
+#view-preset-detail.view-active.view-leave-right {
+  animation: view-consult-leave-opacity 0.28s ease-in forwards;
 }
 
 #view-consult.view-active.view-enter,
