@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#121212" />
   <title>Deep Design PC</title>
   <link rel="preconnect" href="https://telegram.org" crossorigin />
-  <link rel="stylesheet" href="styles.css?v=20260322-detail-cta-above-desc" />
+  <link rel="stylesheet" href="styles.css?v=20260322-detail-bottom-bar" />
 </head>
 <body>
   <div id="top-loading-bar" class="top-loading-bar top-loading-bar-hidden" aria-hidden="true"></div>
@@ -554,12 +554,14 @@
         <div class="preset-detail-body">
           <h2 class="preset-detail-title" id="preset-detail-title"></h2>
           <p class="preset-detail-price" id="preset-detail-price"></p>
-          <button type="button" class="submit-btn preset-detail-cta" id="preset-detail-cta">Написать продавцу</button>
-          <button type="button" class="preset-detail-pickup-btn" id="preset-detail-pickup-cta">Забрать самовывозом</button>
           <div class="preset-detail-desc" id="preset-detail-desc"></div>
           <button type="button" class="preset-detail-desc-toggle" id="preset-detail-desc-toggle">Развернуть</button>
         </div>
       </main>
+      <div class="preset-detail-bottom-bar" id="preset-detail-bottom-bar" aria-label="Действия">
+        <button type="button" class="submit-btn preset-detail-cta" id="preset-detail-cta">Написать продавцу</button>
+        <button type="button" class="preset-detail-pickup-btn" id="preset-detail-pickup-cta">Забрать самовывозом</button>
+      </div>
     </div>
 
     <div class="view" id="view-portfolio-detail">
@@ -662,7 +664,7 @@
   </nav>
 
   <script src="/telegram-web-app.js" defer></script>
-  <script src="app.js?v=20260322-detail-no-slide" defer></script>
+  <script src="app.js?v=20260322-detail-bottom-bar" defer></script>
 
 </body>
 </html>
