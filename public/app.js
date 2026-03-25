@@ -1626,6 +1626,9 @@ function showPresetDetail(item) {
       function closeSheet() {
         sheet.classList.remove('sheet-open');
         sheet.setAttribute('aria-hidden', 'true');
+        if (document && document.documentElement) {
+          document.documentElement.classList.remove('html--sheet-open');
+        }
       }
 
       btnAvito.disabled = !avitoUrl;
@@ -1655,6 +1658,9 @@ function showPresetDetail(item) {
       backdrop.onclick = closeSheet;
       sheet.classList.add('sheet-open');
       sheet.setAttribute('aria-hidden', 'false');
+      if (document && document.documentElement) {
+        document.documentElement.classList.add('html--sheet-open');
+      }
     };
   }
   showView('view-preset-detail');

@@ -2368,6 +2368,14 @@ html.html--chat-open body {
   display: block;
 }
 
+html.html--sheet-open,
+html.html--sheet-open body {
+  overflow: hidden;
+  height: 100%;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
 .sheet-backdrop {
   position: absolute;
   inset: 0;
@@ -2387,14 +2395,6 @@ html.html--chat-open body {
   box-sizing: border-box;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   animation: sheet-up 0.22s ease-out both;
-}
-
-.sheet-handle {
-  width: 46px;
-  height: 4px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.2);
-  margin: 6px auto 10px;
 }
 
 .sheet-title {
