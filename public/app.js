@@ -1972,8 +1972,27 @@ function openPhotoModalHero(fromImgEl) {
     return;
   }
 
+  // Convert thumbnail element rect to "pixel bounds" inside it,
+  // because the thumbnail image also uses `object-fit: contain`.
+  var fromPixelRect = null;
+  try {
+    if (fromImgEl.naturalWidth && fromImgEl.naturalHeight) {
+      var bw = fromRect.width;
+      var bh = fromRect.height;
+      var nw = fromImgEl.naturalWidth;
+      var nh = fromImgEl.naturalHeight;
+      var sFrom = Math.min(bw / nw, bh / nh);
+      var pw = nw * sFrom;
+      var ph = nh * sFrom;
+      var left = fromRect.left + (bw - pw) / 2;
+      var top = fromRect.top + (bh - ph) / 2;
+      fromPixelRect = { left: left, top: top, width: pw, height: ph };
+    }
+  } catch (_) {}
+  if (!fromPixelRect) fromPixelRect = fromRect;
+
   // Open modal; hide real image until hero finishes
-  photoHeroFromRect = fromRect;
+  photoHeroFromRect = fromPixelRect;
   photoHeroToRect = null;
   photoModalImgEl.style.opacity = '0';
   photoModalEl.classList.add('photo-modal-open');
@@ -1986,10 +2005,10 @@ function openPhotoModalHero(fromImgEl) {
   clone.className = 'photo-hero-clone';
   clone.src = src;
   clone.alt = '';
-  clone.style.left = fromRect.left + 'px';
-  clone.style.top = fromRect.top + 'px';
-  clone.style.width = fromRect.width + 'px';
-  clone.style.height = fromRect.height + 'px';
+  clone.style.left = fromPixelRect.left + 'px';
+  clone.style.top = fromPixelRect.top + 'px';
+  clone.style.width = fromPixelRect.width + 'px';
+  clone.style.height = fromPixelRect.height + 'px';
   document.body.appendChild(clone);
 
   function finish() {
@@ -2025,9 +2044,9 @@ function openPhotoModalHero(fromImgEl) {
       }
       photoHeroToRect = toRect;
 
-      var dx = toRect.left - fromRect.left;
-      var dy = toRect.top - fromRect.top;
-      var s = toRect.width / fromRect.width;
+      var dx = toRect.left - photoHeroFromRect.left;
+      var dy = toRect.top - photoHeroFromRect.top;
+      var s = toRect.width / photoHeroFromRect.width;
 
       clone.style.transformOrigin = 'top left';
       clone.style.transition = 'transform 0.34s cubic-bezier(0.18, 0.95, 0.2, 1)';
