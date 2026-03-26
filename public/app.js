@@ -1948,6 +1948,7 @@ function openPhotoModal(src) {
   if (!photoModalEl || !photoModalImgEl || !photoModalScrollerEl) return;
   var url = (src || '').trim();
   if (!url) return;
+  try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
   photoModalImgEl.src = url;
   photoModalEl.classList.add('photo-modal-open');
   photoModalEl.setAttribute('aria-hidden', 'false');
@@ -1965,6 +1966,7 @@ function openPhotoModalHero(fromImgEl) {
   if (!fromImgEl || !photoModalEl || !photoModalImgEl) return;
   var src = (fromImgEl.getAttribute && fromImgEl.getAttribute('src')) ? String(fromImgEl.getAttribute('src') || '').trim() : '';
   if (!src) return;
+  try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
 
   var fromRect = null;
   try { fromRect = fromImgEl.getBoundingClientRect(); } catch (_) { fromRect = null; }
@@ -2188,12 +2190,17 @@ function closePhotoModal() {
     return closePhotoModalHero();
   }
   try { photoModalEl.classList.add('photo-modal-closing'); } catch (_) {}
-  photoModalEl.classList.remove('photo-modal-open');
-  try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
-  try { document.body.classList.remove('photo-hero-closing'); } catch (_) {}
-  photoModalEl.setAttribute('aria-hidden', 'true');
-  try { photoModalImgEl.src = ''; } catch (_) {}
-  try { photoZoomReset(); } catch (_) {}
+  // Let the backdrop fade out smoothly before fully hiding.
+  setTimeout(function () {
+    try { photoModalEl.classList.remove('photo-modal-open'); } catch (_) {}
+    try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
+    try { document.body.classList.remove('photo-hero-closing'); } catch (_) {}
+    try { if (photoHeroSourceEl) photoHeroSourceEl.style.visibility = ''; } catch (_) {}
+    photoHeroSourceEl = null;
+    try { photoModalEl.setAttribute('aria-hidden', 'true'); } catch (_) {}
+    try { photoModalImgEl.src = ''; } catch (_) {}
+    try { photoZoomReset(); } catch (_) {}
+  }, 270);
 }
 
 if (photoModalBackdropEl) photoModalBackdropEl.addEventListener('click', closePhotoModal);

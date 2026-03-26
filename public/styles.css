@@ -502,7 +502,6 @@ a:active {
 
 .photo-modal.photo-modal-closing .photo-modal-backdrop {
   opacity: 0;
-  transition-duration: 0.08s;
 }
 
 .photo-modal.hero-animating .photo-modal-backdrop {
@@ -536,7 +535,6 @@ a:active {
 
 .photo-modal.photo-modal-closing .photo-modal-close {
   opacity: 0;
-  transition-duration: 0.08s;
 }
 
 .photo-modal-close:active {
@@ -553,11 +551,12 @@ a:active {
   align-items: center;
   justify-content: center;
   background: #242424;
+  opacity: 1;
+  transition: opacity 0.26s ease;
 }
 
-/* When closing: show underlying UI immediately */
+/* When closing: fade underlying UI back in */
 .photo-modal.photo-modal-closing {
-  pointer-events: none;
   /* Immediately let announcement header be above photo on close */
   z-index: 8000;
 }
