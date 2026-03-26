@@ -776,7 +776,7 @@ function appendOwnerChatMessages(messages, options) {
 
         // Anchor scroll to bottom smoothly.
         // This pushes upper messages upward without "teleporting".
-        if (ownerChatAutoScrollEnabled) scrollOwnerChatToBottomSmooth(320);
+      if (ownerChatAutoScrollEnabled) scrollOwnerChatToBottomSmooth(520);
 
         requestAnimationFrame(function () {
           try {
@@ -1150,7 +1150,6 @@ if (ownerChatInputEl) {
   ownerChatInputEl.addEventListener('focus', function () {
     const shouldAvoidScrollTail = ownerChatIsSending || ownerChatSuppressKeyboardScroll;
     if (shouldAvoidScrollTail) {
-      scrollOwnerChatToBottom();
       return;
     }
     scrollOwnerChatToBottomSmooth();
