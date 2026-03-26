@@ -634,7 +634,7 @@ function scrollOwnerChatToBottom() {
 
 /** Плавная прокрутка (rAF + ease-out): в Telegram WebView часто не работает scrollTo({ behavior: 'smooth' }). */
 let chatSmoothScrollRaf = null;
-function scrollOwnerChatToBottomSmooth() {
+function scrollOwnerChatToBottomSmooth(durMs) {
   const el = ownerChatMessagesEl;
   if (!el) return;
   if (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -649,7 +649,7 @@ function scrollOwnerChatToBottomSmooth() {
   if (chatSmoothScrollRaf) cancelAnimationFrame(chatSmoothScrollRaf);
   const start = el.scrollTop;
   const t0 = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
-  const dur = 420;
+  const dur = typeof durMs === 'number' && durMs > 0 ? durMs : 420;
   const ease = function (t) {
     return 1 - Math.pow(1 - t, 3);
   };
@@ -774,9 +774,9 @@ function appendOwnerChatMessages(messages, options) {
         row.style.opacity = '0';
         row.style.transform = 'translateY(14px)';
 
-        // Anchor scroll to bottom once (instant). This is what visually pushes
-        // the previous messages upward, like Telegram.
-        if (ownerChatAutoScrollEnabled) scrollOwnerChatToBottom();
+        // Anchor scroll to bottom smoothly.
+        // This pushes upper messages upward without "teleporting".
+        if (ownerChatAutoScrollEnabled) scrollOwnerChatToBottomSmooth(320);
 
         requestAnimationFrame(function () {
           try {
