@@ -1897,6 +1897,7 @@ var photoZoomStartScale = 1;
 var photoZoomBaseW = 0;
 var photoZoomBaseH = 0;
 var photoHeroFromRect = null;
+var photoHeroToRect = null;
 
 function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
 
@@ -1973,6 +1974,7 @@ function openPhotoModalHero(fromImgEl) {
 
   // Open modal; hide real image until hero finishes
   photoHeroFromRect = fromRect;
+  photoHeroToRect = null;
   photoModalImgEl.style.opacity = '0';
   photoModalEl.classList.add('photo-modal-open');
   photoModalEl.classList.add('hero-animating');
@@ -1999,28 +2001,44 @@ function openPhotoModalHero(fromImgEl) {
   }
 
   photoModalImgEl.onload = function () {
-    // Measure toRect without changing zoom/pan transforms during the hero.
+    // Compute target rect using contain math (stable, no layout surprises).
     var toRect = null;
-    try { toRect = photoModalImgEl.getBoundingClientRect(); } catch (_) { toRect = null; }
+    try {
+      if (photoModalScrollerEl && photoModalImgEl && photoModalImgEl.naturalWidth && photoModalImgEl.naturalHeight) {
+        var cr = photoModalScrollerEl.getBoundingClientRect();
+        var cw = Math.max(1, photoModalScrollerEl.clientWidth || Math.floor(cr.width));
+        var ch = Math.max(1, photoModalScrollerEl.clientHeight || Math.floor(cr.height));
+        var nw = photoModalImgEl.naturalWidth;
+        var nh = photoModalImgEl.naturalHeight;
+        var s = Math.min(cw / nw, ch / nh);
+        var tw = nw * s;
+        var th = nh * s;
+        var left = cr.left + (cw - tw) / 2;
+        var top = cr.top + (ch - th) / 2;
+        toRect = { left: left, top: top, width: tw, height: th };
+      }
+    } catch (_) { toRect = null; }
     if (!toRect || !toRect.width || !toRect.height) {
       finish();
       return;
     }
+    photoHeroToRect = toRect;
 
     var dx = toRect.left - fromRect.left;
     var dy = toRect.top - fromRect.top;
     // Use uniform scaling to avoid aspect "stretch".
-    var s1 = toRect.width / fromRect.width;
-    var s2 = toRect.height / fromRect.height;
-    var s = Math.min(s1, s2);
+    var s = toRect.width / fromRect.width;
 
     clone.style.transformOrigin = 'top left';
-    clone.style.transition = 'transform 0.34s cubic-bezier(0.18, 0.95, 0.2, 1), opacity 0.18s ease';
+    clone.style.transition = 'transform 0.34s cubic-bezier(0.18, 0.95, 0.2, 1)';
     requestAnimationFrame(function () {
       clone.style.transform =
         'translate3d(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px,0) scale(' + s.toFixed(4) + ')';
     });
-    clone.addEventListener('transitionend', finish, { once: true });
+    clone.addEventListener('transitionend', function te(ev) {
+      if (ev && ev.propertyName && String(ev.propertyName) !== 'transform') return;
+      finish();
+    }, { once: true });
     setTimeout(finish, 420);
   };
 }
@@ -2034,10 +2052,13 @@ function closePhotoModalHero() {
   try { photoZoomReset(); } catch (_) {}
 
   var fromRect = photoHeroFromRect;
-  var curRect = null;
-  try { curRect = photoModalImgEl.getBoundingClientRect(); } catch (_) { curRect = null; }
+  var curRect = photoHeroToRect;
+  if (!curRect) {
+    try { curRect = photoModalImgEl.getBoundingClientRect(); } catch (_) { curRect = null; }
+  }
   if (!curRect || !curRect.width || !curRect.height) {
     photoHeroFromRect = null;
+    photoHeroToRect = null;
     closePhotoModal();
     return;
   }
@@ -2059,9 +2080,7 @@ function closePhotoModalHero() {
 
   var dx = fromRect.left - curRect.left;
   var dy = fromRect.top - curRect.top;
-  var s1 = fromRect.width / curRect.width;
-  var s2 = fromRect.height / curRect.height;
-  var s = Math.min(s1, s2);
+  var s = fromRect.width / curRect.width;
 
   clone.style.transition = 'none';
   clone.style.transformOrigin = 'top left';
@@ -2082,6 +2101,7 @@ function closePhotoModalHero() {
     done = true;
     try { clone.remove(); } catch (_) {}
     photoHeroFromRect = null;
+    photoHeroToRect = null;
     photoModalEl.classList.remove('hero-animating');
     photoModalEl.classList.remove('photo-modal-open');
     photoModalEl.setAttribute('aria-hidden', 'true');
