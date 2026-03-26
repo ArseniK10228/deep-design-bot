@@ -2110,8 +2110,9 @@ function closePhotoModalHero() {
   }
 
   // Hide real image during reverse hero.
-  photoModalEl.classList.add('hero-animating');
-  photoModalImgEl.style.opacity = '0';
+  // Не "гасим" — просто скрываем картинку (без opacity), пока летит clone.
+  try { photoModalEl.classList.remove('hero-animating'); } catch (_) {}
+  try { photoModalImgEl.style.visibility = 'hidden'; } catch (_) {}
 
   // Create clone at current rect
   var clone = document.createElement('img');
@@ -2135,9 +2136,8 @@ function closePhotoModalHero() {
 
   requestAnimationFrame(function () {
     try {
-      clone.style.transition = 'transform 0.34s cubic-bezier(0.18, 0.95, 0.2, 1), opacity 0.18s ease';
+      clone.style.transition = 'transform 0.34s cubic-bezier(0.18, 0.95, 0.2, 1)';
       clone.style.transform = 'translate3d(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px,0) scale(' + s.toFixed(4) + ')';
-      clone.style.opacity = '0';
     } catch (_) {}
   });
 
@@ -2148,6 +2148,7 @@ function closePhotoModalHero() {
     try { clone.remove(); } catch (_) {}
     photoHeroFromRect = null;
     photoHeroToRect = null;
+    try { photoModalImgEl.style.visibility = ''; } catch (_) {}
     photoModalEl.classList.remove('hero-animating');
     photoModalEl.classList.remove('photo-modal-open');
     photoModalEl.setAttribute('aria-hidden', 'true');
