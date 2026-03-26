@@ -160,11 +160,14 @@ function showView(viewId, direction) {
   if (!target || !current || target === current) return;
 
   const appRoot = document.querySelector('.app');
-  if (appRoot) appRoot.classList.toggle('app--chat-open', viewId === 'view-consult');
-  if (document.documentElement) {
-    document.documentElement.classList.toggle('html--chat-open', viewId === 'view-consult');
+  const enteringChat = viewId === 'view-consult';
+  const leavingChat = current && current.id === 'view-consult';
+  const applyChatClassesNow = !(leavingChat && !enteringChat);
+
+  if (appRoot && applyChatClassesNow) appRoot.classList.toggle('app--chat-open', enteringChat);
+  if (document.documentElement && applyChatClassesNow) {
+    document.documentElement.classList.toggle('html--chat-open', enteringChat);
   }
-  scheduleChatKeyboardInset();
 
   const tabbar = document.querySelector('.app-tabbar');
   // Нижняя панель не показывается на "Готовые сборки", чтобы экран выглядел как карточка-страница.
@@ -188,6 +191,15 @@ function showView(viewId, direction) {
   current.addEventListener('animationend', function handler() {
     current.removeEventListener('animationend', handler);
     current.classList.remove('view-active', 'view-leaving', 'view-leave-left', 'view-leave-right');
+
+    // Важно: при выходе из чата не снимаем `html--chat-open` до окончания анимации.
+    // Иначе Telegram WebView иногда делает лишний перескролл/“моргает”.
+    if (!applyChatClassesNow) {
+      if (appRoot) appRoot.classList.toggle('app--chat-open', enteringChat);
+      if (document.documentElement) document.documentElement.classList.toggle('html--chat-open', enteringChat);
+    }
+    scheduleChatKeyboardInset();
+
     target.classList.add('view-active', enterClass);
     if (viewId === 'view-consult') {
       try { initOwnerChatThread(); } catch (_) {}
