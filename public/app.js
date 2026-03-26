@@ -1898,6 +1898,7 @@ var photoZoomBaseW = 0;
 var photoZoomBaseH = 0;
 var photoHeroFromRect = null;
 var photoHeroToRect = null;
+var photoHeroSourceEl = null;
 
 function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
 
@@ -1994,6 +1995,11 @@ function openPhotoModalHero(fromImgEl) {
   // Open modal; hide real image until hero finishes
   photoHeroFromRect = fromPixelRect;
   photoHeroToRect = null;
+  // Hide the source image while the hero clone is visible (avoid double image).
+  try {
+    photoHeroSourceEl = fromImgEl;
+    fromImgEl.style.visibility = 'hidden';
+  } catch (_) { photoHeroSourceEl = null; }
   photoModalImgEl.style.opacity = '0';
   photoModalEl.classList.add('photo-modal-open');
   photoModalEl.classList.add('hero-animating');
@@ -2015,6 +2021,8 @@ function openPhotoModalHero(fromImgEl) {
     try { clone.remove(); } catch (_) {}
     try { photoModalImgEl.style.opacity = '1'; } catch (_) {}
     try { photoModalEl.classList.remove('hero-animating'); } catch (_) {}
+    try { if (photoHeroSourceEl) photoHeroSourceEl.style.visibility = ''; } catch (_) {}
+    photoHeroSourceEl = null;
     try { photoZoomMeasureBase(); } catch (_) {}
     try { photoZoomApply(); } catch (_) {}
   }
@@ -2109,6 +2117,8 @@ function closePhotoModalHero() {
   if (!curRect || !curRect.width || !curRect.height) {
     photoHeroFromRect = null;
     photoHeroToRect = null;
+    try { if (photoHeroSourceEl) photoHeroSourceEl.style.visibility = ''; } catch (_) {}
+    photoHeroSourceEl = null;
     closePhotoModal();
     return;
   }
@@ -2152,6 +2162,8 @@ function closePhotoModalHero() {
     try { clone.remove(); } catch (_) {}
     photoHeroFromRect = null;
     photoHeroToRect = null;
+    try { if (photoHeroSourceEl) photoHeroSourceEl.style.visibility = ''; } catch (_) {}
+    photoHeroSourceEl = null;
     try { photoModalImgEl.style.visibility = ''; } catch (_) {}
     photoModalEl.classList.remove('hero-animating');
     try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
