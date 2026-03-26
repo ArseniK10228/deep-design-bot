@@ -2249,10 +2249,10 @@ a:active {
 }
 
 #view-consult .chat-msg-row.chat-msg-row--send-in {
-  opacity: 0;
-  transform-origin: bottom right;
-  animation: chat-msg-enter-me-send 0.46s cubic-bezier(0.16, 0.9, 0.22, 1) both;
-  will-change: transform, opacity;
+  /* Анимация send-in управляется JS (height-переход), поэтому тут не задаём keyframes. */
+  opacity: 1;
+  transform: none;
+  will-change: height, transform, opacity;
 }
 
 @keyframes chat-msg-enter-me {

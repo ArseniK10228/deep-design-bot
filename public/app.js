@@ -568,6 +568,8 @@ function ownerChatWsEnsure() {
 
       const last = data.messages[data.messages.length - 1];
       if (last && last.id != null) ownerChatLastSeenId = Number(last.id || ownerChatLastSeenId);
+      // Для эха из WebSocket не делаем "push"-анимацию, чтобы не ломать прокрутку —
+      // локально мы уже показываем анимацию при отправке.
       appendOwnerChatMessages(data.messages, { sendIn: true, instantScroll: true });
     }
   };
@@ -676,6 +678,7 @@ function appendOwnerChatMessages(messages, options) {
   const instantScroll = !!(options && options.instantScroll);
   const fadeOnly = !!(options && options.fadeOnly);
   const sendIn = !!(options && options.sendIn);
+  const deferScroll = !!(options && options.deferScroll);
   const meId = viewerId ? String(viewerId) : '';
 
   messages.forEach((m, idx) => {
@@ -759,13 +762,54 @@ function appendOwnerChatMessages(messages, options) {
 
     ownerChatMessagesEl.appendChild(row);
 
-    // (намеренно не делаем forced layout; это может вызывать резкие "скоки" скролла в WebView)
+    // Layout animation: sent message expands from bottom and pushes
+    // the content above (like Telegram). We animate height 0 -> fullHeight.
+    if (animateIn && sendIn && isMe) {
+      try {
+        const fullHeight = row.getBoundingClientRect().height;
+        row.style.height = '0px';
+        row.style.overflow = 'hidden';
+        row.style.opacity = '0';
+        row.style.transform = 'translateY(18px)';
+        row.style.willChange = 'height, transform, opacity';
+        // Ensure transition starts from the "0 height" state.
+        void row.offsetHeight;
+
+        requestAnimationFrame(function () {
+          try {
+            row.style.transition =
+              'height 0.45s cubic-bezier(0.16, 0.9, 0.22, 1), ' +
+              'transform 0.45s cubic-bezier(0.16, 0.9, 0.22, 1), ' +
+              'opacity 0.35s ease';
+            row.style.height = fullHeight + 'px';
+            row.style.transform = 'translateY(0px)';
+            row.style.opacity = '1';
+          } catch (_) {}
+        });
+
+        var ended = false;
+        row.addEventListener('transitionend', function te(ev) {
+          if (ended) return;
+          if (ev && ev.propertyName && String(ev.propertyName) !== 'height') return;
+          ended = true;
+          row.style.transition = '';
+          row.style.height = '';
+          row.style.overflow = '';
+          row.style.transform = '';
+          row.style.opacity = '';
+          row.style.willChange = '';
+          row.removeEventListener('transitionend', te);
+          row.classList.remove('chat-msg-row--send-in');
+        });
+      } catch (_) {}
+    }
   });
 
   requestAnimationFrame(function () {
     requestAnimationFrame(function () {
       if (!ownerChatAutoScrollEnabled) return;
       if (animateIn) {
+        if (deferScroll) return;
         if (instantScroll) scrollOwnerChatToBottom();
         else scrollOwnerChatToBottomSmooth();
       } else scrollOwnerChatToBottom();
@@ -1046,7 +1090,9 @@ async function sendOwnerChatMessage() {
 
     const message = data.message;
     ownerChatLastSeenId = Number(message.id || ownerChatLastSeenId);
-    appendOwnerChatMessages([message], { sendIn: true, instantScroll: true });
+    appendOwnerChatMessages([message], { sendIn: true, instantScroll: false, deferScroll: true });
+    // После анимации (height transition) аккуратно прокручиваем вниз.
+    try { setTimeout(function () { scrollOwnerChatToBottom(); }, 480); } catch (_) {}
     if (ownerChatInputEl) ownerChatInputEl.value = '';
   } finally {
     // Чтобы Telegram WebView не сворачивал клавиатуру после отправки:
