@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#121212" />
   <title>Deep Design PC</title>
   <link rel="preconnect" href="https://telegram.org" crossorigin />
-  <link rel="stylesheet" href="styles.css?v=20260322-chat-anim-revert-opt" />
+  <link rel="stylesheet" href="styles.css?v=20260322-photo-fullsize-modal" />
 </head>
 <body>
   <div id="top-loading-bar" class="top-loading-bar top-loading-bar-hidden" aria-hidden="true"></div>
@@ -571,6 +571,14 @@
       </div>
     </div>
 
+    <div class="photo-modal" id="photo-modal" aria-hidden="true">
+      <div class="photo-modal-backdrop" id="photo-modal-backdrop"></div>
+      <button type="button" class="photo-modal-close" id="photo-modal-close" aria-label="Закрыть">✕</button>
+      <div class="photo-modal-scroller" id="photo-modal-scroller">
+        <img class="photo-modal-img" id="photo-modal-img" alt="" />
+      </div>
+    </div>
+
     <div class="view" id="view-portfolio-detail">
       <header class="page-header">
         <button class="back-btn" type="button" aria-label="Назад" data-back-to="view-portfolio">‹</button>
@@ -674,7 +682,7 @@
   </nav>
 
   <script src="/telegram-web-app.js" defer></script>
-  <script src="app.js?v=20260322-chat-anim-revert-opt" defer></script>
+  <script src="app.js?v=20260322-photo-fullsize-modal" defer></script>
 
 </body>
 </html>

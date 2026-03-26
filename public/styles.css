@@ -474,6 +474,67 @@ a:active {
   display: block;
 }
 
+/* Fullscreen photo modal (full size) */
+.photo-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: none;
+}
+
+.photo-modal.photo-modal-open {
+  display: block;
+}
+
+.photo-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+}
+
+.photo-modal-close {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 12px);
+  right: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(18, 18, 18, 0.55);
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.photo-modal-close:active {
+  opacity: 0.9;
+}
+
+.photo-modal-scroller {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: calc(env(safe-area-inset-top, 0px) + 70px) 16px calc(env(safe-area-inset-bottom, 0px) + 24px);
+  box-sizing: border-box;
+}
+
+.photo-modal-img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0 auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
 .preset-detail-dots {
   position: absolute;
   left: 0;

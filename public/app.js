@@ -1700,6 +1700,19 @@ function showPresetDetail(item) {
     wrap.innerHTML = track;
     wrap.classList.remove('hidden');
 
+    // Open photo in fullscreen modal (full size)
+    (function bindPhotoOpen() {
+      try {
+        var imgsEls = wrap.querySelectorAll('img');
+        imgsEls.forEach(function (imgEl) {
+          imgEl.style.cursor = 'pointer';
+          imgEl.addEventListener('click', function () {
+            try { openPhotoModal(imgEl.getAttribute('src') || ''); } catch (_) {}
+          });
+        });
+      } catch (_) {}
+    })();
+
     (function initCarousel() {
       var carousel = document.getElementById('preset-detail-carousel');
       var trackEl = document.getElementById('preset-detail-carousel-track');
@@ -1862,6 +1875,45 @@ function showPresetDetail(item) {
   showView('view-preset-detail');
 }
 
+// ----- Fullscreen photo modal -----
+var photoModalEl = document.getElementById('photo-modal');
+var photoModalImgEl = document.getElementById('photo-modal-img');
+var photoModalScrollerEl = document.getElementById('photo-modal-scroller');
+var photoModalBackdropEl = document.getElementById('photo-modal-backdrop');
+var photoModalCloseEl = document.getElementById('photo-modal-close');
+
+function openPhotoModal(src) {
+  if (!photoModalEl || !photoModalImgEl || !photoModalScrollerEl) return;
+  var url = (src || '').trim();
+  if (!url) return;
+  photoModalImgEl.src = url;
+  photoModalEl.classList.add('photo-modal-open');
+  photoModalEl.setAttribute('aria-hidden', 'false');
+
+  // After load, center the image in the scroller (if it overflows).
+  photoModalImgEl.onload = function () {
+    try {
+      var dx = Math.max(0, photoModalImgEl.scrollWidth - photoModalScrollerEl.clientWidth);
+      var dy = Math.max(0, photoModalImgEl.scrollHeight - photoModalScrollerEl.clientHeight);
+      photoModalScrollerEl.scrollLeft = Math.floor(dx / 2);
+      photoModalScrollerEl.scrollTop = Math.floor(dy / 2);
+    } catch (_) {}
+  };
+}
+
+function closePhotoModal() {
+  if (!photoModalEl || !photoModalImgEl) return;
+  photoModalEl.classList.remove('photo-modal-open');
+  photoModalEl.setAttribute('aria-hidden', 'true');
+  try { photoModalImgEl.src = ''; } catch (_) {}
+}
+
+if (photoModalBackdropEl) photoModalBackdropEl.addEventListener('click', closePhotoModal);
+if (photoModalCloseEl) photoModalCloseEl.addEventListener('click', closePhotoModal);
+window.addEventListener('keydown', function (e) {
+  if (e && e.key === 'Escape') closePhotoModal();
+});
+
 function showPortfolioDetail(item) {
   var wrap = document.getElementById('portfolio-detail-image-wrap');
   var titleEl = document.getElementById('portfolio-detail-title');
@@ -1888,6 +1940,19 @@ function showPortfolioDetail(item) {
     track += '</div>';
     wrap.innerHTML = track;
     wrap.classList.remove('hidden');
+
+    // Open photo in fullscreen modal (full size)
+    (function bindPhotoOpen() {
+      try {
+        var imgsEls = wrap.querySelectorAll('img');
+        imgsEls.forEach(function (imgEl) {
+          imgEl.style.cursor = 'pointer';
+          imgEl.addEventListener('click', function () {
+            try { openPhotoModal(imgEl.getAttribute('src') || ''); } catch (_) {}
+          });
+        });
+      } catch (_) {}
+    })();
 
     (function initCarousel() {
       var carousel = document.getElementById('portfolio-detail-carousel');
