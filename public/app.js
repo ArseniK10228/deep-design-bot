@@ -772,7 +772,7 @@ function appendOwnerChatMessages(messages, options) {
         row.style.transition = 'none';
         row.style.willChange = 'transform, opacity';
         row.style.opacity = '0';
-        row.style.transform = 'translateY(18px)';
+        row.style.transform = 'translateY(14px)';
 
         // Anchor scroll to bottom once (instant). This is what visually pushes
         // the previous messages upward, like Telegram.
@@ -780,7 +780,7 @@ function appendOwnerChatMessages(messages, options) {
 
         requestAnimationFrame(function () {
           try {
-            row.style.transition = 'transform 0.35s cubic-bezier(0.16, 0.9, 0.22, 1), opacity 0.25s ease';
+            row.style.transition = 'transform 0.52s cubic-bezier(0.18, 0.95, 0.2, 1), opacity 0.42s ease';
             row.style.transform = 'translateY(0px)';
             row.style.opacity = '1';
           } catch (_) {}

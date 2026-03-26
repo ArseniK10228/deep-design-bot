@@ -2251,7 +2251,7 @@ a:active {
 #view-consult .chat-msg-row.chat-msg-row--send-in {
   /* JS задаёт transition/transform, но базовое состояние оставим здесь. */
   opacity: 0;
-  transform: translateY(18px);
+  transform: translateY(14px);
   will-change: transform, opacity;
 }
 
