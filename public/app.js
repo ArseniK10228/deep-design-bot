@@ -587,7 +587,18 @@ function formatOwnerChatTime(ts) {
 
 function scrollOwnerChatToBottom() {
   if (!ownerChatMessagesEl) return;
-  ownerChatMessagesEl.scrollTop = ownerChatMessagesEl.scrollHeight;
+  var el = ownerChatMessagesEl;
+  try {
+    var prev = el.style.scrollBehavior;
+    el.style.scrollBehavior = 'auto';
+    el.scrollTop = el.scrollHeight;
+    // restore (в тот же тик, чтобы не влияло на дальнейшие скроллы)
+    requestAnimationFrame(function () {
+      try { el.style.scrollBehavior = prev; } catch (_) {}
+    });
+  } catch (_) {
+    ownerChatMessagesEl.scrollTop = ownerChatMessagesEl.scrollHeight;
+  }
 }
 
 /** Плавная прокрутка (rAF + ease-out): в Telegram WebView часто не работает scrollTo({ behavior: 'smooth' }). */
@@ -596,9 +607,14 @@ function scrollOwnerChatToBottomSmooth() {
   const el = ownerChatMessagesEl;
   if (!el) return;
   if (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    try {
+      el.scrollBehavior = 'auto';
+    } catch (_) {}
     el.scrollTop = el.scrollHeight;
     return;
   }
+  // Чтобы Telegram WebView не пытался "плавить" ещё и за счёт CSS scroll-behavior.
+  try { el.style.scrollBehavior = 'auto'; } catch (_) {}
   if (chatSmoothScrollRaf) cancelAnimationFrame(chatSmoothScrollRaf);
   const start = el.scrollTop;
   const t0 = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
