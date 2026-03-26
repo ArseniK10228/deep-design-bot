@@ -2224,7 +2224,7 @@ a:active {
 /* Появление новых сообщений (как в Telegram): лёгкий сдвиг + fade + scale */
 #view-consult .chat-msg-row.chat-msg-row--animate-in {
   opacity: 0;
-  animation: chat-msg-enter-me 0.62s cubic-bezier(0.12, 0.85, 0.18, 1) forwards;
+  animation: chat-msg-enter-me 0.78s cubic-bezier(0.08, 0.92, 0.12, 1) forwards;
   transform-origin: bottom right;
 }
 
@@ -2237,7 +2237,7 @@ a:active {
   opacity: 0;
   transform: none;
   transform-origin: bottom right;
-  animation: chat-msg-enter-me-fade 0.56s cubic-bezier(0.12, 0.85, 0.18, 1) forwards;
+  animation: chat-msg-enter-me-fade 0.72s cubic-bezier(0.08, 0.92, 0.12, 1) forwards;
 }
 
 #view-consult .chat-msg-row.chat-msg-row--animate-in.chat-msg-row--fade-only.chat-msg-row-them {
@@ -2248,7 +2248,7 @@ a:active {
 @keyframes chat-msg-enter-me {
   from {
     opacity: 0;
-    transform: translate3d(5px, 5px, 0) scale(0.992);
+    transform: translate3d(0, 2px, 0) scale(0.997);
   }
   to {
     opacity: 1;
@@ -2281,7 +2281,7 @@ a:active {
 @keyframes chat-msg-enter-them {
   from {
     opacity: 0;
-    transform: translate3d(-5px, 5px, 0) scale(0.992);
+    transform: translate3d(0, 2px, 0) scale(0.997);
   }
   to {
     opacity: 1;
