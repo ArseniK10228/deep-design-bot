@@ -2002,26 +2002,20 @@ function openPhotoModalHero(fromImgEl) {
 
   photoModalImgEl.onload = function () {
     function runHero() {
-      // Compute target rect using contain math inside scroller padding box.
+      // Compute target rect using contain math inside the scroller box.
       var toRect = null;
       try {
         if (photoModalScrollerEl && photoModalImgEl && photoModalImgEl.naturalWidth && photoModalImgEl.naturalHeight) {
           var cr = photoModalScrollerEl.getBoundingClientRect();
-          var cs = window.getComputedStyle ? window.getComputedStyle(photoModalScrollerEl) : null;
-          var padL = cs ? parseFloat(cs.paddingLeft || '0') : 0;
-          var padR = cs ? parseFloat(cs.paddingRight || '0') : 0;
-          var padT = cs ? parseFloat(cs.paddingTop || '0') : 0;
-          var padB = cs ? parseFloat(cs.paddingBottom || '0') : 0;
-
-          var innerW = Math.max(1, cr.width - padL - padR);
-          var innerH = Math.max(1, cr.height - padT - padB);
+          var innerW = Math.max(1, cr.width);
+          var innerH = Math.max(1, cr.height);
           var nw = photoModalImgEl.naturalWidth;
           var nh = photoModalImgEl.naturalHeight;
           var sc = Math.min(innerW / nw, innerH / nh);
           var tw = nw * sc;
           var th = nh * sc;
-          var left = cr.left + padL + (innerW - tw) / 2;
-          var top = cr.top + padT + (innerH - th) / 2;
+          var left = cr.left + (innerW - tw) / 2;
+          var top = cr.top + (innerH - th) / 2;
           toRect = { left: left, top: top, width: tw, height: th };
         }
       } catch (_) { toRect = null; }
