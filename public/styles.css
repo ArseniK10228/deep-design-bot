@@ -337,6 +337,23 @@ a:active {
   position: relative;
 }
 
+/* Global dim layer when photo modal is open */
+.app::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.42);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+  z-index: 150000;
+}
+
+.app.app--photo-open-dim::after {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .view {
   display: none;
   flex: 1;

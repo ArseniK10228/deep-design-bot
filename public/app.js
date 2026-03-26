@@ -1900,6 +1900,13 @@ var photoHeroFromRect = null;
 var photoHeroToRect = null;
 var photoHeroSourceEl = null;
 
+function setPhotoUiDimmed(enabled) {
+  try {
+    var appEl = document.querySelector('.app');
+    if (appEl) appEl.classList.toggle('app--photo-open-dim', !!enabled);
+  } catch (_) {}
+}
+
 function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
 
 function photoZoomMeasureBase() {
@@ -1948,6 +1955,7 @@ function openPhotoModal(src) {
   if (!photoModalEl || !photoModalImgEl || !photoModalScrollerEl) return;
   var url = (src || '').trim();
   if (!url) return;
+  try { setPhotoUiDimmed(true); } catch (_) {}
   photoModalImgEl.src = url;
   photoModalEl.classList.add('photo-modal-open');
   photoModalEl.setAttribute('aria-hidden', 'false');
@@ -1991,6 +1999,7 @@ function openPhotoModalHero(fromImgEl) {
     }
   } catch (_) {}
   if (!fromPixelRect) fromPixelRect = fromRect;
+  try { setPhotoUiDimmed(true); } catch (_) {}
 
   // Open modal; hide real image until hero finishes
   photoHeroFromRect = fromPixelRect;
@@ -2168,6 +2177,7 @@ function closePhotoModalHero() {
     photoModalEl.classList.remove('hero-animating');
     try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
     try { document.body.classList.remove('photo-hero-closing'); } catch (_) {}
+    try { setPhotoUiDimmed(false); } catch (_) {}
     photoModalEl.classList.remove('photo-modal-open');
     photoModalEl.setAttribute('aria-hidden', 'true');
     try { photoModalImgEl.src = ''; } catch (_) {}
@@ -2191,6 +2201,7 @@ function closePhotoModal() {
   photoModalEl.classList.remove('photo-modal-open');
   try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
   try { document.body.classList.remove('photo-hero-closing'); } catch (_) {}
+  try { setPhotoUiDimmed(false); } catch (_) {}
   photoModalEl.setAttribute('aria-hidden', 'true');
   try { photoModalImgEl.src = ''; } catch (_) {}
   try { photoZoomReset(); } catch (_) {}
