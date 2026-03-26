@@ -570,7 +570,7 @@ function ownerChatWsEnsure() {
       if (last && last.id != null) ownerChatLastSeenId = Number(last.id || ownerChatLastSeenId);
       // Для эха из WebSocket не делаем "push"-анимацию, чтобы не ломать прокрутку —
       // локально мы уже показываем анимацию при отправке.
-      appendOwnerChatMessages(data.messages, { sendIn: true, instantScroll: true });
+      appendOwnerChatMessages(data.messages, { instantScroll: true });
     }
   };
 
@@ -762,69 +762,49 @@ function appendOwnerChatMessages(messages, options) {
 
     ownerChatMessagesEl.appendChild(row);
 
-    // Push-like animation for sent messages (optimized: transform only).
-    // We move the whole messages container up by the new row height.
-    // The sent row stays visually shifted down during the container move,
-    // so it "comes from under" and ends up in the correct final position
-    // without overshooting/jumping.
+    // Telegram-like send animation (no container push => no bounce):
+    // 1) Immediately anchor to bottom (other messages move up).
+    // 2) Animate only the sent row: it slides from under the composer area upward.
     if (animateIn && sendIn && isMe) {
       try {
-        const container = ownerChatMessagesEl;
-        const deltaPx = Math.max(10, Math.round(row.getBoundingClientRect().height));
-        const duration = 0.44; // seconds
-
-        // Start state (no transitions yet)
-        container.style.transition = 'none';
-        container.style.transform = 'translateY(0px)';
+        // Initial "hidden under bottom panel" state.
+        // (We use a small offset because the composer overlaps the bottom area.)
         row.style.transition = 'none';
-        row.style.transform = 'translateY(' + deltaPx + 'px)';
-        row.style.opacity = '0';
         row.style.willChange = 'transform, opacity';
+        row.style.opacity = '0';
+        row.style.transform = 'translateY(18px)';
 
-        // Force reflow
-        void container.offsetHeight;
-
-        var cleaned = false;
-        function cleanup() {
-          if (cleaned) return;
-          cleaned = true;
-          try {
-            container.style.transition = '';
-            container.style.transform = '';
-            row.style.transition = '';
-            row.style.transform = '';
-            row.style.opacity = '';
-            row.style.willChange = '';
-          } catch (_) {}
-          row.classList.remove('chat-msg-row--send-in');
-        }
-
-        // Ensure cleanup runs even if transitionend doesn't fire
-        setTimeout(function () {
-          cleanup();
-        }, Math.ceil(duration * 1000) + 60);
+        // Anchor scroll to bottom once (instant). This is what visually pushes
+        // the previous messages upward, like Telegram.
+        if (ownerChatAutoScrollEnabled) scrollOwnerChatToBottom();
 
         requestAnimationFrame(function () {
           try {
-            container.style.transition = 'transform ' + duration + 's cubic-bezier(0.16, 0.9, 0.22, 1)';
-            row.style.transition = 'opacity 0.35s ease';
-            // Start moving the whole list up.
-            container.style.transform = 'translateY(-' + deltaPx + 'px)';
-            // Fade in the sent row while it stays offset down.
+            row.style.transition = 'transform 0.35s cubic-bezier(0.16, 0.9, 0.22, 1), opacity 0.25s ease';
+            row.style.transform = 'translateY(0px)';
             row.style.opacity = '1';
-
-            // Finalize after container transform ends so there is no visual jump.
-            container.addEventListener(
-              'transitionend',
-              function te(ev) {
-                if (ev && ev.propertyName && String(ev.propertyName) !== 'transform') return;
-                cleanup();
-                try { container.removeEventListener('transitionend', te); } catch (_) {}
-              },
-              { once: true }
-            );
           } catch (_) {}
         });
+
+        var done = false;
+        row.addEventListener(
+          'transitionend',
+          function te(ev) {
+            if (done) return;
+            if (ev && ev.propertyName && String(ev.propertyName) !== 'transform') return;
+            done = true;
+            try {
+              row.style.transition = '';
+              row.style.transform = '';
+              row.style.opacity = '';
+              row.style.willChange = '';
+            } catch (_) {}
+            row.classList.remove('chat-msg-row--send-in');
+            row.removeEventListener('transitionend', te);
+          }
+          ,
+          { once: true }
+        );
       } catch (_) {}
     }
   });
@@ -1114,9 +1094,8 @@ async function sendOwnerChatMessage() {
 
     const message = data.message;
     ownerChatLastSeenId = Number(message.id || ownerChatLastSeenId);
-    appendOwnerChatMessages([message], { sendIn: true, instantScroll: false, deferScroll: true });
-    // После анимации push-переезда аккуратно прокручиваем вниз.
-    try { setTimeout(function () { scrollOwnerChatToBottom(); }, 520); } catch (_) {}
+    // deferScroll: чтобы не было второго автоскролла и повторного "скачка"
+    appendOwnerChatMessages([message], { sendIn: true, instantScroll: true, deferScroll: true });
     if (ownerChatInputEl) ownerChatInputEl.value = '';
   } finally {
     // Чтобы Telegram WebView не сворачивал клавиатуру после отправки:
