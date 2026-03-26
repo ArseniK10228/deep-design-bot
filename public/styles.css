@@ -373,6 +373,11 @@ a:active {
   backdrop-filter: blur(12px);
 }
 
+#view-preset-detail.photo-header-hidden .page-header {
+  opacity: 0;
+  pointer-events: none;
+}
+
 @keyframes preset-header-up {
   from {
     transform: translateX(-50%) translateY(-10px);
