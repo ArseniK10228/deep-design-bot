@@ -462,6 +462,7 @@ let ownerChatActiveConversationUserId = null; // which user we are chatting with
 let ownerChatLastSeenId = 0;
 let ownerChatPollTimer = null;
 let ownerChatIsSending = false;
+let ownerChatInitialWsBatches = 0; // первые батчи после открытия чата без анимации (без smooth-скролла)
 
 // ----- WebSocket для чата (без polling) -----
 let ownerChatWs = null;
@@ -533,7 +534,12 @@ function ownerChatWsEnsure() {
 
       const last = data.messages[data.messages.length - 1];
       if (last && last.id != null) ownerChatLastSeenId = Number(last.id || ownerChatLastSeenId);
-      appendOwnerChatMessages(data.messages);
+      if (ownerChatInitialWsBatches > 0) {
+        appendOwnerChatMessages(data.messages, { animate: false });
+        ownerChatInitialWsBatches--;
+      } else {
+        appendOwnerChatMessages(data.messages);
+      }
     }
   };
 
@@ -581,7 +587,7 @@ function formatOwnerChatTime(ts) {
 
 function scrollOwnerChatToBottom() {
   if (!ownerChatMessagesEl) return;
-  ownerChatMessagesEl.scrollTop = Math.max(0, ownerChatMessagesEl.scrollHeight - ownerChatMessagesEl.clientHeight);
+  ownerChatMessagesEl.scrollTop = ownerChatMessagesEl.scrollHeight;
 }
 
 /** Плавная прокрутка (rAF + ease-out): в Telegram WebView часто не работает scrollTo({ behavior: 'smooth' }). */
@@ -700,12 +706,6 @@ function appendOwnerChatMessages(messages, options) {
 
     ownerChatMessagesEl.appendChild(row);
   });
-
-  // При первичной загрузке (animateIn=false) сразу выставляем скролл в конец,
-  // чтобы пользователь не видел "пролистывание" сверху вниз.
-  if (!animateIn) {
-    scrollOwnerChatToBottom();
-  }
 
   requestAnimationFrame(function () {
     requestAnimationFrame(function () {
@@ -871,6 +871,8 @@ async function initOwnerChatList() {
 async function initOwnerChatThread() {
   if (!getTg()) return;
   if (!viewerId) return;
+
+  ownerChatInitialWsBatches = 2; // гарантированно блокируем smooth-скролл на первых апдейтах
 
   if (ownerChatInputEl) {
     ownerChatInputEl.placeholder = isOwnerApp ? 'Ответ владельца...' : 'Сообщение...';

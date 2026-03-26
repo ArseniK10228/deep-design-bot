@@ -2391,30 +2391,6 @@ html.html--chat-open body {
   box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.35);
 }
 
-#view-consult.view-active.view-leaving .page-content.chat-view,
-#view-consult.view-active.view-leave-left .page-content.chat-view,
-#view-consult.view-active.view-leave-right .page-content.chat-view {
-  /* При выходе отключаем padding-переход, чтобы ничего не “ехало” во время fade. */
-  transition: none !important;
-}
-
-#view-consult.view-active.view-leaving .chat-composer,
-#view-consult.view-active.view-leave-left .chat-composer,
-#view-consult.view-active.view-leave-right .chat-composer {
-  animation: chat-composer-leave 0.25s ease-in forwards;
-}
-
-@keyframes chat-composer-leave {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-}
-
 .chat-input {
   margin-bottom: 0 !important;
   flex: 1;
