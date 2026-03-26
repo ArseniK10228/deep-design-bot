@@ -762,51 +762,7 @@ function appendOwnerChatMessages(messages, options) {
 
     ownerChatMessagesEl.appendChild(row);
 
-    // Telegram-like send animation (no container push => no bounce):
-    // 1) Immediately anchor to bottom (other messages move up).
-    // 2) Animate only the sent row: it slides from under the composer area upward.
-    if (animateIn && sendIn && isMe) {
-      try {
-        // Initial "hidden under bottom panel" state.
-        // (We use a small offset because the composer overlaps the bottom area.)
-        row.style.transition = 'none';
-        row.style.willChange = 'transform, opacity';
-        row.style.opacity = '0';
-        row.style.transform = 'translateY(14px)';
-
-        // Anchor scroll to bottom smoothly.
-        // This pushes upper messages upward without "teleporting".
-      if (ownerChatAutoScrollEnabled) scrollOwnerChatToBottomSmooth(520);
-
-        requestAnimationFrame(function () {
-          try {
-            row.style.transition = 'transform 0.52s cubic-bezier(0.18, 0.95, 0.2, 1), opacity 0.42s ease';
-            row.style.transform = 'translateY(0px)';
-            row.style.opacity = '1';
-          } catch (_) {}
-        });
-
-        var done = false;
-        row.addEventListener(
-          'transitionend',
-          function te(ev) {
-            if (done) return;
-            if (ev && ev.propertyName && String(ev.propertyName) !== 'transform') return;
-            done = true;
-            try {
-              row.style.transition = '';
-              row.style.transform = '';
-              row.style.opacity = '';
-              row.style.willChange = '';
-            } catch (_) {}
-            row.classList.remove('chat-msg-row--send-in');
-            row.removeEventListener('transitionend', te);
-          }
-          ,
-          { once: true }
-        );
-      } catch (_) {}
-    }
+    // Send animation is handled by CSS (Telegram-like max-height/scale pop-in).
   });
 
   requestAnimationFrame(function () {

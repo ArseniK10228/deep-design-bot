@@ -2310,11 +2310,46 @@ a:active {
   }
 }
 
+/* Telegram-like pop-in (from template):
+ * max-height expansion (push), opacity fade, slight translateY + scale.
+ * Применяем ко всем новым сообщениям: received/me + send-in.
+ */
+@keyframes telegramPopInTemplate {
+  0% {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(20px) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    max-height: 1000px;
+    transform: translateY(0) scale(1);
+  }
+}
+
+#view-consult .chat-msg-row.chat-msg-row--animate-in:not(.chat-msg-row--fade-only),
+#view-consult .chat-msg-row.chat-msg-row--send-in {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform-origin: bottom right;
+  will-change: max-height, transform, opacity;
+  animation: telegramPopInTemplate 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1) both;
+}
+
+#view-consult .chat-msg-row.chat-msg-row--animate-in.chat-msg-row-them:not(.chat-msg-row--fade-only),
+#view-consult .chat-msg-row.chat-msg-row--send-in.chat-msg-row-them {
+  transform-origin: bottom left;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  #view-consult .chat-msg-row.chat-msg-row--animate-in {
+  #view-consult .chat-msg-row.chat-msg-row--animate-in,
+  #view-consult .chat-msg-row.chat-msg-row--fade-only,
+  #view-consult .chat-msg-row.chat-msg-row--send-in {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+    max-height: none !important;
   }
 }
 
