@@ -1949,7 +1949,6 @@ function openPhotoModal(src) {
   var url = (src || '').trim();
   if (!url) return;
   photoModalImgEl.src = url;
-  try { applyPhotoModalPanelsMode(); } catch (_) {}
   photoModalEl.classList.add('photo-modal-open');
   photoModalEl.setAttribute('aria-hidden', 'false');
 
@@ -2002,7 +2001,6 @@ function openPhotoModalHero(fromImgEl) {
     fromImgEl.style.visibility = 'hidden';
   } catch (_) { photoHeroSourceEl = null; }
   photoModalImgEl.style.opacity = '0';
-  try { applyPhotoModalPanelsMode(); } catch (_) {}
   photoModalEl.classList.add('photo-modal-open');
   photoModalEl.classList.add('hero-animating');
   photoModalEl.setAttribute('aria-hidden', 'false');
