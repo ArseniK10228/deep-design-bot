@@ -478,8 +478,8 @@ a:active {
 .photo-modal {
   position: fixed;
   inset: 0;
-  /* Above any fixed headers/sheets */
-  z-index: 200000;
+  /* Below announcement header (z-index: 9050), but above bottom bar (9000) */
+  z-index: 9010;
   display: none;
 }
 
@@ -593,7 +593,8 @@ a:active {
 
 .photo-hero-clone {
   position: fixed;
-  z-index: 200001;
+  /* Keep clone below announcement header as well */
+  z-index: 9040;
   border-radius: 0;
   /* Clone box already matches the contain pixel bounds, so fill avoids double letterboxing. */
   object-fit: fill;
