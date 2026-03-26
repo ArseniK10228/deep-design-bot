@@ -1041,6 +1041,22 @@ async function sendOwnerChatMessage() {
     appendOwnerChatMessages([message], { sendIn: true, instantScroll: true });
     if (ownerChatInputEl) ownerChatInputEl.value = '';
   } finally {
+    // Чтобы Telegram WebView не сворачивал клавиатуру после отправки:
+    // при отправке (особенно по клику по кнопке) фокус инпута может теряться,
+    // поэтому возвращаем фокус обратно.
+    try {
+      ownerChatSuppressKeyboardScroll = true;
+      setTimeout(function () {
+        ownerChatSuppressKeyboardScroll = false;
+      }, 420);
+      if (ownerChatInputEl && typeof ownerChatInputEl.focus === 'function') {
+        // Небольшая задержка снижает шанс микродёрганий из-за focus/scroll.
+        setTimeout(function () {
+          try { ownerChatInputEl.focus(); } catch (_) {}
+        }, 0);
+      }
+    } catch (_) {}
+
     ownerChatIsSending = false;
     if (ownerChatSendBtn) ownerChatSendBtn.disabled = false;
   }
