@@ -535,6 +535,10 @@ a:active {
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
+  touch-action: none;
+  transform: translate3d(0, 0, 0) scale(1);
+  transform-origin: center center;
+  will-change: transform;
 }
 
 .preset-detail-dots {

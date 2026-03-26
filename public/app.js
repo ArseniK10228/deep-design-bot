@@ -1882,6 +1882,65 @@ var photoModalScrollerEl = document.getElementById('photo-modal-scroller');
 var photoModalBackdropEl = document.getElementById('photo-modal-backdrop');
 var photoModalCloseEl = document.getElementById('photo-modal-close');
 
+// Zoom/pan state for photo modal
+var photoZoomScale = 1;
+var photoZoomTx = 0;
+var photoZoomTy = 0;
+var photoZoomPanning = false;
+var photoZoomPinching = false;
+var photoZoomStartX = 0;
+var photoZoomStartY = 0;
+var photoZoomStartTx = 0;
+var photoZoomStartTy = 0;
+var photoZoomStartDist = 0;
+var photoZoomStartScale = 1;
+var photoZoomBaseW = 0;
+var photoZoomBaseH = 0;
+
+function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
+
+function photoZoomMeasureBase() {
+  if (!photoModalImgEl || !photoModalScrollerEl) return;
+  try {
+    var r = photoModalImgEl.getBoundingClientRect();
+    var cr = photoModalScrollerEl.getBoundingClientRect();
+    // base size is the rendered contain size (<= container)
+    photoZoomBaseW = Math.min(r.width || 0, cr.width || 0);
+    photoZoomBaseH = Math.min(r.height || 0, cr.height || 0);
+  } catch (_) {}
+}
+
+function photoZoomApply() {
+  if (!photoModalImgEl || !photoModalScrollerEl) return;
+  var scale = clamp(photoZoomScale, 1, 4);
+  photoZoomScale = scale;
+  photoZoomMeasureBase();
+  try {
+    var cr = photoModalScrollerEl.getBoundingClientRect();
+    var maxTx = Math.max(0, (photoZoomBaseW * scale - cr.width) / 2);
+    var maxTy = Math.max(0, (photoZoomBaseH * scale - cr.height) / 2);
+    photoZoomTx = clamp(photoZoomTx, -maxTx, maxTx);
+    photoZoomTy = clamp(photoZoomTy, -maxTy, maxTy);
+  } catch (_) {}
+  try {
+    photoModalImgEl.style.transform =
+      'translate3d(' + photoZoomTx.toFixed(2) + 'px,' + photoZoomTy.toFixed(2) + 'px,0) scale(' + photoZoomScale.toFixed(4) + ')';
+  } catch (_) {}
+}
+
+function photoZoomReset() {
+  photoZoomScale = 1;
+  photoZoomTx = 0;
+  photoZoomTy = 0;
+  photoZoomPanning = false;
+  photoZoomPinching = false;
+  photoZoomStartDist = 0;
+  photoZoomStartScale = 1;
+  photoZoomBaseW = 0;
+  photoZoomBaseH = 0;
+  photoZoomApply();
+}
+
 function openPhotoModal(src) {
   if (!photoModalEl || !photoModalImgEl || !photoModalScrollerEl) return;
   var url = (src || '').trim();
@@ -1890,14 +1949,12 @@ function openPhotoModal(src) {
   photoModalEl.classList.add('photo-modal-open');
   photoModalEl.setAttribute('aria-hidden', 'false');
 
-  // After load, center the image in the scroller (if it overflows).
+  photoZoomReset();
+
+  // After load, re-measure base contain size.
   photoModalImgEl.onload = function () {
-    try {
-      var dx = Math.max(0, photoModalImgEl.scrollWidth - photoModalScrollerEl.clientWidth);
-      var dy = Math.max(0, photoModalImgEl.scrollHeight - photoModalScrollerEl.clientHeight);
-      photoModalScrollerEl.scrollLeft = Math.floor(dx / 2);
-      photoModalScrollerEl.scrollTop = Math.floor(dy / 2);
-    } catch (_) {}
+    try { photoZoomMeasureBase(); } catch (_) {}
+    try { photoZoomApply(); } catch (_) {}
   };
 }
 
@@ -1906,6 +1963,7 @@ function closePhotoModal() {
   photoModalEl.classList.remove('photo-modal-open');
   photoModalEl.setAttribute('aria-hidden', 'true');
   try { photoModalImgEl.src = ''; } catch (_) {}
+  try { photoZoomReset(); } catch (_) {}
 }
 
 if (photoModalBackdropEl) photoModalBackdropEl.addEventListener('click', closePhotoModal);
@@ -1913,6 +1971,65 @@ if (photoModalCloseEl) photoModalCloseEl.addEventListener('click', closePhotoMod
 window.addEventListener('keydown', function (e) {
   if (e && e.key === 'Escape') closePhotoModal();
 });
+
+if (photoModalScrollerEl && photoModalImgEl) {
+  photoModalScrollerEl.addEventListener('touchstart', function (e) {
+    if (!photoModalEl || !photoModalEl.classList.contains('photo-modal-open')) return;
+    if (!e || !e.touches) return;
+    if (e.touches.length === 2) {
+      photoZoomPinching = true;
+      photoZoomPanning = false;
+      var dx = e.touches[0].clientX - e.touches[1].clientX;
+      var dy = e.touches[0].clientY - e.touches[1].clientY;
+      photoZoomStartDist = Math.sqrt(dx * dx + dy * dy);
+      photoZoomStartScale = photoZoomScale;
+      return;
+    }
+    if (e.touches.length === 1 && photoZoomScale > 1) {
+      photoZoomPanning = true;
+      photoZoomPinching = false;
+      photoZoomStartX = e.touches[0].clientX;
+      photoZoomStartY = e.touches[0].clientY;
+      photoZoomStartTx = photoZoomTx;
+      photoZoomStartTy = photoZoomTy;
+    }
+  }, { passive: false });
+
+  photoModalScrollerEl.addEventListener('touchmove', function (e) {
+    if (!photoModalEl || !photoModalEl.classList.contains('photo-modal-open')) return;
+    if (!e || !e.touches) return;
+    if (photoZoomPinching && e.touches.length === 2) {
+      try { e.preventDefault(); } catch (_) {}
+      var dx = e.touches[0].clientX - e.touches[1].clientX;
+      var dy = e.touches[0].clientY - e.touches[1].clientY;
+      var dist = Math.sqrt(dx * dx + dy * dy);
+      if (!photoZoomStartDist) return;
+      var nextScale = clamp(photoZoomStartScale * (dist / photoZoomStartDist), 1, 4);
+      photoZoomScale = nextScale;
+      photoZoomApply();
+      return;
+    }
+    if (photoZoomPanning && e.touches.length === 1 && photoZoomScale > 1) {
+      try { e.preventDefault(); } catch (_) {}
+      var x = e.touches[0].clientX;
+      var y = e.touches[0].clientY;
+      photoZoomTx = photoZoomStartTx + (x - photoZoomStartX);
+      photoZoomTy = photoZoomStartTy + (y - photoZoomStartY);
+      photoZoomApply();
+    }
+  }, { passive: false });
+
+  photoModalScrollerEl.addEventListener('touchend', function () {
+    photoZoomPinching = false;
+    photoZoomPanning = false;
+    if (photoZoomScale <= 1.01) {
+      photoZoomScale = 1;
+      photoZoomTx = 0;
+      photoZoomTy = 0;
+      photoZoomApply();
+    }
+  });
+}
 
 function showPortfolioDetail(item) {
   var wrap = document.getElementById('portfolio-detail-image-wrap');
