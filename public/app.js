@@ -763,14 +763,15 @@ function appendOwnerChatMessages(messages, options) {
     ownerChatMessagesEl.appendChild(row);
 
     // Push-like animation for sent messages (optimized: transform only).
-    // We move the whole message container up by the new row height,
-    // while we counter-move the sent row down, so it "comes from under" the bottom panel
-    // and smoothly pushes upper messages.
+    // We move the whole messages container up by the new row height.
+    // The sent row stays visually shifted down during the container move,
+    // so it "comes from under" and ends up in the correct final position
+    // without overshooting/jumping.
     if (animateIn && sendIn && isMe) {
       try {
         const container = ownerChatMessagesEl;
         const deltaPx = Math.max(10, Math.round(row.getBoundingClientRect().height));
-        const duration = 0.46; // seconds
+        const duration = 0.44; // seconds
 
         // Start state (no transitions yet)
         container.style.transition = 'none';
@@ -778,26 +779,15 @@ function appendOwnerChatMessages(messages, options) {
         row.style.transition = 'none';
         row.style.transform = 'translateY(' + deltaPx + 'px)';
         row.style.opacity = '0';
+        row.style.willChange = 'transform, opacity';
 
         // Force reflow
         void container.offsetHeight;
 
-        requestAnimationFrame(function () {
-          try {
-            container.style.transition = 'transform ' + duration + 's cubic-bezier(0.16, 0.9, 0.22, 1)';
-            row.style.transition = 'transform ' + duration + 's cubic-bezier(0.16, 0.9, 0.22, 1), opacity 0.35s ease';
-            container.style.transform = 'translateY(-' + deltaPx + 'px)';
-            row.style.transform = 'translateY(0px)';
-            row.style.opacity = '1';
-          } catch (_) {}
-        });
-
-        var done = false;
-        row.addEventListener('transitionend', function te(ev) {
-          if (done) return;
-          // We only finalize after transform transition finishes.
-          if (ev && ev.propertyName && String(ev.propertyName) !== 'transform') return;
-          done = true;
+        var cleaned = false;
+        function cleanup() {
+          if (cleaned) return;
+          cleaned = true;
           try {
             container.style.transition = '';
             container.style.transform = '';
@@ -806,8 +796,34 @@ function appendOwnerChatMessages(messages, options) {
             row.style.opacity = '';
             row.style.willChange = '';
           } catch (_) {}
-          row.removeEventListener('transitionend', te);
           row.classList.remove('chat-msg-row--send-in');
+        }
+
+        // Ensure cleanup runs even if transitionend doesn't fire
+        setTimeout(function () {
+          cleanup();
+        }, Math.ceil(duration * 1000) + 60);
+
+        requestAnimationFrame(function () {
+          try {
+            container.style.transition = 'transform ' + duration + 's cubic-bezier(0.16, 0.9, 0.22, 1)';
+            row.style.transition = 'opacity 0.35s ease';
+            // Start moving the whole list up.
+            container.style.transform = 'translateY(-' + deltaPx + 'px)';
+            // Fade in the sent row while it stays offset down.
+            row.style.opacity = '1';
+
+            // Finalize after container transform ends so there is no visual jump.
+            container.addEventListener(
+              'transitionend',
+              function te(ev) {
+                if (ev && ev.propertyName && String(ev.propertyName) !== 'transform') return;
+                cleanup();
+                try { container.removeEventListener('transitionend', te); } catch (_) {}
+              },
+              { once: true }
+            );
+          } catch (_) {}
         });
       } catch (_) {}
     }
