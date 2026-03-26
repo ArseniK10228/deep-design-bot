@@ -1896,6 +1896,7 @@ var photoZoomStartDist = 0;
 var photoZoomStartScale = 1;
 var photoZoomBaseW = 0;
 var photoZoomBaseH = 0;
+var photoHeroFromRect = null;
 
 function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
 
@@ -1971,6 +1972,7 @@ function openPhotoModalHero(fromImgEl) {
   }
 
   // Open modal; hide real image until hero finishes
+  photoHeroFromRect = fromRect;
   photoModalImgEl.style.opacity = '0';
   photoModalEl.classList.add('photo-modal-open');
   photoModalEl.classList.add('hero-animating');
@@ -1992,12 +1994,12 @@ function openPhotoModalHero(fromImgEl) {
     try { clone.remove(); } catch (_) {}
     try { photoModalImgEl.style.opacity = '1'; } catch (_) {}
     try { photoModalEl.classList.remove('hero-animating'); } catch (_) {}
+    try { photoZoomMeasureBase(); } catch (_) {}
+    try { photoZoomApply(); } catch (_) {}
   }
 
   photoModalImgEl.onload = function () {
-    try { photoZoomMeasureBase(); } catch (_) {}
-    try { photoZoomApply(); } catch (_) {}
-
+    // Measure toRect without changing zoom/pan transforms during the hero.
     var toRect = null;
     try { toRect = photoModalImgEl.getBoundingClientRect(); } catch (_) { toRect = null; }
     if (!toRect || !toRect.width || !toRect.height) {
@@ -2007,22 +2009,99 @@ function openPhotoModalHero(fromImgEl) {
 
     var dx = toRect.left - fromRect.left;
     var dy = toRect.top - fromRect.top;
-    var sx = toRect.width / fromRect.width;
-    var sy = toRect.height / fromRect.height;
+    // Use uniform scaling to avoid aspect "stretch".
+    var s1 = toRect.width / fromRect.width;
+    var s2 = toRect.height / fromRect.height;
+    var s = Math.min(s1, s2);
 
     clone.style.transformOrigin = 'top left';
     clone.style.transition = 'transform 0.34s cubic-bezier(0.18, 0.95, 0.2, 1), opacity 0.18s ease';
     requestAnimationFrame(function () {
       clone.style.transform =
-        'translate3d(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px,0) scale(' + sx.toFixed(4) + ',' + sy.toFixed(4) + ')';
+        'translate3d(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px,0) scale(' + s.toFixed(4) + ')';
     });
     clone.addEventListener('transitionend', finish, { once: true });
     setTimeout(finish, 420);
   };
 }
 
+function closePhotoModalHero() {
+  if (!photoHeroFromRect || !photoModalEl || !photoModalImgEl || !photoModalScrollerEl) {
+    closePhotoModal();
+    return;
+  }
+
+  try { photoZoomReset(); } catch (_) {}
+
+  var fromRect = photoHeroFromRect;
+  var curRect = null;
+  try { curRect = photoModalImgEl.getBoundingClientRect(); } catch (_) { curRect = null; }
+  if (!curRect || !curRect.width || !curRect.height) {
+    photoHeroFromRect = null;
+    closePhotoModal();
+    return;
+  }
+
+  // Hide real image during reverse hero.
+  photoModalEl.classList.add('hero-animating');
+  photoModalImgEl.style.opacity = '0';
+
+  // Create clone at current rect
+  var clone = document.createElement('img');
+  clone.className = 'photo-hero-clone';
+  clone.src = photoModalImgEl.src;
+  clone.alt = '';
+  clone.style.left = curRect.left + 'px';
+  clone.style.top = curRect.top + 'px';
+  clone.style.width = curRect.width + 'px';
+  clone.style.height = curRect.height + 'px';
+  document.body.appendChild(clone);
+
+  var dx = fromRect.left - curRect.left;
+  var dy = fromRect.top - curRect.top;
+  var s1 = fromRect.width / curRect.width;
+  var s2 = fromRect.height / curRect.height;
+  var s = Math.min(s1, s2);
+
+  clone.style.transition = 'none';
+  clone.style.transformOrigin = 'top left';
+  // Start at current position (no transform)
+  void clone.offsetHeight;
+
+  requestAnimationFrame(function () {
+    try {
+      clone.style.transition = 'transform 0.34s cubic-bezier(0.18, 0.95, 0.2, 1), opacity 0.18s ease';
+      clone.style.transform = 'translate3d(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px,0) scale(' + s.toFixed(4) + ')';
+      clone.style.opacity = '0';
+    } catch (_) {}
+  });
+
+  var done = false;
+  function finish() {
+    if (done) return;
+    done = true;
+    try { clone.remove(); } catch (_) {}
+    photoHeroFromRect = null;
+    photoModalEl.classList.remove('hero-animating');
+    photoModalEl.classList.remove('photo-modal-open');
+    photoModalEl.setAttribute('aria-hidden', 'true');
+    try { photoModalImgEl.src = ''; } catch (_) {}
+    try { photoZoomReset(); } catch (_) {}
+  }
+
+  clone.addEventListener('transitionend', function te(ev) {
+    if (ev && ev.propertyName && String(ev.propertyName) !== 'transform') return;
+    finish();
+  }, { once: true });
+  setTimeout(finish, 420);
+}
+
 function closePhotoModal() {
   if (!photoModalEl || !photoModalImgEl) return;
+  if (photoHeroFromRect) {
+    // Reverse hero animation back to the thumbnail position.
+    return closePhotoModalHero();
+  }
   photoModalEl.classList.remove('photo-modal-open');
   photoModalEl.setAttribute('aria-hidden', 'true');
   try { photoModalImgEl.src = ''; } catch (_) {}
