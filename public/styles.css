@@ -2391,6 +2391,36 @@ html.html--chat-open body {
   box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.35);
 }
 
+.chat-composer-up-anim {
+  will-change: transform, opacity;
+}
+
+@keyframes consult-composer-up {
+  from {
+    transform: translateY(18px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+#view-consult.view-active.view-enter .chat-composer,
+#view-consult.view-active.view-enter-right .chat-composer,
+#view-consult.view-active.view-enter-left .chat-composer {
+  animation: consult-composer-up 0.28s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #view-consult.view-active.view-enter .chat-composer,
+  #view-consult.view-active.view-enter-right .chat-composer,
+  #view-consult.view-active.view-enter-left .chat-composer {
+    animation: none;
+  }
+}
+
 .chat-input {
   margin-bottom: 0 !important;
   flex: 1;
