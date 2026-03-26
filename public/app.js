@@ -2080,9 +2080,6 @@ function closePhotoModalHero() {
 
   try { photoZoomReset(); } catch (_) {}
 
-  // Start fading out the overlay UI so the underlying interface appears smoothly.
-  try { photoModalEl.classList.add('photo-modal-closing'); } catch (_) {}
-
   var fromRect = photoHeroFromRect;
   // Recompute current contain pixel bounds inside scroller to avoid mismatch.
   var curRect = null;
@@ -2153,14 +2150,10 @@ function closePhotoModalHero() {
     photoHeroToRect = null;
     try { photoModalImgEl.style.visibility = ''; } catch (_) {}
     photoModalEl.classList.remove('hero-animating');
-    // Wait a bit for backdrop/close opacity transitions before fully hiding.
-    setTimeout(function () {
-      try { photoModalEl.classList.remove('photo-modal-open'); } catch (_) {}
-      try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
-      try { photoModalEl.setAttribute('aria-hidden', 'true'); } catch (_) {}
-      try { photoModalImgEl.src = ''; } catch (_) {}
-      try { photoZoomReset(); } catch (_) {}
-    }, 270);
+    photoModalEl.classList.remove('photo-modal-open');
+    photoModalEl.setAttribute('aria-hidden', 'true');
+    try { photoModalImgEl.src = ''; } catch (_) {}
+    try { photoZoomReset(); } catch (_) {}
   }
 
   clone.addEventListener('transitionend', function te(ev) {
@@ -2176,14 +2169,10 @@ function closePhotoModal() {
     // Reverse hero animation back to the thumbnail position.
     return closePhotoModalHero();
   }
-  try { photoModalEl.classList.add('photo-modal-closing'); } catch (_) {}
-  setTimeout(function () {
-    try { photoModalEl.classList.remove('photo-modal-open'); } catch (_) {}
-    try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
-    try { photoModalEl.setAttribute('aria-hidden', 'true'); } catch (_) {}
-    try { photoModalImgEl.src = ''; } catch (_) {}
-    try { photoZoomReset(); } catch (_) {}
-  }, 270);
+  photoModalEl.classList.remove('photo-modal-open');
+  photoModalEl.setAttribute('aria-hidden', 'true');
+  try { photoModalImgEl.src = ''; } catch (_) {}
+  try { photoZoomReset(); } catch (_) {}
 }
 
 if (photoModalBackdropEl) photoModalBackdropEl.addEventListener('click', closePhotoModal);
