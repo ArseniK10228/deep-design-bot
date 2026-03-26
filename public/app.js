@@ -999,6 +999,14 @@ async function sendOwnerChatMessage() {
   if (ownerChatIsSending) return;
   if (!ownerChatActiveConversationUserId) return;
 
+  // Тап по кнопке может увести фокус с инпута (Telegram сворачивает клавиатуру).
+  // Поэтому возвращаем фокус заранее.
+  try {
+    if (ownerChatInputEl && typeof ownerChatInputEl.focus === 'function') {
+      ownerChatInputEl.focus();
+    }
+  } catch (_) {}
+
   const text = ownerChatInputEl ? ownerChatInputEl.value.trim() : '';
   if (!text) return;
 
@@ -1045,15 +1053,17 @@ async function sendOwnerChatMessage() {
     // при отправке (особенно по клику по кнопке) фокус инпута может теряться,
     // поэтому возвращаем фокус обратно.
     try {
-      ownerChatSuppressKeyboardScroll = true;
-      setTimeout(function () {
-        ownerChatSuppressKeyboardScroll = false;
-      }, 420);
       if (ownerChatInputEl && typeof ownerChatInputEl.focus === 'function') {
-        // Небольшая задержка снижает шанс микродёрганий из-за focus/scroll.
-        setTimeout(function () {
-          try { ownerChatInputEl.focus(); } catch (_) {}
-        }, 0);
+        if (document.activeElement !== ownerChatInputEl) {
+          ownerChatSuppressKeyboardScroll = true;
+          setTimeout(function () {
+            ownerChatSuppressKeyboardScroll = false;
+          }, 420);
+          // Небольшая задержка снижает шанс микродёрганий из-за focus/scroll.
+          setTimeout(function () {
+            try { ownerChatInputEl.focus(); } catch (_) {}
+          }, 0);
+        }
       }
     } catch (_) {}
 
@@ -1063,6 +1073,18 @@ async function sendOwnerChatMessage() {
 }
 
 if (ownerChatSendBtn) {
+  // Предотвращаем увод фокуса с input при нажатии кнопки.
+  // Иначе WebView Telegram сворачивает клавиатуру.
+  if (ownerChatInputEl) {
+    ownerChatSendBtn.addEventListener('pointerdown', function (e) {
+      try { e.preventDefault(); } catch (_) {}
+      try { ownerChatInputEl.focus(); } catch (_) {}
+    }, { passive: false });
+    ownerChatSendBtn.addEventListener('mousedown', function (e) {
+      try { e.preventDefault(); } catch (_) {}
+      try { ownerChatInputEl.focus(); } catch (_) {}
+    });
+  }
   ownerChatSendBtn.addEventListener('click', () => {
     sendOwnerChatMessage().catch(() => {});
   });
