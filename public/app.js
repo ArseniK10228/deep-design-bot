@@ -581,7 +581,7 @@ function formatOwnerChatTime(ts) {
 
 function scrollOwnerChatToBottom() {
   if (!ownerChatMessagesEl) return;
-  ownerChatMessagesEl.scrollTop = ownerChatMessagesEl.scrollHeight;
+  ownerChatMessagesEl.scrollTop = Math.max(0, ownerChatMessagesEl.scrollHeight - ownerChatMessagesEl.clientHeight);
 }
 
 /** Плавная прокрутка (rAF + ease-out): в Telegram WebView часто не работает scrollTo({ behavior: 'smooth' }). */
@@ -700,6 +700,12 @@ function appendOwnerChatMessages(messages, options) {
 
     ownerChatMessagesEl.appendChild(row);
   });
+
+  // При первичной загрузке (animateIn=false) сразу выставляем скролл в конец,
+  // чтобы пользователь не видел "пролистывание" сверху вниз.
+  if (!animateIn) {
+    scrollOwnerChatToBottom();
+  }
 
   requestAnimationFrame(function () {
     requestAnimationFrame(function () {
