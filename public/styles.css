@@ -483,11 +483,6 @@ a:active {
   display: none;
 }
 
-.photo-modal.photo-modal-under-header {
-  /* Below announcement header (z-index: 9050) */
-  z-index: 8000;
-}
-
 .photo-modal.photo-modal-open {
   display: block;
 }
@@ -499,10 +494,6 @@ a:active {
   background: #242424;
   opacity: 0;
   transition: opacity 0.26s ease;
-}
-
-.photo-modal.photo-modal-under-header .photo-modal-backdrop {
-  top: var(--photo-modal-top, 0px);
 }
 
 .photo-modal.photo-modal-open .photo-modal-backdrop {
@@ -562,10 +553,6 @@ a:active {
   align-items: center;
   justify-content: center;
   background: #242424;
-}
-
-.photo-modal.photo-modal-under-header .photo-modal-scroller {
-  top: var(--photo-modal-top, 0px);
 }
 
 /* When closing: show underlying UI immediately */
