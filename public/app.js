@@ -2081,10 +2081,27 @@ function closePhotoModalHero() {
   try { photoZoomReset(); } catch (_) {}
 
   var fromRect = photoHeroFromRect;
-  var curRect = photoHeroToRect;
-  if (!curRect) {
-    try { curRect = photoModalImgEl.getBoundingClientRect(); } catch (_) { curRect = null; }
-  }
+  // Recompute current contain pixel bounds inside scroller to avoid mismatch.
+  var curRect = null;
+  try {
+    if (photoModalScrollerEl && photoModalImgEl && photoModalImgEl.naturalWidth && photoModalImgEl.naturalHeight) {
+      var cr = photoModalScrollerEl.getBoundingClientRect();
+      var cw = Math.max(1, cr.width);
+      var ch = Math.max(1, cr.height);
+      var nw = photoModalImgEl.naturalWidth;
+      var nh = photoModalImgEl.naturalHeight;
+      var sc = Math.min(cw / nw, ch / nh);
+      var tw = nw * sc;
+      var th = nh * sc;
+      curRect = {
+        left: cr.left + (cw - tw) / 2,
+        top: cr.top + (ch - th) / 2,
+        width: tw,
+        height: th
+      };
+    }
+  } catch (_) {}
+
   if (!curRect || !curRect.width || !curRect.height) {
     photoHeroFromRect = null;
     photoHeroToRect = null;

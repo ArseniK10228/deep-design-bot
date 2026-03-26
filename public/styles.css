@@ -561,7 +561,8 @@ a:active {
   position: fixed;
   z-index: 12001;
   border-radius: 0;
-  object-fit: contain;
+  /* Clone box already matches the contain pixel bounds, so fill avoids double letterboxing. */
+  object-fit: fill;
   background: #242424;
   will-change: transform, width, height, left, top, opacity;
 }
