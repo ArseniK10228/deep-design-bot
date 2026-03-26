@@ -2021,8 +2021,8 @@ function openPhotoModalHero(fromImgEl) {
     try { clone.remove(); } catch (_) {}
     try { photoModalImgEl.style.opacity = '1'; } catch (_) {}
     try { photoModalEl.classList.remove('hero-animating'); } catch (_) {}
-    try { if (photoHeroSourceEl) photoHeroSourceEl.style.visibility = ''; } catch (_) {}
-    photoHeroSourceEl = null;
+    // Keep the source thumbnail hidden while the modal is open.
+    // We'll restore it only after the reverse-hero (close) finishes.
     try { photoZoomMeasureBase(); } catch (_) {}
     try { photoZoomApply(); } catch (_) {}
   }
