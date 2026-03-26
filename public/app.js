@@ -867,7 +867,7 @@ async function initOwnerChatThread() {
   if (!viewerId) return;
 
   if (ownerChatInputEl) {
-    ownerChatInputEl.placeholder = isOwnerApp ? 'Ответ владельца...' : 'Сообщение владельцу...';
+    ownerChatInputEl.placeholder = isOwnerApp ? 'Ответ владельца...' : 'Сообщение...';
   }
 
   if (!ownerChatSubtitleEl) return;
