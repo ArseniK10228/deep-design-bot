@@ -558,10 +558,16 @@ a:active {
 /* When closing: show underlying UI immediately */
 .photo-modal.photo-modal-closing {
   pointer-events: none;
+  /* Immediately let announcement header be above photo on close */
+  z-index: 8000;
 }
 
 .photo-modal.photo-modal-closing .photo-modal-scroller {
   opacity: 0;
+}
+
+.photo-hero-closing .photo-hero-clone {
+  z-index: 8001;
 }
 
 .photo-modal-img {

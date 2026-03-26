@@ -2082,6 +2082,7 @@ function closePhotoModalHero() {
 
   // Make underlying UI visible immediately on click.
   try { photoModalEl.classList.add('photo-modal-closing'); } catch (_) {}
+  try { document.body.classList.add('photo-hero-closing'); } catch (_) {}
 
   var fromRect = photoHeroFromRect;
   // Recompute current contain pixel bounds inside scroller to avoid mismatch.
@@ -2154,6 +2155,7 @@ function closePhotoModalHero() {
     try { photoModalImgEl.style.visibility = ''; } catch (_) {}
     photoModalEl.classList.remove('hero-animating');
     try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
+    try { document.body.classList.remove('photo-hero-closing'); } catch (_) {}
     photoModalEl.classList.remove('photo-modal-open');
     photoModalEl.setAttribute('aria-hidden', 'true');
     try { photoModalImgEl.src = ''; } catch (_) {}
@@ -2176,6 +2178,7 @@ function closePhotoModal() {
   try { photoModalEl.classList.add('photo-modal-closing'); } catch (_) {}
   photoModalEl.classList.remove('photo-modal-open');
   try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
+  try { document.body.classList.remove('photo-hero-closing'); } catch (_) {}
   photoModalEl.setAttribute('aria-hidden', 'true');
   try { photoModalImgEl.src = ''; } catch (_) {}
   try { photoZoomReset(); } catch (_) {}
