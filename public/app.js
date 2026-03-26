@@ -762,7 +762,39 @@ function appendOwnerChatMessages(messages, options) {
 
     ownerChatMessagesEl.appendChild(row);
 
-    // Send animation is handled by CSS (Telegram-like max-height/scale pop-in).
+    // Telegram-like send animation (no container push => no bounce):
+    // 1) Smoothly scroll to bottom (upper messages move up).
+    // 2) Animate only the sent row: it slides from under the composer upward.
+    if (animateIn && sendIn && isMe) {
+      try {
+        row.style.transition = 'none';
+        row.style.willChange = 'transform, opacity';
+        row.style.opacity = '0';
+        row.style.transform = 'translateY(14px)';
+
+        if (ownerChatAutoScrollEnabled) scrollOwnerChatToBottomSmooth(520);
+
+        requestAnimationFrame(function () {
+          try {
+            row.style.transition = 'transform 0.52s cubic-bezier(0.18, 0.95, 0.2, 1), opacity 0.42s ease';
+            row.style.transform = 'translateY(0px)';
+            row.style.opacity = '1';
+          } catch (_) {}
+        });
+
+        row.addEventListener('transitionend', function te(ev) {
+          if (ev && ev.propertyName && String(ev.propertyName) !== 'transform') return;
+          try {
+            row.style.transition = '';
+            row.style.transform = '';
+            row.style.opacity = '';
+            row.style.willChange = '';
+          } catch (_) {}
+          row.classList.remove('chat-msg-row--send-in');
+          row.removeEventListener('transitionend', te);
+        });
+      } catch (_) {}
+    }
   });
 
   requestAnimationFrame(function () {
