@@ -1943,11 +1943,33 @@ function photoZoomReset() {
   photoZoomApply();
 }
 
+function setPhotoModalUnderHeaderState() {
+  if (!photoModalEl) return;
+  var top = 0;
+  var shouldUnderHeader = false;
+  try {
+    // If preset detail view is active, keep its header above the photo modal.
+    var view = document.getElementById('view-preset-detail');
+    if (view && view.classList && view.classList.contains('view-active')) {
+      var header = view.querySelector('.page-header');
+      if (header) {
+        var r = header.getBoundingClientRect();
+        top = Math.max(0, r.bottom || 0);
+        shouldUnderHeader = true;
+      }
+    }
+  } catch (_) {}
+
+  try { photoModalEl.style.setProperty('--photo-modal-top', top.toFixed(0) + 'px'); } catch (_) {}
+  try { photoModalEl.classList.toggle('photo-modal-under-header', shouldUnderHeader); } catch (_) {}
+}
+
 function openPhotoModal(src) {
   if (!photoModalEl || !photoModalImgEl || !photoModalScrollerEl) return;
   var url = (src || '').trim();
   if (!url) return;
   photoModalImgEl.src = url;
+  setPhotoModalUnderHeaderState();
   photoModalEl.classList.add('photo-modal-open');
   photoModalEl.setAttribute('aria-hidden', 'false');
 
@@ -1995,6 +2017,7 @@ function openPhotoModalHero(fromImgEl) {
   photoHeroFromRect = fromPixelRect;
   photoHeroToRect = null;
   photoModalImgEl.style.opacity = '0';
+  setPhotoModalUnderHeaderState();
   photoModalEl.classList.add('photo-modal-open');
   photoModalEl.classList.add('hero-animating');
   photoModalEl.setAttribute('aria-hidden', 'false');
@@ -2155,6 +2178,8 @@ function closePhotoModalHero() {
     try { photoModalImgEl.style.visibility = ''; } catch (_) {}
     photoModalEl.classList.remove('hero-animating');
     try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
+    try { photoModalEl.classList.remove('photo-modal-under-header'); } catch (_) {}
+    try { photoModalEl.style.removeProperty('--photo-modal-top'); } catch (_) {}
     try { document.body.classList.remove('photo-hero-closing'); } catch (_) {}
     photoModalEl.classList.remove('photo-modal-open');
     photoModalEl.setAttribute('aria-hidden', 'true');
@@ -2178,6 +2203,8 @@ function closePhotoModal() {
   try { photoModalEl.classList.add('photo-modal-closing'); } catch (_) {}
   photoModalEl.classList.remove('photo-modal-open');
   try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
+  try { photoModalEl.classList.remove('photo-modal-under-header'); } catch (_) {}
+  try { photoModalEl.style.removeProperty('--photo-modal-top'); } catch (_) {}
   try { document.body.classList.remove('photo-hero-closing'); } catch (_) {}
   photoModalEl.setAttribute('aria-hidden', 'true');
   try { photoModalImgEl.src = ''; } catch (_) {}
