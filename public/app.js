@@ -113,6 +113,10 @@ function syncChatKeyboardInset() {
   root.style.setProperty('--keyboard-inset', inset + 'px');
 
   /* К последнему сообщению: при появлении клавиатуры — плавно (в т.ч. если листали историю); пока inset растёт — мгновенно, чтобы не отставать от анимации. */
+  if (ownerChatSuppressKeyboardScroll) {
+    keyboardInsetPrev = inset;
+    return;
+  }
   if (inset > 0) {
     if (keyboardInsetPrev === 0) {
       scrollOwnerChatToBottomSmooth();
@@ -493,6 +497,7 @@ let ownerChatPollTimer = null;
 let ownerChatIsSending = false;
 let ownerChatInitialWsBatches = 0; // первые батчи после открытия чата без анимации (без smooth-скролла)
 let ownerChatAutoScrollEnabled = true; // отключаем, чтобы при нажатии "назад" не было прыжков скролла
+let ownerChatSuppressKeyboardScroll = false; // подавляем автоскролл от visualViewport во время анимации отправки
 
 // ----- WebSocket для чата (без polling) -----
 let ownerChatWs = null;
@@ -760,11 +765,7 @@ function appendOwnerChatMessages(messages, options) {
 
     ownerChatMessagesEl.appendChild(row);
 
-    // В Telegram WebView иногда CSS-анимация не стартует сразу после вставки DOM.
-    // Forced layout/paint помогает гарантировать запуск анимации "в тот же момент".
-    if (sendIn && isMe) {
-      try { row.getBoundingClientRect(); } catch (_) {}
-    }
+    // (намеренно не делаем forced layout; это может вызывать резкие "скоки" скролла в WebView)
   });
 
   requestAnimationFrame(function () {
@@ -1008,6 +1009,11 @@ async function sendOwnerChatMessage() {
   const text = ownerChatInputEl ? ownerChatInputEl.value.trim() : '';
   if (!text) return;
 
+  ownerChatSuppressKeyboardScroll = true;
+  var suppressTimer = setTimeout(function () {
+    ownerChatSuppressKeyboardScroll = false;
+  }, 650);
+
   ownerChatIsSending = true;
   if (ownerChatSendBtn) ownerChatSendBtn.disabled = true;
 
@@ -1062,6 +1068,11 @@ if (ownerChatInputEl) {
   });
   const kbDelays = [0, 50, 120, 250, 400, 600];
   ownerChatInputEl.addEventListener('focus', function () {
+    const shouldAvoidScrollTail = ownerChatIsSending || ownerChatSuppressKeyboardScroll;
+    if (shouldAvoidScrollTail) {
+      scrollOwnerChatToBottom();
+      return;
+    }
     scrollOwnerChatToBottomSmooth();
     kbDelays.forEach(function (ms) {
       setTimeout(function () {
