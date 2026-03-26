@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#121212" />
   <title>Deep Design PC</title>
   <link rel="preconnect" href="https://telegram.org" crossorigin />
-  <link rel="stylesheet" href="styles.css?v=20260322-chat-all-msgs-fadeonly" />
+  <link rel="stylesheet" href="styles.css?v=20260322-chat-loading-spinner" />
 </head>
 <body>
   <div id="top-loading-bar" class="top-loading-bar top-loading-bar-hidden" aria-hidden="true"></div>
@@ -606,6 +606,9 @@
       </header>
       <main class="page-content chat-view">
         <div class="chat-messages" id="owner-chat-messages" aria-live="polite" aria-relevant="additions"></div>
+        <div id="owner-chat-loading" class="chat-loading-spinner" aria-hidden="true">
+          <div class="maintenance-loader" aria-hidden="true"></div>
+        </div>
 
         <div class="chat-composer" id="owner-chat-composer">
           <input
@@ -671,7 +674,7 @@
   </nav>
 
   <script src="/telegram-web-app.js" defer></script>
-  <script src="app.js?v=20260322-chat-all-messages-fade" defer></script>
+  <script src="app.js?v=20260322-chat-loading-spinner" defer></script>
 
 </body>
 </html>

@@ -482,6 +482,7 @@ const ownerChatInputEl = document.getElementById('owner-chat-input');
 const ownerChatSendBtn = document.getElementById('owner-chat-send-btn');
 const ownerChatSubtitleEl = document.getElementById('owner-chat-thread-subtitle');
 const ownerChatListSubtitleEl = document.getElementById('owner-chat-list-subtitle');
+const ownerChatLoadingEl = document.getElementById('owner-chat-loading');
 
 const viewerId = currentUser && currentUser.id != null ? String(currentUser.id) : null;
 const viewerUsername = currentUser && currentUser.username ? String(currentUser.username) : '';
@@ -972,7 +973,12 @@ async function initOwnerChatThread() {
     ownerChatSubtitleEl.textContent = 'Диалог с владельцем';
   }
 
-  await loadOwnerChatMessages({ reset: true });
+  if (ownerChatLoadingEl) ownerChatLoadingEl.classList.add('chat-loading-spinner--visible');
+  try {
+    await loadOwnerChatMessages({ reset: true });
+  } finally {
+    if (ownerChatLoadingEl) ownerChatLoadingEl.classList.remove('chat-loading-spinner--visible');
+  }
 
   // Подписываемся на новые сообщения этого диалога.
   ownerChatWsActive = true;

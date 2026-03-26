@@ -2414,6 +2414,32 @@ html.html--chat-open body {
   padding: 12px 4px 8px;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+
+#view-consult .chat-loading-spinner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.18s ease, visibility 0s linear 0.18s;
+  z-index: 1;
+}
+
+#view-consult .chat-loading-spinner.chat-loading-spinner--visible {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.18s ease, visibility 0s linear 0s;
+}
+
+#view-consult .chat-loading-spinner .maintenance-loader {
+  width: 38px;
+  height: 38px;
+  border-width: 3px;
 }
 
 #view-consult .chat-composer {
