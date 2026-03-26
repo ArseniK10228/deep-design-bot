@@ -489,7 +489,10 @@ a:active {
 
 .photo-modal-backdrop {
   position: absolute;
-  inset: 0;
+  top: var(--photo-modal-top, 0px);
+  right: 0;
+  bottom: var(--photo-modal-bottom, 0px);
+  left: 0;
   /* Делаем фон таким же, как у фото в карусели (серые поля по краям). */
   background: #242424;
   opacity: 0;
@@ -515,7 +518,7 @@ a:active {
 
 .photo-modal-close {
   position: absolute;
-  top: calc(env(safe-area-inset-top, 0px) + 12px);
+  top: calc(var(--photo-modal-top, 0px) + 12px);
   right: 12px;
   width: 44px;
   height: 44px;
@@ -545,7 +548,10 @@ a:active {
 
 .photo-modal-scroller {
   position: absolute;
-  inset: 0;
+  top: var(--photo-modal-top, 0px);
+  right: 0;
+  bottom: var(--photo-modal-bottom, 0px);
+  left: 0;
   overflow: hidden;
   padding: 0;
   box-sizing: border-box;
