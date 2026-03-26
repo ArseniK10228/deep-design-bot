@@ -1899,64 +1899,6 @@ var photoZoomBaseH = 0;
 var photoHeroFromRect = null;
 var photoHeroToRect = null;
 var photoHeroSourceEl = null;
-var photoModalPanelsActive = false;
-
-function applyPhotoModalPanelInsets(sourceEl) {
-  if (!photoModalEl) return;
-  var top = 0;
-  var bottom = 0;
-  var hasPanels = false;
-  var activeView = null;
-
-  try {
-    if (sourceEl && sourceEl.closest) activeView = sourceEl.closest('.view');
-  } catch (_) { activeView = null; }
-  if (!activeView) {
-    try { activeView = document.querySelector('.view.view-active'); } catch (_) { activeView = null; }
-  }
-
-  try {
-    if (activeView) {
-      var header = activeView.querySelector('.page-header');
-      if (header) {
-        var hr = header.getBoundingClientRect();
-        top = Math.max(0, hr.bottom || 0);
-        hasPanels = true;
-      }
-      var bottomBar = activeView.querySelector('.preset-detail-bottom-bar');
-      if (bottomBar) {
-        var br = bottomBar.getBoundingClientRect();
-        bottom = Math.max(0, window.innerHeight - (br.top || window.innerHeight));
-        hasPanels = true;
-      }
-    }
-  } catch (_) {}
-
-  photoModalPanelsActive = hasPanels;
-  try { photoModalEl.style.setProperty('--photo-modal-top', Math.round(top) + 'px'); } catch (_) {}
-  try { photoModalEl.style.setProperty('--photo-modal-bottom', Math.round(bottom) + 'px'); } catch (_) {}
-  try { photoModalEl.classList.toggle('photo-modal-under-panels', hasPanels); } catch (_) {}
-
-  // Only dim/disable header for preset detail view (announcement).
-  try {
-    var presetView = document.getElementById('view-preset-detail');
-    if (presetView) presetView.classList.toggle('photo-panels-dim-header', hasPanels && activeView === presetView);
-  } catch (_) {}
-  try { document.body.classList.toggle('photo-hero-under-panels', hasPanels); } catch (_) {}
-}
-
-function clearPhotoModalPanelInsets() {
-  if (!photoModalEl) return;
-  photoModalPanelsActive = false;
-  try { photoModalEl.classList.remove('photo-modal-under-panels'); } catch (_) {}
-  try { photoModalEl.style.removeProperty('--photo-modal-top'); } catch (_) {}
-  try { photoModalEl.style.removeProperty('--photo-modal-bottom'); } catch (_) {}
-  try { document.body.classList.remove('photo-hero-under-panels'); } catch (_) {}
-  try {
-    var presetView = document.getElementById('view-preset-detail');
-    if (presetView) presetView.classList.remove('photo-panels-dim-header');
-  } catch (_) {}
-}
 
 function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
 
@@ -2006,12 +1948,9 @@ function openPhotoModal(src) {
   if (!photoModalEl || !photoModalImgEl || !photoModalScrollerEl) return;
   var url = (src || '').trim();
   if (!url) return;
-  try { applyPhotoModalPanelInsets(null); } catch (_) {}
   photoModalImgEl.src = url;
   photoModalEl.classList.add('photo-modal-open');
   photoModalEl.setAttribute('aria-hidden', 'false');
-  // Re-apply on next frame to avoid stale rects.
-  try { requestAnimationFrame(function () { applyPhotoModalPanelInsets(null); }); } catch (_) {}
 
   photoZoomReset();
 
@@ -2056,7 +1995,6 @@ function openPhotoModalHero(fromImgEl) {
   // Open modal; hide real image until hero finishes
   photoHeroFromRect = fromPixelRect;
   photoHeroToRect = null;
-  try { applyPhotoModalPanelInsets(fromImgEl); } catch (_) {}
   // Hide the source image while the hero clone is visible (avoid double image).
   try {
     photoHeroSourceEl = fromImgEl;
@@ -2066,8 +2004,6 @@ function openPhotoModalHero(fromImgEl) {
   photoModalEl.classList.add('photo-modal-open');
   photoModalEl.classList.add('hero-animating');
   photoModalEl.setAttribute('aria-hidden', 'false');
-  // Re-apply on next frame to avoid stale rects.
-  try { requestAnimationFrame(function () { applyPhotoModalPanelInsets(fromImgEl); }); } catch (_) {}
   photoModalImgEl.src = src;
   photoZoomReset();
 
@@ -2232,7 +2168,6 @@ function closePhotoModalHero() {
     photoModalEl.classList.remove('hero-animating');
     try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
     try { document.body.classList.remove('photo-hero-closing'); } catch (_) {}
-    try { clearPhotoModalPanelInsets(); } catch (_) {}
     photoModalEl.classList.remove('photo-modal-open');
     photoModalEl.setAttribute('aria-hidden', 'true');
     try { photoModalImgEl.src = ''; } catch (_) {}
@@ -2256,7 +2191,6 @@ function closePhotoModal() {
   photoModalEl.classList.remove('photo-modal-open');
   try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
   try { document.body.classList.remove('photo-hero-closing'); } catch (_) {}
-  try { clearPhotoModalPanelInsets(); } catch (_) {}
   photoModalEl.setAttribute('aria-hidden', 'true');
   try { photoModalImgEl.src = ''; } catch (_) {}
   try { photoZoomReset(); } catch (_) {}
