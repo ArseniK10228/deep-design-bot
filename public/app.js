@@ -759,6 +759,12 @@ function appendOwnerChatMessages(messages, options) {
     }
 
     ownerChatMessagesEl.appendChild(row);
+
+    // В Telegram WebView иногда CSS-анимация не стартует сразу после вставки DOM.
+    // Forced layout/paint помогает гарантировать запуск анимации "в тот же момент".
+    if (sendIn && isMe) {
+      try { row.getBoundingClientRect(); } catch (_) {}
+    }
   });
 
   requestAnimationFrame(function () {
