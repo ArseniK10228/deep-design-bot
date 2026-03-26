@@ -762,42 +762,50 @@ function appendOwnerChatMessages(messages, options) {
 
     ownerChatMessagesEl.appendChild(row);
 
-    // Layout animation: sent message expands from bottom and pushes
-    // the content above (like Telegram). We animate height 0 -> fullHeight.
+    // Push-like animation for sent messages (optimized: transform only).
+    // We move the whole message container up by the new row height,
+    // while we counter-move the sent row down, so it "comes from under" the bottom panel
+    // and smoothly pushes upper messages.
     if (animateIn && sendIn && isMe) {
       try {
-        const fullHeight = row.getBoundingClientRect().height;
-        row.style.height = '0px';
-        row.style.overflow = 'hidden';
+        const container = ownerChatMessagesEl;
+        const deltaPx = Math.max(10, Math.round(row.getBoundingClientRect().height));
+        const duration = 0.46; // seconds
+
+        // Start state (no transitions yet)
+        container.style.transition = 'none';
+        container.style.transform = 'translateY(0px)';
+        row.style.transition = 'none';
+        row.style.transform = 'translateY(' + deltaPx + 'px)';
         row.style.opacity = '0';
-        row.style.transform = 'translateY(18px)';
-        row.style.willChange = 'height, transform, opacity';
-        // Ensure transition starts from the "0 height" state.
-        void row.offsetHeight;
+
+        // Force reflow
+        void container.offsetHeight;
 
         requestAnimationFrame(function () {
           try {
-            row.style.transition =
-              'height 0.45s cubic-bezier(0.16, 0.9, 0.22, 1), ' +
-              'transform 0.45s cubic-bezier(0.16, 0.9, 0.22, 1), ' +
-              'opacity 0.35s ease';
-            row.style.height = fullHeight + 'px';
+            container.style.transition = 'transform ' + duration + 's cubic-bezier(0.16, 0.9, 0.22, 1)';
+            row.style.transition = 'transform ' + duration + 's cubic-bezier(0.16, 0.9, 0.22, 1), opacity 0.35s ease';
+            container.style.transform = 'translateY(-' + deltaPx + 'px)';
             row.style.transform = 'translateY(0px)';
             row.style.opacity = '1';
           } catch (_) {}
         });
 
-        var ended = false;
+        var done = false;
         row.addEventListener('transitionend', function te(ev) {
-          if (ended) return;
-          if (ev && ev.propertyName && String(ev.propertyName) !== 'height') return;
-          ended = true;
-          row.style.transition = '';
-          row.style.height = '';
-          row.style.overflow = '';
-          row.style.transform = '';
-          row.style.opacity = '';
-          row.style.willChange = '';
+          if (done) return;
+          // We only finalize after transform transition finishes.
+          if (ev && ev.propertyName && String(ev.propertyName) !== 'transform') return;
+          done = true;
+          try {
+            container.style.transition = '';
+            container.style.transform = '';
+            row.style.transition = '';
+            row.style.transform = '';
+            row.style.opacity = '';
+            row.style.willChange = '';
+          } catch (_) {}
           row.removeEventListener('transitionend', te);
           row.classList.remove('chat-msg-row--send-in');
         });
@@ -1091,8 +1099,8 @@ async function sendOwnerChatMessage() {
     const message = data.message;
     ownerChatLastSeenId = Number(message.id || ownerChatLastSeenId);
     appendOwnerChatMessages([message], { sendIn: true, instantScroll: false, deferScroll: true });
-    // После анимации (height transition) аккуратно прокручиваем вниз.
-    try { setTimeout(function () { scrollOwnerChatToBottom(); }, 480); } catch (_) {}
+    // После анимации push-переезда аккуратно прокручиваем вниз.
+    try { setTimeout(function () { scrollOwnerChatToBottom(); }, 520); } catch (_) {}
     if (ownerChatInputEl) ownerChatInputEl.value = '';
   } finally {
     // Чтобы Telegram WebView не сворачивал клавиатуру после отправки:
