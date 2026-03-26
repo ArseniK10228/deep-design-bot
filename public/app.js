@@ -2001,45 +2001,61 @@ function openPhotoModalHero(fromImgEl) {
   }
 
   photoModalImgEl.onload = function () {
-    // Compute target rect using contain math (stable, no layout surprises).
-    var toRect = null;
-    try {
-      if (photoModalScrollerEl && photoModalImgEl && photoModalImgEl.naturalWidth && photoModalImgEl.naturalHeight) {
-        var cr = photoModalScrollerEl.getBoundingClientRect();
-        var cw = Math.max(1, photoModalScrollerEl.clientWidth || Math.floor(cr.width));
-        var ch = Math.max(1, photoModalScrollerEl.clientHeight || Math.floor(cr.height));
-        var nw = photoModalImgEl.naturalWidth;
-        var nh = photoModalImgEl.naturalHeight;
-        var s = Math.min(cw / nw, ch / nh);
-        var tw = nw * s;
-        var th = nh * s;
-        var left = cr.left + (cw - tw) / 2;
-        var top = cr.top + (ch - th) / 2;
-        toRect = { left: left, top: top, width: tw, height: th };
+    function runHero() {
+      // Compute target rect using contain math inside scroller padding box.
+      var toRect = null;
+      try {
+        if (photoModalScrollerEl && photoModalImgEl && photoModalImgEl.naturalWidth && photoModalImgEl.naturalHeight) {
+          var cr = photoModalScrollerEl.getBoundingClientRect();
+          var cs = window.getComputedStyle ? window.getComputedStyle(photoModalScrollerEl) : null;
+          var padL = cs ? parseFloat(cs.paddingLeft || '0') : 0;
+          var padR = cs ? parseFloat(cs.paddingRight || '0') : 0;
+          var padT = cs ? parseFloat(cs.paddingTop || '0') : 0;
+          var padB = cs ? parseFloat(cs.paddingBottom || '0') : 0;
+
+          var innerW = Math.max(1, cr.width - padL - padR);
+          var innerH = Math.max(1, cr.height - padT - padB);
+          var nw = photoModalImgEl.naturalWidth;
+          var nh = photoModalImgEl.naturalHeight;
+          var sc = Math.min(innerW / nw, innerH / nh);
+          var tw = nw * sc;
+          var th = nh * sc;
+          var left = cr.left + padL + (innerW - tw) / 2;
+          var top = cr.top + padT + (innerH - th) / 2;
+          toRect = { left: left, top: top, width: tw, height: th };
+        }
+      } catch (_) { toRect = null; }
+      if (!toRect || !toRect.width || !toRect.height) {
+        finish();
+        return;
       }
-    } catch (_) { toRect = null; }
-    if (!toRect || !toRect.width || !toRect.height) {
-      finish();
-      return;
+      photoHeroToRect = toRect;
+
+      var dx = toRect.left - fromRect.left;
+      var dy = toRect.top - fromRect.top;
+      var s = toRect.width / fromRect.width;
+
+      clone.style.transformOrigin = 'top left';
+      clone.style.transition = 'transform 0.34s cubic-bezier(0.18, 0.95, 0.2, 1)';
+      requestAnimationFrame(function () {
+        clone.style.transform =
+          'translate3d(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px,0) scale(' + s.toFixed(4) + ')';
+      });
+      clone.addEventListener('transitionend', function te(ev) {
+        if (ev && ev.propertyName && String(ev.propertyName) !== 'transform') return;
+        finish();
+      }, { once: true });
+      setTimeout(finish, 420);
     }
-    photoHeroToRect = toRect;
 
-    var dx = toRect.left - fromRect.left;
-    var dy = toRect.top - fromRect.top;
-    // Use uniform scaling to avoid aspect "stretch".
-    var s = toRect.width / fromRect.width;
-
-    clone.style.transformOrigin = 'top left';
-    clone.style.transition = 'transform 0.34s cubic-bezier(0.18, 0.95, 0.2, 1)';
-    requestAnimationFrame(function () {
-      clone.style.transform =
-        'translate3d(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px,0) scale(' + s.toFixed(4) + ')';
-    });
-    clone.addEventListener('transitionend', function te(ev) {
-      if (ev && ev.propertyName && String(ev.propertyName) !== 'transform') return;
-      finish();
-    }, { once: true });
-    setTimeout(finish, 420);
+    // Decode before starting animation to avoid jank/teleport.
+    try {
+      if (photoModalImgEl.decode) {
+        photoModalImgEl.decode().then(runHero).catch(runHero);
+        return;
+      }
+    } catch (_) {}
+    runHero();
   };
 }
 
