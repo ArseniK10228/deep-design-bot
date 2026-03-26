@@ -1899,6 +1899,40 @@ var photoZoomBaseH = 0;
 var photoHeroFromRect = null;
 var photoHeroToRect = null;
 var photoHeroSourceEl = null;
+var photoModalPanelsMode = null;
+
+function applyPhotoModalPanelsMode() {
+  if (!photoModalEl) return;
+  var top = 0;
+  var bottom = 0;
+  var mode = null;
+  try {
+    var presetView = document.getElementById('view-preset-detail');
+    if (presetView && presetView.classList && presetView.classList.contains('view-active')) {
+      var header = presetView.querySelector('.page-header');
+      var bottomBar = presetView.querySelector('.preset-detail-bottom-bar');
+      if (header) {
+        var hr = header.getBoundingClientRect();
+        top = Math.max(0, hr.bottom || 0);
+      }
+      if (bottomBar) {
+        var br = bottomBar.getBoundingClientRect();
+        bottom = Math.max(0, window.innerHeight - (br.top || window.innerHeight));
+      }
+      mode = 'preset-detail';
+    }
+  } catch (_) {}
+
+  photoModalPanelsMode = mode;
+  try { photoModalEl.style.setProperty('--photo-modal-top', top.toFixed(0) + 'px'); } catch (_) {}
+  try { photoModalEl.style.setProperty('--photo-modal-bottom', bottom.toFixed(0) + 'px'); } catch (_) {}
+  try { photoModalEl.classList.toggle('photo-modal-under-panels', !!mode); } catch (_) {}
+  try {
+    var presetView2 = document.getElementById('view-preset-detail');
+    if (presetView2) presetView2.classList.toggle('photo-panels-dim-header', !!mode);
+  } catch (_) {}
+  try { document.body.classList.toggle('photo-hero-under-panels', !!mode); } catch (_) {}
+}
 
 function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
 
@@ -1948,8 +1982,8 @@ function openPhotoModal(src) {
   if (!photoModalEl || !photoModalImgEl || !photoModalScrollerEl) return;
   var url = (src || '').trim();
   if (!url) return;
-  try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
   photoModalImgEl.src = url;
+  try { applyPhotoModalPanelsMode(); } catch (_) {}
   photoModalEl.classList.add('photo-modal-open');
   photoModalEl.setAttribute('aria-hidden', 'false');
 
@@ -1966,7 +2000,6 @@ function openPhotoModalHero(fromImgEl) {
   if (!fromImgEl || !photoModalEl || !photoModalImgEl) return;
   var src = (fromImgEl.getAttribute && fromImgEl.getAttribute('src')) ? String(fromImgEl.getAttribute('src') || '').trim() : '';
   if (!src) return;
-  try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
 
   var fromRect = null;
   try { fromRect = fromImgEl.getBoundingClientRect(); } catch (_) { fromRect = null; }
@@ -2003,6 +2036,7 @@ function openPhotoModalHero(fromImgEl) {
     fromImgEl.style.visibility = 'hidden';
   } catch (_) { photoHeroSourceEl = null; }
   photoModalImgEl.style.opacity = '0';
+  try { applyPhotoModalPanelsMode(); } catch (_) {}
   photoModalEl.classList.add('photo-modal-open');
   photoModalEl.classList.add('hero-animating');
   photoModalEl.setAttribute('aria-hidden', 'false');
@@ -2170,6 +2204,17 @@ function closePhotoModalHero() {
     photoModalEl.classList.remove('hero-animating');
     try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
     try { document.body.classList.remove('photo-hero-closing'); } catch (_) {}
+    try {
+      if (photoModalPanelsMode) {
+        var presetView = document.getElementById('view-preset-detail');
+        if (presetView) presetView.classList.remove('photo-panels-dim-header');
+      }
+      photoModalEl.classList.remove('photo-modal-under-panels');
+      photoModalEl.style.removeProperty('--photo-modal-top');
+      photoModalEl.style.removeProperty('--photo-modal-bottom');
+      document.body.classList.remove('photo-hero-under-panels');
+      photoModalPanelsMode = null;
+    } catch (_) {}
     photoModalEl.classList.remove('photo-modal-open');
     photoModalEl.setAttribute('aria-hidden', 'true');
     try { photoModalImgEl.src = ''; } catch (_) {}
@@ -2190,17 +2235,23 @@ function closePhotoModal() {
     return closePhotoModalHero();
   }
   try { photoModalEl.classList.add('photo-modal-closing'); } catch (_) {}
-  // Let the backdrop fade out smoothly before fully hiding.
-  setTimeout(function () {
-    try { photoModalEl.classList.remove('photo-modal-open'); } catch (_) {}
-    try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
-    try { document.body.classList.remove('photo-hero-closing'); } catch (_) {}
-    try { if (photoHeroSourceEl) photoHeroSourceEl.style.visibility = ''; } catch (_) {}
-    photoHeroSourceEl = null;
-    try { photoModalEl.setAttribute('aria-hidden', 'true'); } catch (_) {}
-    try { photoModalImgEl.src = ''; } catch (_) {}
-    try { photoZoomReset(); } catch (_) {}
-  }, 270);
+  photoModalEl.classList.remove('photo-modal-open');
+  try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
+  try { document.body.classList.remove('photo-hero-closing'); } catch (_) {}
+  try {
+    if (photoModalPanelsMode) {
+      var presetView = document.getElementById('view-preset-detail');
+      if (presetView) presetView.classList.remove('photo-panels-dim-header');
+    }
+    photoModalEl.classList.remove('photo-modal-under-panels');
+    photoModalEl.style.removeProperty('--photo-modal-top');
+    photoModalEl.style.removeProperty('--photo-modal-bottom');
+    document.body.classList.remove('photo-hero-under-panels');
+    photoModalPanelsMode = null;
+  } catch (_) {}
+  photoModalEl.setAttribute('aria-hidden', 'true');
+  try { photoModalImgEl.src = ''; } catch (_) {}
+  try { photoZoomReset(); } catch (_) {}
 }
 
 if (photoModalBackdropEl) photoModalBackdropEl.addEventListener('click', closePhotoModal);
