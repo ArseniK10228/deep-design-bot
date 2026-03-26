@@ -633,17 +633,25 @@ function appendOwnerChatMessages(messages, options) {
 
     const isMe = meId && String(m.fromUserId) === meId;
 
-    const fromUsernameClean = m.fromUsername && String(m.fromUsername).trim()
+    let fromUsernameClean = m.fromUsername && String(m.fromUsername).trim()
       ? String(m.fromUsername).trim().replace(/^@/, '')
       : '';
 
+    // Для сообщений текущего пользователя всегда показываем "Вы",
+    // чтобы его @username не всплывал в UI.
     let displayName = isMe
-      ? (m.fromRole === 'owner' ? 'Вы' : (fromUsernameClean || 'Вы'))
+      ? 'Вы'
       : (fromUsernameClean || (m.fromRole === 'owner' ? 'Владелец' : 'Пользователь'));
 
-    // Для пользователей скрываем мой @username в чате: вместо него показываем "менеджер".
+    if (isMe) {
+      fromUsernameClean = '';
+    }
+
+    // Для пользователей скрываем мой @username в чате: вместо него показываем "Менеджер".
+    // Также принудительно делаем аватарку "М", чтобы не зависеть от приходящего username.
     if (!isMe && m.fromRole === 'owner') {
-      displayName = 'менеджер';
+      displayName = 'Менеджер';
+      fromUsernameClean = '';
     }
 
     const initials = (function () {
