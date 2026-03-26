@@ -493,8 +493,8 @@ a:active {
   right: 0;
   bottom: var(--photo-modal-bottom, 0px);
   left: 0;
-  /* Делаем фон таким же, как у фото в карусели (серые поля по краям). */
-  background: #242424;
+  /* Keep interface visible, but dimmed */
+  background: rgba(0, 0, 0, 0.58);
   opacity: 0;
   transition: opacity 0.26s ease;
 }
@@ -558,7 +558,7 @@ a:active {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #242424;
+  background: transparent;
 }
 
 /* When closing: show underlying UI immediately */
