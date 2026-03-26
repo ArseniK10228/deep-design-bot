@@ -495,7 +495,6 @@ let ownerChatActiveConversationUserId = null; // which user we are chatting with
 let ownerChatLastSeenId = 0;
 let ownerChatPollTimer = null;
 let ownerChatIsSending = false;
-let ownerChatInitialWsBatches = 0; // первые батчи после открытия чата без анимации (без smooth-скролла)
 let ownerChatAutoScrollEnabled = true; // отключаем, чтобы при нажатии "назад" не было прыжков скролла
 let ownerChatSuppressKeyboardScroll = false; // подавляем автоскролл от visualViewport во время анимации отправки
 
@@ -569,12 +568,7 @@ function ownerChatWsEnsure() {
 
       const last = data.messages[data.messages.length - 1];
       if (last && last.id != null) ownerChatLastSeenId = Number(last.id || ownerChatLastSeenId);
-      if (ownerChatInitialWsBatches > 0) {
-        appendOwnerChatMessages(data.messages, { animate: true, instantScroll: true, fadeOnly: true });
-        ownerChatInitialWsBatches--;
-      } else {
-        appendOwnerChatMessages(data.messages);
-      }
+      appendOwnerChatMessages(data.messages, { sendIn: true, instantScroll: true });
     }
   };
 
@@ -938,7 +932,6 @@ async function initOwnerChatThread() {
   if (!getTg()) return;
   if (!viewerId) return;
 
-  ownerChatInitialWsBatches = 2; // гарантированно блокируем smooth-скролл на первых апдейтах
   ownerChatAutoScrollEnabled = true;
 
   if (ownerChatInputEl) {
@@ -1012,7 +1005,7 @@ async function sendOwnerChatMessage() {
   ownerChatSuppressKeyboardScroll = true;
   var suppressTimer = setTimeout(function () {
     ownerChatSuppressKeyboardScroll = false;
-  }, 650);
+  }, 1100);
 
   ownerChatIsSending = true;
   if (ownerChatSendBtn) ownerChatSendBtn.disabled = true;
