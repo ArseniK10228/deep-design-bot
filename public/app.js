@@ -372,6 +372,22 @@ function sendActionToBot(action, label) {
 document.querySelectorAll('.back-btn').forEach((btn) => {
   btn.addEventListener('click', () => {
     let target = btn.dataset.backTo || 'view-main';
+
+    // Если уходим из чата, отключаем автоскролл на время анимации выхода,
+    // чтобы не было "прыжка" на первые сообщения.
+    try {
+      var cur = document.querySelector('.view-active');
+      if (cur && cur.id === 'view-consult') {
+        ownerChatAutoScrollEnabled = false;
+        try {
+          if (typeof cancelAnimationFrame === 'function') {
+            if (chatSmoothScrollRaf) cancelAnimationFrame(chatSmoothScrollRaf);
+            chatSmoothScrollRaf = null;
+          }
+        } catch (_) {}
+      }
+    } catch (_) {}
+
     // В режиме апгрейда возвращаемся сразу на главный экран
     if (isUpgradeMode && target === 'view-build') {
       target = 'view-main';
@@ -463,6 +479,7 @@ let ownerChatLastSeenId = 0;
 let ownerChatPollTimer = null;
 let ownerChatIsSending = false;
 let ownerChatInitialWsBatches = 0; // первые батчи после открытия чата без анимации (без smooth-скролла)
+let ownerChatAutoScrollEnabled = true; // отключаем, чтобы при нажатии "назад" не было прыжков скролла
 
 // ----- WebSocket для чата (без polling) -----
 let ownerChatWs = null;
@@ -725,6 +742,7 @@ function appendOwnerChatMessages(messages, options) {
 
   requestAnimationFrame(function () {
     requestAnimationFrame(function () {
+      if (!ownerChatAutoScrollEnabled) return;
       if (animateIn) scrollOwnerChatToBottomSmooth();
       else scrollOwnerChatToBottom();
     });
@@ -863,6 +881,7 @@ async function initOwnerChatList() {
   if (!viewerId) return;
 
   stopOwnerChatPolling();
+  ownerChatAutoScrollEnabled = false;
   ownerChatLastSeenId = 0;
   ownerChatActiveConversationUserId = null;
   ownerChatSelectedDisplayName = '';
@@ -889,6 +908,7 @@ async function initOwnerChatThread() {
   if (!viewerId) return;
 
   ownerChatInitialWsBatches = 2; // гарантированно блокируем smooth-скролл на первых апдейтах
+  ownerChatAutoScrollEnabled = true;
 
   if (ownerChatInputEl) {
     ownerChatInputEl.placeholder = isOwnerApp ? 'Ответ владельца...' : 'Сообщение...';
