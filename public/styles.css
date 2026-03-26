@@ -489,7 +489,8 @@ a:active {
 .photo-modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.92);
+  /* Делаем фон таким же, как у фото в карусели (серые поля по краям). */
+  background: #242424;
   opacity: 0;
   transition: opacity 0.26s ease;
 }
@@ -538,6 +539,7 @@ a:active {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #242424;
 }
 
 .photo-modal-img {
