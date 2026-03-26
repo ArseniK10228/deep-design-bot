@@ -676,6 +676,7 @@ function appendOwnerChatMessages(messages, options) {
   const animateIn = !options || options.animate !== false;
   const instantScroll = !!(options && options.instantScroll);
   const fadeOnly = !!(options && options.fadeOnly);
+  const sendIn = !!(options && options.sendIn);
   const meId = viewerId ? String(viewerId) : '';
 
   messages.forEach((m, idx) => {
@@ -748,8 +749,12 @@ function appendOwnerChatMessages(messages, options) {
     row.appendChild(contentCol);
 
     if (animateIn) {
-      row.classList.add('chat-msg-row--animate-in');
-      if (fadeOnly) row.classList.add('chat-msg-row--fade-only');
+      if (sendIn && isMe) {
+        row.classList.add('chat-msg-row--send-in');
+      } else {
+        row.classList.add('chat-msg-row--animate-in');
+        if (fadeOnly) row.classList.add('chat-msg-row--fade-only');
+      }
       row.style.animationDelay = Math.min(idx, 8) * 0.035 + 's';
     }
 
@@ -1028,7 +1033,7 @@ async function sendOwnerChatMessage() {
 
     const message = data.message;
     ownerChatLastSeenId = Number(message.id || ownerChatLastSeenId);
-    appendOwnerChatMessages([message]);
+    appendOwnerChatMessages([message], { sendIn: true, instantScroll: true });
     if (ownerChatInputEl) ownerChatInputEl.value = '';
   } finally {
     ownerChatIsSending = false;
