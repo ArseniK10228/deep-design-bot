@@ -366,16 +366,10 @@ a:active {
   transform: translateX(-50%);
   width: min(480px, 100vw);
   box-sizing: border-box;
-  /* Must stay above photo modal and hero clone */
-  z-index: 300000;
+  z-index: 9050;
   padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px;
   background: rgba(18, 18, 18, 0.94);
   backdrop-filter: blur(12px);
-}
-
-#view-preset-detail.photo-header-hidden .page-header {
-  opacity: 0;
-  pointer-events: none;
 }
 
 @keyframes preset-header-up {

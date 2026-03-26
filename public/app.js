@@ -1900,27 +1900,6 @@ var photoHeroFromRect = null;
 var photoHeroToRect = null;
 var photoHeroSourceEl = null;
 
-function setAnnouncementHeaderPhotoHidden(hidden, sourceEl) {
-  var targetView = null;
-  try {
-    if (sourceEl && sourceEl.closest) targetView = sourceEl.closest('.view');
-  } catch (_) { targetView = null; }
-  if (!targetView) {
-    try { targetView = document.querySelector('.view.view-active'); } catch (_) { targetView = null; }
-  }
-  try {
-    if (targetView && targetView.id === 'view-preset-detail') {
-      targetView.classList.toggle('photo-header-hidden', !!hidden);
-      return;
-    }
-  } catch (_) {}
-  // Fallback cleanup
-  try {
-    var presetView = document.getElementById('view-preset-detail');
-    if (presetView && !hidden) presetView.classList.remove('photo-header-hidden');
-  } catch (_) {}
-}
-
 function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
 
 function photoZoomMeasureBase() {
@@ -1969,7 +1948,6 @@ function openPhotoModal(src) {
   if (!photoModalEl || !photoModalImgEl || !photoModalScrollerEl) return;
   var url = (src || '').trim();
   if (!url) return;
-  try { setAnnouncementHeaderPhotoHidden(true, null); } catch (_) {}
   photoModalImgEl.src = url;
   photoModalEl.classList.add('photo-modal-open');
   photoModalEl.setAttribute('aria-hidden', 'false');
@@ -2013,7 +1991,6 @@ function openPhotoModalHero(fromImgEl) {
     }
   } catch (_) {}
   if (!fromPixelRect) fromPixelRect = fromRect;
-  try { setAnnouncementHeaderPhotoHidden(true, fromImgEl); } catch (_) {}
 
   // Open modal; hide real image until hero finishes
   photoHeroFromRect = fromPixelRect;
@@ -2191,7 +2168,6 @@ function closePhotoModalHero() {
     photoModalEl.classList.remove('hero-animating');
     try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
     try { document.body.classList.remove('photo-hero-closing'); } catch (_) {}
-    try { setAnnouncementHeaderPhotoHidden(false, null); } catch (_) {}
     photoModalEl.classList.remove('photo-modal-open');
     photoModalEl.setAttribute('aria-hidden', 'true');
     try { photoModalImgEl.src = ''; } catch (_) {}
@@ -2215,7 +2191,6 @@ function closePhotoModal() {
   photoModalEl.classList.remove('photo-modal-open');
   try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
   try { document.body.classList.remove('photo-hero-closing'); } catch (_) {}
-  try { setAnnouncementHeaderPhotoHidden(false, null); } catch (_) {}
   photoModalEl.setAttribute('aria-hidden', 'true');
   try { photoModalImgEl.src = ''; } catch (_) {}
   try { photoZoomReset(); } catch (_) {}
