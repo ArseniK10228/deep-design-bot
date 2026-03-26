@@ -1568,6 +1568,20 @@ a:active {
 #view-consult .consult-text:nth-of-type(2) { animation-delay: 0.16s; }
 #view-consult .consult-link { animation-delay: 0.26s; }
 
+/* ----- Чат: анимация панели ввода (как у нижних панелей заказов) ----- */
+#view-consult .chat-composer > * {
+  animation: page-enter 0.35s ease-out backwards;
+}
+
+#view-consult .chat-input { animation-delay: 0.24s; }
+#view-consult .chat-send-btn { animation-delay: 0.32s; }
+
+@media (prefers-reduced-motion: reduce) {
+  #view-consult .chat-composer > * {
+    animation: none !important;
+  }
+}
+
 #view-build-no .page-header {
   animation: page-enter 0.3s ease-out backwards;
 }
