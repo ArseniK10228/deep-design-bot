@@ -1707,7 +1707,7 @@ function showPresetDetail(item) {
         imgsEls.forEach(function (imgEl) {
           imgEl.style.cursor = 'pointer';
           imgEl.addEventListener('click', function () {
-            try { openPhotoModal(imgEl.getAttribute('src') || ''); } catch (_) {}
+            try { openPhotoModalHero(imgEl); } catch (_) {}
           });
         });
       } catch (_) {}
@@ -1958,6 +1958,69 @@ function openPhotoModal(src) {
   };
 }
 
+function openPhotoModalHero(fromImgEl) {
+  if (!fromImgEl || !photoModalEl || !photoModalImgEl) return;
+  var src = (fromImgEl.getAttribute && fromImgEl.getAttribute('src')) ? String(fromImgEl.getAttribute('src') || '').trim() : '';
+  if (!src) return;
+
+  var fromRect = null;
+  try { fromRect = fromImgEl.getBoundingClientRect(); } catch (_) { fromRect = null; }
+  if (!fromRect || !fromRect.width || !fromRect.height) {
+    openPhotoModal(src);
+    return;
+  }
+
+  // Open modal; hide real image until hero finishes
+  photoModalImgEl.style.opacity = '0';
+  photoModalEl.classList.add('photo-modal-open');
+  photoModalEl.classList.add('hero-animating');
+  photoModalEl.setAttribute('aria-hidden', 'false');
+  photoModalImgEl.src = src;
+  photoZoomReset();
+
+  var clone = document.createElement('img');
+  clone.className = 'photo-hero-clone';
+  clone.src = src;
+  clone.alt = '';
+  clone.style.left = fromRect.left + 'px';
+  clone.style.top = fromRect.top + 'px';
+  clone.style.width = fromRect.width + 'px';
+  clone.style.height = fromRect.height + 'px';
+  document.body.appendChild(clone);
+
+  function finish() {
+    try { clone.remove(); } catch (_) {}
+    try { photoModalImgEl.style.opacity = '1'; } catch (_) {}
+    try { photoModalEl.classList.remove('hero-animating'); } catch (_) {}
+  }
+
+  photoModalImgEl.onload = function () {
+    try { photoZoomMeasureBase(); } catch (_) {}
+    try { photoZoomApply(); } catch (_) {}
+
+    var toRect = null;
+    try { toRect = photoModalImgEl.getBoundingClientRect(); } catch (_) { toRect = null; }
+    if (!toRect || !toRect.width || !toRect.height) {
+      finish();
+      return;
+    }
+
+    var dx = toRect.left - fromRect.left;
+    var dy = toRect.top - fromRect.top;
+    var sx = toRect.width / fromRect.width;
+    var sy = toRect.height / fromRect.height;
+
+    clone.style.transformOrigin = 'top left';
+    clone.style.transition = 'transform 0.34s cubic-bezier(0.18, 0.95, 0.2, 1), opacity 0.18s ease';
+    requestAnimationFrame(function () {
+      clone.style.transform =
+        'translate3d(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px,0) scale(' + sx.toFixed(4) + ',' + sy.toFixed(4) + ')';
+    });
+    clone.addEventListener('transitionend', finish, { once: true });
+    setTimeout(finish, 420);
+  };
+}
+
 function closePhotoModal() {
   if (!photoModalEl || !photoModalImgEl) return;
   photoModalEl.classList.remove('photo-modal-open');
@@ -2065,7 +2128,7 @@ function showPortfolioDetail(item) {
         imgsEls.forEach(function (imgEl) {
           imgEl.style.cursor = 'pointer';
           imgEl.addEventListener('click', function () {
-            try { openPhotoModal(imgEl.getAttribute('src') || ''); } catch (_) {}
+            try { openPhotoModalHero(imgEl); } catch (_) {}
           });
         });
       } catch (_) {}

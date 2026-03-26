@@ -490,6 +490,20 @@ a:active {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.92);
+  opacity: 0;
+  transition: opacity 0.26s ease;
+}
+
+.photo-modal.photo-modal-open .photo-modal-backdrop {
+  opacity: 1;
+}
+
+.photo-modal.hero-animating .photo-modal-backdrop {
+  opacity: 1;
+}
+
+.photo-modal.hero-animating .photo-modal-img {
+  opacity: 0;
 }
 
 .photo-modal-close {
@@ -539,6 +553,15 @@ a:active {
   transform: translate3d(0, 0, 0) scale(1);
   transform-origin: center center;
   will-change: transform;
+}
+
+.photo-hero-clone {
+  position: fixed;
+  z-index: 12001;
+  border-radius: 0;
+  object-fit: contain;
+  background: #242424;
+  will-change: transform, width, height, left, top, opacity;
 }
 
 .preset-detail-dots {
