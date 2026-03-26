@@ -637,9 +637,14 @@ function appendOwnerChatMessages(messages, options) {
       ? String(m.fromUsername).trim().replace(/^@/, '')
       : '';
 
-    const displayName = isMe
+    let displayName = isMe
       ? (m.fromRole === 'owner' ? 'Вы' : (fromUsernameClean || 'Вы'))
       : (fromUsernameClean || (m.fromRole === 'owner' ? 'Владелец' : 'Пользователь'));
+
+    // Для пользователей скрываем мой @username в чате: вместо него показываем "менеджер".
+    if (!isMe && m.fromRole === 'owner') {
+      displayName = 'менеджер';
+    }
 
     const initials = (function () {
       const s = String(fromUsernameClean || displayName || '').trim();
