@@ -637,30 +637,20 @@ function appendOwnerChatMessages(messages, options) {
       ? String(m.fromUsername).trim().replace(/^@/, '')
       : '';
 
-    // Для сообщений текущего пользователя всегда показываем "Вы",
-    // чтобы его @username не всплывал в UI.
-    let displayName = isMe
-      ? 'Вы'
-      : (fromUsernameClean || (m.fromRole === 'owner' ? 'Владелец' : 'Пользователь'));
-
-    if (isMe) {
-      fromUsernameClean = '';
-    }
-
-    // Для пользователей скрываем мой @username в чате: вместо него показываем "Менеджер".
-    // Также принудительно делаем аватарку "М", чтобы не зависеть от приходящего username.
-    if (!isMe && m.fromRole === 'owner') {
-      displayName = 'Менеджер';
-      fromUsernameClean = '';
-    }
+    // В чате показываем только системные подписи:
+    // - когда пишет текущий пользователь: "Вы"
+    // - когда пишет владелец/менеджер: "Менеджер"
+    // Так мы гарантируем, что username нигде не отображается.
+    let displayName = isMe ? 'Вы' : 'Вы';
+    fromUsernameClean = '';
+    if (!isMe && m.fromRole === 'owner') displayName = 'Менеджер';
 
     const initials = (function () {
+      if (displayName === 'Менеджер') return 'М';
+      if (displayName === 'Вы') return 'В';
       const s = String(fromUsernameClean || displayName || '').trim();
       if (!s) return '?';
-      const parts = s.split(/\s+/);
-      const first = (parts[0] && parts[0][0]) ? parts[0][0] : s[0];
-      const last = (parts.length > 1 && parts[parts.length - 1][0]) ? parts[parts.length - 1][0] : (s.length > 1 ? s[1] : '');
-      return (first + last).toUpperCase();
+      return s[0].toUpperCase();
     })();
 
     const row = document.createElement('div');
