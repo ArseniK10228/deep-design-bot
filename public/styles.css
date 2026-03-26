@@ -372,7 +372,7 @@ a:active {
   backdrop-filter: blur(12px);
 }
 
-@keyframes preset-header-down {
+@keyframes preset-header-up {
   from {
     transform: translateX(-50%) translateY(-10px);
     opacity: 0;
@@ -1645,7 +1645,7 @@ a:active {
 
 #view-preset-detail .preset-detail-image-wrap { animation-delay: 0.06s; }
 #view-preset-detail .page-header {
-  animation: preset-header-down 0.34s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+  animation: preset-header-up 0.34s cubic-bezier(0.2, 0.9, 0.2, 1) both;
   animation-delay: 0.04s;
 }
 #view-preset-detail .preset-detail-title { animation-delay: 0.10s; }
