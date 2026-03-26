@@ -1900,10 +1900,14 @@ var photoHeroFromRect = null;
 var photoHeroToRect = null;
 var photoHeroSourceEl = null;
 
-function setPhotoUiDimmed(enabled) {
+function setPhotoUiLocked(locked) {
   try {
     var appEl = document.querySelector('.app');
-    if (appEl) appEl.classList.toggle('app--photo-open-dim', !!enabled);
+    if (appEl) appEl.classList.toggle('photo-ui-locked', !!locked);
+  } catch (_) {}
+  try {
+    var tabbarEl = document.querySelector('.app-tabbar');
+    if (tabbarEl) tabbarEl.classList.toggle('photo-ui-locked', !!locked);
   } catch (_) {}
 }
 
@@ -1955,7 +1959,7 @@ function openPhotoModal(src) {
   if (!photoModalEl || !photoModalImgEl || !photoModalScrollerEl) return;
   var url = (src || '').trim();
   if (!url) return;
-  try { setPhotoUiDimmed(true); } catch (_) {}
+  try { setPhotoUiLocked(true); } catch (_) {}
   photoModalImgEl.src = url;
   photoModalEl.classList.add('photo-modal-open');
   photoModalEl.setAttribute('aria-hidden', 'false');
@@ -1999,11 +2003,11 @@ function openPhotoModalHero(fromImgEl) {
     }
   } catch (_) {}
   if (!fromPixelRect) fromPixelRect = fromRect;
-  try { setPhotoUiDimmed(true); } catch (_) {}
 
   // Open modal; hide real image until hero finishes
   photoHeroFromRect = fromPixelRect;
   photoHeroToRect = null;
+  try { setPhotoUiLocked(true); } catch (_) {}
   // Hide the source image while the hero clone is visible (avoid double image).
   try {
     photoHeroSourceEl = fromImgEl;
@@ -2177,7 +2181,7 @@ function closePhotoModalHero() {
     photoModalEl.classList.remove('hero-animating');
     try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
     try { document.body.classList.remove('photo-hero-closing'); } catch (_) {}
-    try { setPhotoUiDimmed(false); } catch (_) {}
+    try { setPhotoUiLocked(false); } catch (_) {}
     photoModalEl.classList.remove('photo-modal-open');
     photoModalEl.setAttribute('aria-hidden', 'true');
     try { photoModalImgEl.src = ''; } catch (_) {}
@@ -2201,7 +2205,7 @@ function closePhotoModal() {
   photoModalEl.classList.remove('photo-modal-open');
   try { photoModalEl.classList.remove('photo-modal-closing'); } catch (_) {}
   try { document.body.classList.remove('photo-hero-closing'); } catch (_) {}
-  try { setPhotoUiDimmed(false); } catch (_) {}
+  try { setPhotoUiLocked(false); } catch (_) {}
   photoModalEl.setAttribute('aria-hidden', 'true');
   try { photoModalImgEl.src = ''; } catch (_) {}
   try { photoZoomReset(); } catch (_) {}
