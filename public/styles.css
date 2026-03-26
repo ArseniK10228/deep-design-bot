@@ -2233,6 +2233,18 @@ a:active {
   transform-origin: bottom left;
 }
 
+#view-consult .chat-msg-row.chat-msg-row--animate-in.chat-msg-row--fade-only {
+  opacity: 0;
+  transform: none;
+  transform-origin: bottom right;
+  animation: chat-msg-enter-me-fade 0.36s cubic-bezier(0.2, 0.82, 0.22, 1) forwards;
+}
+
+#view-consult .chat-msg-row.chat-msg-row--animate-in.chat-msg-row--fade-only.chat-msg-row-them {
+  transform-origin: bottom left;
+  animation-name: chat-msg-enter-them-fade;
+}
+
 @keyframes chat-msg-enter-me {
   from {
     opacity: 0;
@@ -2241,6 +2253,28 @@ a:active {
   to {
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes chat-msg-enter-me-fade {
+  from {
+    opacity: 0;
+    transform: none;
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes chat-msg-enter-them-fade {
+  from {
+    opacity: 0;
+    transform: none;
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 

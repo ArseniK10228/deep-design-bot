@@ -564,7 +564,7 @@ function ownerChatWsEnsure() {
       const last = data.messages[data.messages.length - 1];
       if (last && last.id != null) ownerChatLastSeenId = Number(last.id || ownerChatLastSeenId);
       if (ownerChatInitialWsBatches > 0) {
-        appendOwnerChatMessages(data.messages, { animate: false });
+        appendOwnerChatMessages(data.messages, { animate: true, instantScroll: true, fadeOnly: true });
         ownerChatInitialWsBatches--;
       } else {
         appendOwnerChatMessages(data.messages);
@@ -673,6 +673,8 @@ function clearOwnerChatMessages() {
 function appendOwnerChatMessages(messages, options) {
   if (!ownerChatMessagesEl) return;
   const animateIn = !options || options.animate !== false;
+  const instantScroll = !!(options && options.instantScroll);
+  const fadeOnly = !!(options && options.fadeOnly);
   const meId = viewerId ? String(viewerId) : '';
 
   messages.forEach((m, idx) => {
@@ -746,6 +748,7 @@ function appendOwnerChatMessages(messages, options) {
 
     if (animateIn) {
       row.classList.add('chat-msg-row--animate-in');
+      if (fadeOnly) row.classList.add('chat-msg-row--fade-only');
       row.style.animationDelay = Math.min(idx, 8) * 0.035 + 's';
     }
 
@@ -755,8 +758,10 @@ function appendOwnerChatMessages(messages, options) {
   requestAnimationFrame(function () {
     requestAnimationFrame(function () {
       if (!ownerChatAutoScrollEnabled) return;
-      if (animateIn) scrollOwnerChatToBottomSmooth();
-      else scrollOwnerChatToBottom();
+      if (animateIn) {
+        if (instantScroll) scrollOwnerChatToBottom();
+        else scrollOwnerChatToBottomSmooth();
+      } else scrollOwnerChatToBottom();
     });
   });
 }
@@ -881,8 +886,9 @@ async function loadOwnerChatMessages({ reset } = { reset: false }) {
   if (data.messages.length === 0) return;
 
   ownerChatLastSeenId = Number(data.messages[data.messages.length - 1].id || sinceId);
-  /* Первая подгрузка истории — без анимации; догрузка новых (reset: false) — с анимацией. */
-  appendOwnerChatMessages(data.messages, { animate: !reset });
+  // При открытии чата делаем плавное "загорание" всех сообщений,
+  // но скролл внизу — без smooth, чтобы не было лишних перемещений.
+  appendOwnerChatMessages(data.messages, { animate: true, instantScroll: !!reset, fadeOnly: !!reset });
 }
 
 let ownerChatSelectedDisplayName = '';
