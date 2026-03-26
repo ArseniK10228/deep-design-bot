@@ -499,6 +499,10 @@ a:active {
   opacity: 1;
 }
 
+.photo-modal.photo-modal-closing .photo-modal-backdrop {
+  opacity: 0;
+}
+
 .photo-modal.hero-animating .photo-modal-backdrop {
   opacity: 1;
 }
@@ -524,6 +528,12 @@ a:active {
   justify-content: center;
   cursor: pointer;
   z-index: 1;
+  opacity: 1;
+  transition: opacity 0.26s ease;
+}
+
+.photo-modal.photo-modal-closing .photo-modal-close {
+  opacity: 0;
 }
 
 .photo-modal-close:active {
