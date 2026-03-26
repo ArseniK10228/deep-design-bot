@@ -2224,8 +2224,9 @@ a:active {
 /* Появление новых сообщений (как в Telegram): лёгкий сдвиг + fade + scale */
 #view-consult .chat-msg-row.chat-msg-row--animate-in {
   opacity: 0;
-  animation: chat-msg-enter-me 0.78s cubic-bezier(0.08, 0.92, 0.12, 1) forwards;
+  animation: chat-msg-enter-me 0.58s cubic-bezier(0.16, 0.9, 0.22, 1) forwards;
   transform-origin: bottom right;
+  will-change: transform, opacity;
 }
 
 #view-consult .chat-msg-row.chat-msg-row--animate-in.chat-msg-row-them {
@@ -2237,24 +2238,27 @@ a:active {
   opacity: 0;
   transform: none;
   transform-origin: bottom right;
-  animation: chat-msg-enter-me-fade 0.72s cubic-bezier(0.08, 0.92, 0.12, 1) forwards;
+  animation: chat-msg-enter-me-fade 0.44s cubic-bezier(0.16, 0.9, 0.22, 1) forwards;
+  will-change: opacity;
 }
 
 #view-consult .chat-msg-row.chat-msg-row--animate-in.chat-msg-row--fade-only.chat-msg-row-them {
   transform-origin: bottom left;
   animation-name: chat-msg-enter-them-fade;
+  will-change: opacity;
 }
 
 #view-consult .chat-msg-row.chat-msg-row--send-in {
   opacity: 0;
   transform-origin: bottom right;
-  animation: chat-msg-enter-me-send 0.36s cubic-bezier(0.16, 0.9, 0.2, 1) both;
+  animation: chat-msg-enter-me-send 0.46s cubic-bezier(0.16, 0.9, 0.22, 1) both;
+  will-change: transform, opacity;
 }
 
 @keyframes chat-msg-enter-me {
   from {
     opacity: 0;
-    transform: translate3d(0, 2px, 0) scale(0.997);
+    transform: translate3d(0, 1px, 0) scale(0.992);
   }
   to {
     opacity: 1;
@@ -2265,7 +2269,7 @@ a:active {
 @keyframes chat-msg-enter-me-send {
   from {
     opacity: 0;
-    transform: translate3d(0, 14px, 0) scale(0.98);
+    transform: translate3d(0, 10px, 0) scale(0.992);
   }
   to {
     opacity: 1;
@@ -2298,7 +2302,7 @@ a:active {
 @keyframes chat-msg-enter-them {
   from {
     opacity: 0;
-    transform: translate3d(0, 2px, 0) scale(0.997);
+    transform: translate3d(0, 1px, 0) scale(0.992);
   }
   to {
     opacity: 1;
@@ -2429,7 +2433,7 @@ html.html--chat-open body {
   flex: 1;
   min-height: 0;
   padding: 12px 4px 8px;
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   -webkit-overflow-scrolling: touch;
   position: relative;
 }
