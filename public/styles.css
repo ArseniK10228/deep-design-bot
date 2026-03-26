@@ -483,11 +483,6 @@ a:active {
   display: none;
 }
 
-.photo-modal.photo-modal-under-panels {
-  /* Under header (9050) and bottom bar (9000) */
-  z-index: 8000;
-}
-
 .photo-modal.photo-modal-open {
   display: block;
 }
@@ -499,11 +494,6 @@ a:active {
   background: #242424;
   opacity: 0;
   transition: opacity 0.26s ease;
-}
-
-.photo-modal.photo-modal-under-panels .photo-modal-backdrop {
-  top: var(--photo-modal-top, 0px);
-  bottom: var(--photo-modal-bottom, 0px);
 }
 
 .photo-modal.photo-modal-open .photo-modal-backdrop {
@@ -544,10 +534,6 @@ a:active {
   transition: opacity 0.26s ease;
 }
 
-.photo-modal.photo-modal-under-panels .photo-modal-close {
-  top: calc(var(--photo-modal-top, 0px) + 12px);
-}
-
 .photo-modal.photo-modal-closing .photo-modal-close {
   opacity: 0;
   transition-duration: 0.08s;
@@ -569,19 +555,6 @@ a:active {
   background: #242424;
 }
 
-.photo-modal.photo-modal-under-panels .photo-modal-scroller {
-  top: var(--photo-modal-top, 0px);
-  bottom: var(--photo-modal-bottom, 0px);
-}
-
-/* Keep header visible but disabled while photo is open */
-#view-preset-detail.photo-panels-dim-header .page-header {
-  filter: brightness(0.7);
-  pointer-events: none;
-}
-
-/* Bottom bar stays in its прежнем состоянии (visible/clickable) */
-
 /* When closing: show underlying UI immediately */
 .photo-modal.photo-modal-closing {
   pointer-events: none;
@@ -594,10 +567,6 @@ a:active {
 }
 
 .photo-hero-closing .photo-hero-clone {
-  z-index: 8001;
-}
-
-body.photo-hero-under-panels .photo-hero-clone {
   z-index: 8001;
 }
 
