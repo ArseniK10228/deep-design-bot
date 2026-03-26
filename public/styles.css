@@ -366,7 +366,8 @@ a:active {
   transform: translateX(-50%);
   width: min(480px, 100vw);
   box-sizing: border-box;
-  z-index: 9050;
+  /* Must stay above photo modal and hero clone */
+  z-index: 300000;
   padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px;
   background: rgba(18, 18, 18, 0.94);
   backdrop-filter: blur(12px);
@@ -478,8 +479,8 @@ a:active {
 .photo-modal {
   position: fixed;
   inset: 0;
-  /* Below announcement header (z-index: 9050), but above bottom bar (9000) */
-  z-index: 9010;
+  /* Above any fixed headers/sheets */
+  z-index: 200000;
   display: none;
 }
 
@@ -493,8 +494,8 @@ a:active {
   right: 0;
   bottom: var(--photo-modal-bottom, 0px);
   left: 0;
-  /* Keep interface visible, but dimmed */
-  background: rgba(0, 0, 0, 0.58);
+  /* Делаем фон таким же, как у фото в карусели (серые поля по краям). */
+  background: #242424;
   opacity: 0;
   transition: opacity 0.26s ease;
 }
@@ -558,7 +559,7 @@ a:active {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
+  background: #242424;
 }
 
 /* When closing: show underlying UI immediately */
@@ -593,8 +594,7 @@ a:active {
 
 .photo-hero-clone {
   position: fixed;
-  /* Keep clone below announcement header as well */
-  z-index: 9040;
+  z-index: 200001;
   border-radius: 0;
   /* Clone box already matches the contain pixel bounds, so fill avoids double letterboxing. */
   object-fit: fill;
